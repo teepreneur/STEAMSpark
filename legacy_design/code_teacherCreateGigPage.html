@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Create Gig - STEAM Spark</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#3899fa",
+                        "background-light": "#f5f7f8",
+                        "background-dark": "#0f1923",
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#1a2633",
+                        "border-light": "#dbe0e6",
+                        "border-dark": "#2d3b4a",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: "Space Grotesk", sans-serif;
+        }.no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-[#111418] dark:text-white transition-colors duration-200">
+<div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
+<header class="sticky top-0 z-50 flex items-center justify-between border-b border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark px-6 py-3 shadow-sm lg:px-10">
+<div class="flex items-center gap-4">
+<div class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+<span class="material-symbols-outlined text-3xl">bolt</span>
+</div>
+<h2 class="text-xl font-bold leading-tight tracking-tight text-[#111418] dark:text-white">STEAM Spark</h2>
+</div>
+<nav class="hidden md:flex items-center gap-8 font-medium text-sm text-[#111418] dark:text-gray-200">
+<a class="hover:text-primary transition-colors" href="#">Dashboard</a>
+<a class="text-primary font-bold" href="#">My Gigs</a>
+<a class="hover:text-primary transition-colors" href="#">Students</a>
+<a class="hover:text-primary transition-colors" href="#">Earnings</a>
+</nav>
+<div class="flex items-center gap-4">
+<button class="flex h-10 w-10 items-center justify-center rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+<span class="material-symbols-outlined text-[#111418] dark:text-white">notifications</span>
+</button>
+<button class="flex h-10 w-10 items-center justify-center rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+<span class="material-symbols-outlined text-[#111418] dark:text-white">chat_bubble</span>
+</button>
+<div class="h-10 w-10 rounded-full bg-cover bg-center border-2 border-white dark:border-gray-700 shadow-sm cursor-pointer" data-alt="Teacher profile portrait" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBEkAyrxbmpolgSfgkc-JFyDHjbzq-IoaceH3oV2GiO0am2gHLiivCbe8eZfEoc6Zfs2DDxVJVy8azZTfem4bv5kkLpVEIXRhWizFQvpdgMSVebuAJ3FPmO0yHuHsYiwah2VfyBGAQhx15TQSJqweOomTLdnOoI-k1yVn2c_ABtB6FD2X3lsV0llUAMWnj1D4y1DFmFVg5z4ccpwdb3UFAntONMwgYVg02e5mxb83Oas9xlp1ewB4jltCIxH2URq8jSSfmxzJmrZ8XG');">
+</div>
+</div>
+</header>
+<main class="flex-1 w-full max-w-7xl mx-auto px-4 py-8 lg:px-8">
+<div class="mb-6 flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+<button class="flex items-center gap-1 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-lg">arrow_back</span>
+                    Back to Dashboard
+                </button>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<div class="lg:col-span-8 flex flex-col gap-6">
+<div>
+<h1 class="text-3xl lg:text-4xl font-black leading-tight tracking-tight mb-2">Create a New Gig</h1>
+<p class="text-gray-500 dark:text-gray-400 text-lg">Share your expertise and inspire the next generation of creators.</p>
+</div>
+<div class="flex flex-col gap-2">
+<div class="flex justify-between items-end">
+<span class="text-primary font-bold text-sm uppercase tracking-wider">Step 1 of 4</span>
+<span class="text-gray-400 dark:text-gray-500 text-sm font-medium">Basics</span>
+</div>
+<div class="h-2 w-full rounded-full bg-border-light dark:bg-border-dark overflow-hidden">
+<div class="h-full w-1/4 bg-primary rounded-full"></div>
+</div>
+<div class="hidden sm:flex justify-between text-xs font-medium text-gray-400 mt-1">
+<span class="text-primary">Overview</span>
+<span>Curriculum</span>
+<span>Pricing</span>
+<span>Availability</span>
+</div>
+</div>
+<div class="bg-surface-light dark:bg-surface-dark rounded-2xl border border-border-light dark:border-border-dark shadow-sm overflow-hidden">
+<div class="p-6 md:p-8 flex flex-col gap-8">
+<div class="flex flex-col gap-6">
+<h3 class="text-xl font-bold flex items-center gap-2">
+<span class="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary text-sm">1</span>
+                                    Gig Overview
+                                </h3>
+<div class="flex flex-col gap-2">
+<label class="font-medium text-[#111418] dark:text-white">Gig Title</label>
+<input class="w-full rounded-xl border border-border-light dark:border-border-dark bg-white dark:bg-gray-800 px-4 py-3 text-base outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all dark:text-white placeholder-gray-400" placeholder="e.g., Intro to Robotics with Python" type="text"/>
+<p class="text-xs text-gray-500">Keep it short and catchy. Max 60 characters.</p>
+</div>
+<div class="flex flex-col gap-2">
+<label class="font-medium text-[#111418] dark:text-white">Primary Subject</label>
+<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+<label class="cursor-pointer group relative">
+<input class="peer sr-only" name="subject" type="radio"/>
+<div class="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border-2 border-transparent bg-background-light dark:bg-gray-800 hover:bg-primary/5 transition-all peer-checked:border-primary peer-checked:bg-primary/5">
+<span class="material-symbols-outlined text-3xl text-gray-500 group-hover:text-primary peer-checked:text-primary transition-colors">science</span>
+<span class="text-sm font-semibold text-gray-600 dark:text-gray-300 group-hover:text-primary peer-checked:text-primary text-center">Science</span>
+</div>
+</label>
+<label class="cursor-pointer group relative">
+<input class="peer sr-only" name="subject" type="radio"/>
+<div class="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border-2 border-transparent bg-background-light dark:bg-gray-800 hover:bg-primary/5 transition-all peer-checked:border-primary peer-checked:bg-primary/5">
+<span class="material-symbols-outlined text-3xl text-gray-500 group-hover:text-primary peer-checked:text-primary transition-colors">smart_toy</span>
+<span class="text-sm font-semibold text-gray-600 dark:text-gray-300 group-hover:text-primary peer-checked:text-primary text-center">Tech</span>
+</div>
+</label>
+<label class="cursor-pointer group relative">
+<input checked="" class="peer sr-only" name="subject" type="radio"/>
+<div class="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border-2 border-transparent bg-background-light dark:bg-gray-800 hover:bg-primary/5 transition-all peer-checked:border-primary peer-checked:bg-primary/5">
+<span class="material-symbols-outlined text-3xl text-gray-500 group-hover:text-primary peer-checked:text-primary transition-colors">engineering</span>
+<span class="text-sm font-semibold text-gray-600 dark:text-gray-300 group-hover:text-primary peer-checked:text-primary text-center">Engineer</span>
+</div>
+</label>
+<label class="cursor-pointer group relative">
+<input class="peer sr-only" name="subject" type="radio"/>
+<div class="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border-2 border-transparent bg-background-light dark:bg-gray-800 hover:bg-primary/5 transition-all peer-checked:border-primary peer-checked:bg-primary/5">
+<span class="material-symbols-outlined text-3xl text-gray-500 group-hover:text-primary peer-checked:text-primary transition-colors">palette</span>
+<span class="text-sm font-semibold text-gray-600 dark:text-gray-300 group-hover:text-primary peer-checked:text-primary text-center">Arts</span>
+</div>
+</label>
+<label class="cursor-pointer group relative">
+<input class="peer sr-only" name="subject" type="radio"/>
+<div class="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border-2 border-transparent bg-background-light dark:bg-gray-800 hover:bg-primary/5 transition-all peer-checked:border-primary peer-checked:bg-primary/5">
+<span class="material-symbols-outlined text-3xl text-gray-500 group-hover:text-primary peer-checked:text-primary transition-colors">calculate</span>
+<span class="text-sm font-semibold text-gray-600 dark:text-gray-300 group-hover:text-primary peer-checked:text-primary text-center">Math</span>
+</div>
+</label>
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<label class="font-medium text-[#111418] dark:text-white">Tags</label>
+<div class="flex flex-wrap items-center gap-2 p-2 rounded-xl border border-border-light dark:border-border-dark bg-white dark:bg-gray-800 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all">
+<span class="bg-primary/10 text-primary px-3 py-1 rounded-lg text-sm font-medium flex items-center gap-1">
+                                            Robotics
+                                            <button class="hover:text-red-500"><span class="material-symbols-outlined text-sm">close</span></button>
+</span>
+<span class="bg-primary/10 text-primary px-3 py-1 rounded-lg text-sm font-medium flex items-center gap-1">
+                                            Coding
+                                            <button class="hover:text-red-500"><span class="material-symbols-outlined text-sm">close</span></button>
+</span>
+<input class="flex-1 bg-transparent border-none outline-none text-sm min-w-[120px] dark:text-white placeholder-gray-400" placeholder="Type and press Enter..." type="text"/>
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<label class="font-medium text-[#111418] dark:text-white">Class Structure</label>
+<div class="p-4 rounded-xl border border-border-light dark:border-border-dark bg-background-light dark:bg-gray-800/30 flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<div class="flex flex-col gap-0.5">
+<span class="font-bold text-sm text-[#111418] dark:text-white">Enable Group Classes</span>
+<span class="text-xs text-gray-500 dark:text-gray-400">Allow multiple students to join a single session</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
+</label>
+</div>
+<div class="flex items-center gap-4 pt-3 border-t border-border-light dark:border-border-dark">
+<div class="flex flex-col gap-1">
+<label class="text-xs font-bold uppercase tracking-wider text-gray-500">Max Students</label>
+<div class="flex items-center">
+<button class="w-9 h-9 flex items-center justify-center rounded-l-lg border border-r-0 border-border-light dark:border-border-dark bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors">
+<span class="material-symbols-outlined text-base">remove</span>
+</button>
+<input class="w-12 h-9 border-y border-border-light dark:border-border-dark bg-white dark:bg-gray-800 text-center text-sm font-bold outline-none focus:ring-0 text-[#111418] dark:text-white appearance-none" placeholder="5" type="number" value="5"/>
+<button class="w-9 h-9 flex items-center justify-center rounded-r-lg border border-l-0 border-border-light dark:border-border-dark bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors">
+<span class="material-symbols-outlined text-base">add</span>
+</button>
+</div>
+</div>
+<div class="flex-1 pl-2 text-xs text-gray-500 dark:text-gray-400 leading-relaxed border-l-2 border-primary/20">
+                                                Set the maximum number of students allowed per session. Smaller groups (3-5) typically yield higher engagement ratings.
+                                            </div>
+</div>
+</div>
+</div>
+</div>
+<hr class="border-border-light dark:border-border-dark"/>
+<div class="flex flex-col gap-6">
+<h3 class="text-xl font-bold flex items-center gap-2">
+<span class="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary text-sm">2</span>
+                                    Details &amp; Media
+                                </h3>
+<div class="flex flex-col gap-2">
+<label class="font-medium text-[#111418] dark:text-white">Description</label>
+<div class="rounded-xl border border-border-light dark:border-border-dark overflow-hidden bg-white dark:bg-gray-800 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all">
+<div class="flex items-center gap-1 p-2 bg-gray-50 dark:bg-gray-900 border-b border-border-light dark:border-border-dark">
+<button class="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300"><span class="material-symbols-outlined text-xl">format_bold</span></button>
+<button class="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300"><span class="material-symbols-outlined text-xl">format_italic</span></button>
+<button class="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300"><span class="material-symbols-outlined text-xl">format_underlined</span></button>
+<div class="w-px h-4 bg-gray-300 dark:bg-gray-600 mx-1"></div>
+<button class="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300"><span class="material-symbols-outlined text-xl">format_list_bulleted</span></button>
+<button class="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300"><span class="material-symbols-outlined text-xl">link</span></button>
+</div>
+<textarea class="w-full p-4 bg-transparent border-none outline-none resize-none dark:text-white" placeholder="Describe what students will learn..." rows="6"></textarea>
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<label class="font-medium text-[#111418] dark:text-white">Cover Image or Video</label>
+<div class="relative group cursor-pointer flex flex-col items-center justify-center w-full h-48 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600 hover:border-primary hover:bg-primary/5 transition-all bg-gray-50 dark:bg-gray-800/50">
+<div class="flex flex-col items-center gap-2 text-center p-4">
+<div class="h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-primary mb-1 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-2xl">cloud_upload</span>
+</div>
+<p class="text-sm font-semibold text-gray-700 dark:text-gray-200">Click to upload or drag and drop</p>
+<p class="text-xs text-gray-500">SVG, PNG, JPG or GIF (max. 3MB)</p>
+</div>
+<input class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" type="file"/>
+</div>
+</div>
+</div>
+<div class="flex flex-col-reverse sm:flex-row items-center justify-between gap-4 pt-4 border-t border-border-light dark:border-border-dark">
+<button class="w-full sm:w-auto px-6 py-3 rounded-xl font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                                    Save as Draft
+                                </button>
+<button class="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-3 rounded-xl font-bold bg-primary hover:bg-blue-600 text-white shadow-lg shadow-blue-500/30 transition-all transform hover:-translate-y-0.5">
+                                    Next: Curriculum
+                                    <span class="material-symbols-outlined text-lg">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<div class="lg:col-span-4 flex flex-col gap-6">
+<div class="sticky top-24 flex flex-col gap-6">
+<div class="flex items-center justify-between">
+<h3 class="font-bold text-gray-500 dark:text-gray-400 text-sm uppercase tracking-wider">Student Preview</h3>
+<span class="text-xs text-primary font-medium cursor-pointer hover:underline">View Full Page</span>
+</div>
+<div class="bg-surface-light dark:bg-surface-dark rounded-2xl border border-border-light dark:border-border-dark shadow-sm overflow-hidden flex flex-col">
+<div class="h-48 w-full bg-cover bg-center relative" data-alt="Robotics workshop generic cover image" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCYjRKGX_c0sFZ0qGKU1uLaxwUBR7klxYGcQThxXLqcyArVplpDAJs5XVJry0w52_qgt046LGrmyV84q7QhwdEhROHVO733cnxNHZ7H9BJE1bmRTHWt33iHkPXQ1UIsuxAWALv8__BNvkkTIiqyi7xLncbWPUcpKDl-lVkKrFwEFO5skEH76pOZ1ilIub72Bl7DmLg67CqUJ0tc2JJc7TvhNS_PfRJCn7uu8uOs3F6a3XkP94icthEsSRwtxz4MBrvWmbYnyntD1Vft');">
+<div class="absolute top-3 right-3 bg-white/90 dark:bg-black/80 px-2 py-1 rounded-lg text-xs font-bold shadow-sm backdrop-blur-sm">
+                                    $45/hr
+                                </div>
+</div>
+<div class="p-4 flex flex-col gap-3">
+<div class="flex items-start justify-between gap-2">
+<h4 class="font-bold text-lg leading-tight line-clamp-2">Intro to Robotics with Python</h4>
+<div class="flex items-center gap-1 text-yellow-500 text-xs font-bold whitespace-nowrap bg-yellow-500/10 px-1.5 py-0.5 rounded">
+<span class="material-symbols-outlined text-sm">star</span>
+<span>NEW</span>
+</div>
+</div>
+<div class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+<div class="h-6 w-6 rounded-full bg-cover bg-center" data-alt="Teacher small avatar" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuC6TersdrFbShUZcD9Wyvm74eOICVGonf4APvqnKqWfOtD6iD-j-R03TdrPvKvGtzxxocXimQPByrQ7G8dElwr1aeW4La1UrHy6-6YmmlfzMsOWiyxv_tjRk48CewVKjJHCi32ou_bUuYdNR0GI8GfgwHHp6WPzMSfFg4uBHmhqYEIlo1hn15cDE-TVkMRw9_lrRxr0eXKDgIEcZxt6xMek2haDteaKB3HUJWh7a8TCSK5QuvyMVCev50blg00SGM7Qa_WDW1pKXqB0');"></div>
+<span class="truncate">Sarah Jenkings</span>
+</div>
+<div class="flex gap-2 flex-wrap">
+<span class="text-[10px] font-semibold bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-1 rounded-md">Engineering</span>
+<span class="text-[10px] font-semibold bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-1 rounded-md">Beginner</span>
+</div>
+</div>
+</div>
+<div class="bg-blue-50 dark:bg-blue-900/20 rounded-2xl p-5 border border-blue-100 dark:border-blue-800/50">
+<div class="flex gap-3">
+<span class="material-symbols-outlined text-primary">lightbulb</span>
+<div class="flex flex-col gap-1">
+<h4 class="font-bold text-primary text-sm">Pro Tip</h4>
+<p class="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
+                                        Gigs with a specific outcome in the title (e.g., "Build your first robot") get <span class="font-bold">2x more clicks</span> than generic titles.
+                                    </p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

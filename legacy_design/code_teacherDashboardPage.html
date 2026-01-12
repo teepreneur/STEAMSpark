@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>STEAM Spark - Teacher Dashboard</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#258cf4",
+                        "background-light": "#f5f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<!-- Google Fonts: Lexend -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        body {
+            font-family: 'Lexend', sans-serif;
+        }
+        /* Custom scrollbar for better aesthetics */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: #334155; 
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-[#111418] dark:text-white overflow-hidden h-screen flex">
+<!-- Sidebar -->
+<aside class="w-64 bg-white dark:bg-[#1a2632] border-r border-[#e5e7eb] dark:border-[#2a3845] flex flex-col hidden md:flex shrink-0">
+<div class="p-6">
+<div class="flex items-center gap-3 mb-8">
+<div class="bg-primary/10 flex items-center justify-center rounded-xl size-10 shrink-0">
+<span class="material-symbols-outlined text-primary text-2xl">science</span>
+</div>
+<div class="flex flex-col">
+<h1 class="text-lg font-bold leading-tight tracking-tight">STEAM Spark</h1>
+<p class="text-[#60758a] dark:text-[#94a3b8] text-xs font-normal">Teacher Portal</p>
+</div>
+</div>
+<nav class="flex flex-col gap-2">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary dark:bg-primary/20" href="#">
+<span class="material-symbols-outlined filled" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="text-sm font-semibold">Home</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#60758a] hover:bg-gray-50 dark:text-[#94a3b8] dark:hover:bg-[#2a3845] transition-colors" href="#">
+<span class="material-symbols-outlined">calendar_month</span>
+<span class="text-sm font-medium">Calendar</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#60758a] hover:bg-gray-50 dark:text-[#94a3b8] dark:hover:bg-[#2a3845] transition-colors" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="text-sm font-medium">Students</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#60758a] hover:bg-gray-50 dark:text-[#94a3b8] dark:hover:bg-[#2a3845] transition-colors" href="#">
+<span class="material-symbols-outlined">folder_open</span>
+<span class="text-sm font-medium">Materials</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#60758a] hover:bg-gray-50 dark:text-[#94a3b8] dark:hover:bg-[#2a3845] transition-colors" href="#">
+<span class="material-symbols-outlined">monetization_on</span>
+<span class="text-sm font-medium">Earnings</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#60758a] hover:bg-gray-50 dark:text-[#94a3b8] dark:hover:bg-[#2a3845] transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-sm font-medium">Settings</span>
+</a>
+</nav>
+</div>
+<div class="mt-auto p-6 border-t border-[#e5e7eb] dark:border-[#2a3845]">
+<button class="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg h-10 px-4 bg-gray-100 hover:bg-gray-200 dark:bg-[#2a3845] dark:hover:bg-[#374756] text-[#111418] dark:text-white text-sm font-bold transition-colors">
+<span class="material-symbols-outlined text-[20px]">logout</span>
+<span class="truncate">Log Out</span>
+</button>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col h-full relative overflow-y-auto">
+<!-- Mobile Header -->
+<div class="md:hidden flex items-center justify-between p-4 bg-white dark:bg-[#1a2632] border-b border-[#e5e7eb] dark:border-[#2a3845]">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">science</span>
+<span class="font-bold">STEAM Spark</span>
+</div>
+<button class="text-[#60758a] dark:text-[#94a3b8]">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</div>
+<div class="flex-1 max-w-[1200px] w-full mx-auto p-4 md:p-8 flex flex-col gap-6">
+<!-- Header Image Banner -->
+<div class="w-full">
+<div class="bg-cover bg-center flex flex-col justify-end overflow-hidden rounded-2xl min-h-[180px] md:min-h-[220px] shadow-sm relative group" data-alt="Abstract vibrant gradient background with educational patterns" style='background-image: linear-gradient(0deg, rgba(37, 140, 244, 0.9) 0%, rgba(37, 140, 244, 0.4) 100%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuALJj2ACkIxEkz38haw3pNfzRYIYk04ohvM6S2BDuBHdGlZfMZJ-P1a-KfSpCzeeefBV6dGM-RH9xia_lxPwJUbkd33v_X6Wu0QhGCWBRheDgGXoQR6UojPtl7pB6CTuiFeBGR29cnl2UPytZ4fmIOVA1jlPZg4yHfolx1zn48azL5myajRXHYFxnA73oqVD-E0TnwTjWjw5goSZfbDCiBBqzyhokMLckA0QurdKTWMEfoqK1e-cLku9mqtoXrboYWpJ2bbqprywa5B");'>
+<div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-20"></div>
+<div class="flex flex-col md:flex-row md:items-end justify-between p-6 md:p-8 relative z-10">
+<div class="flex flex-col gap-2">
+<span class="bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-white text-xs font-bold w-fit uppercase tracking-wider">Teacher Dashboard</span>
+<h1 class="text-white text-2xl md:text-4xl font-bold leading-tight">Welcome back, Professor Smith!</h1>
+<p class="text-white/90 text-sm md:text-base font-medium">You have 2 upcoming sessions today.</p>
+</div>
+<div class="mt-4 md:mt-0 flex gap-3">
+<button class="bg-white text-primary hover:bg-gray-100 px-4 py-2 rounded-lg text-sm font-bold shadow-lg transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                                Create Gig
+                            </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Stats Row -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+<div class="bg-white dark:bg-[#1a2632] rounded-xl p-5 border border-[#e5e7eb] dark:border-[#2a3845] shadow-sm flex flex-col gap-1">
+<div class="flex items-center justify-between">
+<p class="text-[#60758a] dark:text-[#94a3b8] text-sm font-medium">Total Earnings (Month)</p>
+<span class="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs px-2 py-0.5 rounded-full font-bold">+12%</span>
+</div>
+<p class="text-[#111418] dark:text-white text-2xl font-bold mt-1">$1,250</p>
+</div>
+<div class="bg-white dark:bg-[#1a2632] rounded-xl p-5 border border-[#e5e7eb] dark:border-[#2a3845] shadow-sm flex flex-col gap-1">
+<div class="flex items-center justify-between">
+<p class="text-[#60758a] dark:text-[#94a3b8] text-sm font-medium">Active Students</p>
+<span class="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs px-2 py-0.5 rounded-full font-bold">+2%</span>
+</div>
+<p class="text-[#111418] dark:text-white text-2xl font-bold mt-1">24</p>
+</div>
+<div class="bg-white dark:bg-[#1a2632] rounded-xl p-5 border border-[#e5e7eb] dark:border-[#2a3845] shadow-sm flex flex-col gap-1">
+<div class="flex items-center justify-between">
+<p class="text-[#60758a] dark:text-[#94a3b8] text-sm font-medium">Average Rating</p>
+<div class="flex items-center text-amber-500 gap-1">
+<span class="material-symbols-outlined text-[18px] filled" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+</div>
+<p class="text-[#111418] dark:text-white text-2xl font-bold mt-1">4.9 <span class="text-sm font-normal text-[#60758a] dark:text-[#94a3b8]">/ 5.0</span></p>
+</div>
+<div class="bg-white dark:bg-[#1a2632] rounded-xl p-5 border border-[#e5e7eb] dark:border-[#2a3845] shadow-sm flex flex-col gap-1">
+<div class="flex items-center justify-between">
+<p class="text-[#60758a] dark:text-[#94a3b8] text-sm font-medium">Sessions Completed</p>
+<span class="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs px-2 py-0.5 rounded-full font-bold">+15%</span>
+</div>
+<p class="text-[#111418] dark:text-white text-2xl font-bold mt-1">145</p>
+</div>
+</div>
+<!-- Main Grid: 2 Columns -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<!-- Left Column (Wider) -->
+<div class="lg:col-span-2 flex flex-col gap-6">
+<!-- Quick Actions -->
+<section>
+<h2 class="text-[#111418] dark:text-white text-lg font-bold mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">bolt</span> Quick Actions
+                        </h2>
+<div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+<button class="bg-white dark:bg-[#1a2632] p-4 rounded-xl border border-[#e5e7eb] dark:border-[#2a3845] shadow-sm hover:border-primary/50 hover:shadow-md transition-all group text-left flex flex-col gap-3">
+<div class="bg-primary/10 group-hover:bg-primary group-hover:text-white w-10 h-10 rounded-lg flex items-center justify-center text-primary transition-colors">
+<span class="material-symbols-outlined">school</span>
+</div>
+<span class="font-semibold text-sm">View Students</span>
+</button>
+<button class="bg-white dark:bg-[#1a2632] p-4 rounded-xl border border-[#e5e7eb] dark:border-[#2a3845] shadow-sm hover:border-primary/50 hover:shadow-md transition-all group text-left flex flex-col gap-3">
+<div class="bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 group-hover:bg-purple-600 group-hover:text-white w-10 h-10 rounded-lg flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined">upload_file</span>
+</div>
+<span class="font-semibold text-sm">Upload Materials</span>
+</button>
+<button class="bg-white dark:bg-[#1a2632] p-4 rounded-xl border border-[#e5e7eb] dark:border-[#2a3845] shadow-sm hover:border-primary/50 hover:shadow-md transition-all group text-left flex flex-col gap-3">
+<div class="bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 group-hover:bg-orange-600 group-hover:text-white w-10 h-10 rounded-lg flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined">forum</span>
+</div>
+<span class="font-semibold text-sm">Message Parents</span>
+</button>
+</div>
+</section>
+<!-- Upcoming Sessions -->
+<section class="flex flex-col grow">
+<div class="flex items-center justify-between mb-4">
+<h2 class="text-[#111418] dark:text-white text-lg font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">video_camera_front</span> Upcoming Sessions
+                            </h2>
+<a class="text-sm text-primary font-medium hover:underline" href="#">View Calendar</a>
+</div>
+<div class="bg-white dark:bg-[#1a2632] rounded-xl border border-[#e5e7eb] dark:border-[#2a3845] shadow-sm overflow-hidden">
+<div class="divide-y divide-[#f0f2f5] dark:divide-[#2a3845]">
+<!-- Session Item 1 -->
+<div class="p-4 hover:bg-[#f8fafc] dark:hover:bg-[#202e3b] transition-colors flex flex-col sm:flex-row gap-4 sm:items-center">
+<div class="flex-shrink-0 flex flex-row sm:flex-col items-center sm:justify-center gap-2 sm:gap-0 bg-primary/5 dark:bg-primary/10 rounded-lg p-2 sm:size-16 min-w-[100px] sm:min-w-[64px] text-center">
+<span class="text-xs font-bold text-primary uppercase">Today</span>
+<span class="text-sm sm:text-lg font-bold text-[#111418] dark:text-white">4:00 PM</span>
+</div>
+<div class="flex-1 flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<h3 class="font-bold text-[#111418] dark:text-white">Intro to Robotics</h3>
+<span class="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wide">Zoom</span>
+</div>
+<p class="text-sm text-[#60758a] dark:text-[#94a3b8] flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">person</span> Student: Alex M.
+                                        </p>
+</div>
+<div class="mt-2 sm:mt-0">
+<button class="w-full sm:w-auto bg-primary hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-sm transition-colors flex items-center justify-center gap-2">
+                                            Join Class
+                                        </button>
+</div>
+</div>
+<!-- Session Item 2 -->
+<div class="p-4 hover:bg-[#f8fafc] dark:hover:bg-[#202e3b] transition-colors flex flex-col sm:flex-row gap-4 sm:items-center">
+<div class="flex-shrink-0 flex flex-row sm:flex-col items-center sm:justify-center gap-2 sm:gap-0 bg-gray-50 dark:bg-[#2a3845] rounded-lg p-2 sm:size-16 min-w-[100px] sm:min-w-[64px] text-center border border-dashed border-gray-200 dark:border-gray-600">
+<span class="text-xs font-bold text-[#60758a] dark:text-[#94a3b8] uppercase">Tmrw</span>
+<span class="text-sm sm:text-lg font-bold text-[#111418] dark:text-white">10:00 AM</span>
+</div>
+<div class="flex-1 flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<h3 class="font-bold text-[#111418] dark:text-white">Python for Kids</h3>
+<span class="bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wide">Group</span>
+</div>
+<p class="text-sm text-[#60758a] dark:text-[#94a3b8] flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">groups</span> 5 Students enrolled
+                                        </p>
+</div>
+<div class="mt-2 sm:mt-0">
+<button class="w-full sm:w-auto border border-[#dbe0e6] dark:border-[#4b5563] text-[#111418] dark:text-white hover:bg-gray-50 dark:hover:bg-[#374756] px-4 py-2 rounded-lg text-sm font-bold transition-colors">
+                                            Manage
+                                        </button>
+</div>
+</div>
+<!-- Session Item 3 -->
+<div class="p-4 hover:bg-[#f8fafc] dark:hover:bg-[#202e3b] transition-colors flex flex-col sm:flex-row gap-4 sm:items-center">
+<div class="flex-shrink-0 flex flex-row sm:flex-col items-center sm:justify-center gap-2 sm:gap-0 bg-gray-50 dark:bg-[#2a3845] rounded-lg p-2 sm:size-16 min-w-[100px] sm:min-w-[64px] text-center border border-dashed border-gray-200 dark:border-gray-600">
+<span class="text-xs font-bold text-[#60758a] dark:text-[#94a3b8] uppercase">Fri</span>
+<span class="text-sm sm:text-lg font-bold text-[#111418] dark:text-white">2:30 PM</span>
+</div>
+<div class="flex-1 flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<h3 class="font-bold text-[#111418] dark:text-white">Science Fair Prep</h3>
+</div>
+<p class="text-sm text-[#60758a] dark:text-[#94a3b8] flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">person</span> Student: Emily R.
+                                        </p>
+</div>
+<div class="mt-2 sm:mt-0">
+<button class="w-full sm:w-auto border border-[#dbe0e6] dark:border-[#4b5563] text-[#111418] dark:text-white hover:bg-gray-50 dark:hover:bg-[#374756] px-4 py-2 rounded-lg text-sm font-bold transition-colors">
+                                            Manage
+                                        </button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Performance Chart (Simulated with CSS) -->
+<section>
+<h2 class="text-[#111418] dark:text-white text-lg font-bold mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">bar_chart</span> Weekly Activity
+                        </h2>
+<div class="bg-white dark:bg-[#1a2632] p-6 rounded-xl border border-[#e5e7eb] dark:border-[#2a3845] shadow-sm">
+<div class="flex items-end justify-between h-40 gap-2 sm:gap-4">
+<!-- Day 1 -->
+<div class="flex flex-col items-center gap-2 flex-1 group cursor-pointer">
+<div class="w-full bg-primary/20 dark:bg-primary/10 rounded-t-lg h-full relative overflow-hidden group-hover:bg-primary/30 transition-colors">
+<div class="absolute bottom-0 w-full bg-primary rounded-t-lg transition-all duration-500" style="height: 40%"></div>
+</div>
+<span class="text-xs font-medium text-[#60758a] dark:text-[#94a3b8]">M</span>
+</div>
+<!-- Day 2 -->
+<div class="flex flex-col items-center gap-2 flex-1 group cursor-pointer">
+<div class="w-full bg-primary/20 dark:bg-primary/10 rounded-t-lg h-full relative overflow-hidden group-hover:bg-primary/30 transition-colors">
+<div class="absolute bottom-0 w-full bg-primary rounded-t-lg transition-all duration-500" style="height: 65%"></div>
+</div>
+<span class="text-xs font-medium text-[#60758a] dark:text-[#94a3b8]">T</span>
+</div>
+<!-- Day 3 -->
+<div class="flex flex-col items-center gap-2 flex-1 group cursor-pointer">
+<div class="w-full bg-primary/20 dark:bg-primary/10 rounded-t-lg h-full relative overflow-hidden group-hover:bg-primary/30 transition-colors">
+<div class="absolute bottom-0 w-full bg-primary rounded-t-lg transition-all duration-500" style="height: 30%"></div>
+</div>
+<span class="text-xs font-medium text-[#60758a] dark:text-[#94a3b8]">W</span>
+</div>
+<!-- Day 4 -->
+<div class="flex flex-col items-center gap-2 flex-1 group cursor-pointer">
+<div class="w-full bg-primary/20 dark:bg-primary/10 rounded-t-lg h-full relative overflow-hidden group-hover:bg-primary/30 transition-colors">
+<div class="absolute bottom-0 w-full bg-primary rounded-t-lg transition-all duration-500" style="height: 85%"></div>
+</div>
+<span class="text-xs font-medium text-[#60758a] dark:text-[#94a3b8]">T</span>
+</div>
+<!-- Day 5 -->
+<div class="flex flex-col items-center gap-2 flex-1 group cursor-pointer">
+<div class="w-full bg-primary/20 dark:bg-primary/10 rounded-t-lg h-full relative overflow-hidden group-hover:bg-primary/30 transition-colors">
+<div class="absolute bottom-0 w-full bg-primary rounded-t-lg transition-all duration-500" style="height: 55%"></div>
+</div>
+<span class="text-xs font-medium text-[#60758a] dark:text-[#94a3b8]">F</span>
+</div>
+<!-- Day 6 -->
+<div class="flex flex-col items-center gap-2 flex-1 group cursor-pointer">
+<div class="w-full bg-primary/20 dark:bg-primary/10 rounded-t-lg h-full relative overflow-hidden group-hover:bg-primary/30 transition-colors">
+<div class="absolute bottom-0 w-full bg-primary/40 rounded-t-lg transition-all duration-500" style="height: 20%"></div>
+</div>
+<span class="text-xs font-medium text-[#60758a] dark:text-[#94a3b8]">S</span>
+</div>
+<!-- Day 7 -->
+<div class="flex flex-col items-center gap-2 flex-1 group cursor-pointer">
+<div class="w-full bg-primary/20 dark:bg-primary/10 rounded-t-lg h-full relative overflow-hidden group-hover:bg-primary/30 transition-colors">
+<div class="absolute bottom-0 w-full bg-primary/40 rounded-t-lg transition-all duration-500" style="height: 10%"></div>
+</div>
+<span class="text-xs font-medium text-[#60758a] dark:text-[#94a3b8]">S</span>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Column (Side) -->
+<div class="flex flex-col gap-6">
+<!-- New Inquiries -->
+<section class="flex flex-col">
+<div class="flex items-center justify-between mb-4">
+<h2 class="text-[#111418] dark:text-white text-lg font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">notifications_active</span> New Inquiries
+                            </h2>
+<span class="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full font-bold">2</span>
+</div>
+<div class="bg-white dark:bg-[#1a2632] rounded-xl border border-[#e5e7eb] dark:border-[#2a3845] shadow-sm flex flex-col divide-y divide-[#f0f2f5] dark:divide-[#2a3845]">
+<!-- Inquiry 1 -->
+<div class="p-4">
+<div class="flex items-start gap-3">
+<div class="bg-gray-200 dark:bg-gray-700 rounded-full size-10 shrink-0 bg-cover bg-center" data-alt="Portrait of Sarah J" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuC9wX4no3HaIbdWjkfUJPtLdTNdV0HvwqB4xPaWEtjBIpuxsENYguBOdDRJbJ06VyevKNHcYZ1ykN5XTHmNx5AzpqRSCzhciHsKtmHkvw5b-jlixB5vnzUKMXH1rJM2uM5ZIEelwIxGCwA4tnat5C4oyXY1Iq-TOjAKYTDdL9JnEwBDUyWHDjuoiKdyNSLeRG0AzecSB-Mam7CjnlTPNoYGXTlH_cjCcruetcPAJ3aEjVuaSTLXZ1-F6sHUwTtWC-9wpy9iMyUumd1g");'></div>
+<div class="flex flex-col gap-1 w-full">
+<div class="flex justify-between items-start">
+<p class="text-sm font-bold text-[#111418] dark:text-white">Sarah J.</p>
+<span class="text-[10px] text-[#60758a] dark:text-[#94a3b8]">2h ago</span>
+</div>
+<p class="text-sm text-[#60758a] dark:text-[#94a3b8]">Request for <span class="font-medium text-primary">Math Tutoring</span></p>
+<div class="mt-3 flex gap-2">
+<button class="flex-1 bg-green-600 hover:bg-green-700 text-white text-xs font-bold py-1.5 rounded transition-colors flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-[16px]">check</span> Accept
+                                            </button>
+<button class="flex-1 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-[#111418] dark:text-white text-xs font-bold py-1.5 rounded transition-colors flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-[16px]">close</span> Decline
+                                            </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Inquiry 2 -->
+<div class="p-4">
+<div class="flex items-start gap-3">
+<div class="bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full size-10 shrink-0 flex items-center justify-center text-sm font-bold">MK</div>
+<div class="flex flex-col gap-1 w-full">
+<div class="flex justify-between items-start">
+<p class="text-sm font-bold text-[#111418] dark:text-white">Mike K.</p>
+<span class="text-[10px] text-[#60758a] dark:text-[#94a3b8]">5h ago</span>
+</div>
+<p class="text-sm text-[#60758a] dark:text-[#94a3b8]">Request for <span class="font-medium text-primary">Intro to Chemistry</span></p>
+<div class="mt-3 flex gap-2">
+<button class="flex-1 bg-green-600 hover:bg-green-700 text-white text-xs font-bold py-1.5 rounded transition-colors flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-[16px]">check</span> Accept
+                                            </button>
+<button class="flex-1 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-[#111418] dark:text-white text-xs font-bold py-1.5 rounded transition-colors flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-[16px]">close</span> Decline
+                                            </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Teacher Tip/Announcement -->
+<section>
+<h2 class="text-[#111418] dark:text-white text-lg font-bold mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">lightbulb</span> Teacher Tip
+                        </h2>
+<div class="bg-gradient-to-br from-indigo-500 to-primary rounded-xl p-5 text-white shadow-md relative overflow-hidden">
+<span class="material-symbols-outlined absolute top-[-10px] right-[-10px] text-8xl opacity-10 rotate-12">auto_awesome</span>
+<h3 class="font-bold text-lg mb-2 relative z-10">Engage your students!</h3>
+<p class="text-sm opacity-90 relative z-10">Try adding a quiz at the end of your session to boost interaction scores. It takes less than 5 minutes!</p>
+<button class="mt-4 bg-white/20 hover:bg-white/30 backdrop-blur-md text-white text-xs font-bold py-2 px-3 rounded transition-colors relative z-10">
+                                View Resources
+                            </button>
+</div>
+</section>
+</div>
+</div>
+</div>
+<div class="h-10"></div>
+</main>
+</body></html>

@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>STEAM Spark - Parent Dashboard</title>
+<!-- Google Fonts: Lexend -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#258cf4",
+                        "background-light": "#f5f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .icon-filled {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-[#111418] dark:text-white font-display min-h-screen flex flex-col overflow-x-hidden">
+<!-- TopNavBar -->
+<header class="bg-white dark:bg-[#1a2632] border-b border-[#e5e7eb] dark:border-[#2a3b4d] sticky top-0 z-50">
+<div class="px-4 md:px-10 py-3 flex items-center justify-between">
+<div class="flex items-center gap-8">
+<!-- Logo -->
+<div class="flex items-center gap-3">
+<div class="size-10 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-2xl">science</span>
+</div>
+<h2 class="text-xl font-bold tracking-tight text-[#111418] dark:text-white">STEAM Spark</h2>
+</div>
+<!-- Desktop Nav -->
+<nav class="hidden md:flex items-center gap-8">
+<a class="text-sm font-medium text-[#111418] dark:text-white hover:text-primary transition-colors" href="#">Dashboard</a>
+<a class="text-sm font-medium text-[#60758a] dark:text-gray-400 hover:text-primary transition-colors" href="#">Tutors</a>
+<a class="text-sm font-medium text-[#60758a] dark:text-gray-400 hover:text-primary transition-colors" href="#">Roadmaps</a>
+<a class="text-sm font-medium text-[#60758a] dark:text-gray-400 hover:text-primary transition-colors" href="#">Messages</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<!-- Search -->
+<div class="hidden md:flex items-center bg-[#f0f2f5] dark:bg-[#2a3b4d] rounded-full h-10 px-4 min-w-[240px]">
+<span class="material-symbols-outlined text-[#60758a] dark:text-gray-400 text-xl">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-full text-[#111418] dark:text-white placeholder-[#60758a]" placeholder="Search tutors or subjects..."/>
+</div>
+<!-- Notifications Bell -->
+<button class="size-10 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-[#2a3b4d] relative">
+<span class="material-symbols-outlined text-[#111418] dark:text-white">notifications</span>
+<span class="absolute top-2 right-2 size-2 bg-red-500 rounded-full border border-white dark:border-[#1a2632]"></span>
+</button>
+<!-- Profile -->
+<div class="size-10 rounded-full bg-cover bg-center border-2 border-white shadow-sm cursor-pointer" data-alt="User profile picture of a smiling woman" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBmh5tx15PdZYi4TnxUtOtZGT8QU7Mypop2WxWBIIYH5PN7JnuYSCnOAT7jB2xmkHmgFNsaDagWbLF8dGJdMJzrojHggJZNZJxK7brQx9QLHVUlzneD5MZNxS_JPoRfwdHNALj5XnPR_B6WXkeAr5uQkn_eKXzVtSom0FNKf8ynu6SmHW6kvb-fcyJ72T_Op8akCNbVsnsWEJEftysTlkXXbSOEiugI08q0jkC1C36oZH5_TAlrk4E2ATSn9dHcOLmPhfISWBmWkqJQ');"></div>
+</div>
+</div>
+</header>
+<main class="flex-1 flex justify-center w-full py-8 px-4 md:px-8">
+<div class="w-full max-w-[1200px] flex flex-col gap-8">
+<!-- Page Heading & Child Switcher -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-2 border-b border-[#e5e7eb] dark:border-[#2a3b4d]">
+<div class="flex flex-col gap-2">
+<h1 class="text-3xl md:text-4xl font-black tracking-tight text-[#111418] dark:text-white">Welcome back, Sarah!</h1>
+<p class="text-[#60758a] dark:text-gray-400 text-base">Here's what's happening with your children's learning today.</p>
+</div>
+<!-- Tabs/Child Switcher -->
+<div class="flex gap-6 self-start md:self-end">
+<button class="group flex flex-col items-center gap-2 pb-2 border-b-[3px] border-primary">
+<div class="size-10 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary/20 transition-colors">
+<span class="material-symbols-outlined icon-filled">face_6</span>
+</div>
+<span class="text-sm font-bold text-[#111418] dark:text-white">Johnny</span>
+</button>
+<button class="group flex flex-col items-center gap-2 pb-2 border-b-[3px] border-transparent hover:border-gray-300 transition-colors">
+<div class="size-10 rounded-full bg-gray-100 dark:bg-[#2a3b4d] flex items-center justify-center text-[#60758a] dark:text-gray-400 group-hover:bg-gray-200 dark:group-hover:bg-[#374b5f] transition-colors">
+<span class="material-symbols-outlined">face_3</span>
+</div>
+<span class="text-sm font-bold text-[#60758a] dark:text-gray-400">Alice</span>
+</button>
+</div>
+</div>
+<!-- Quick Actions -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+<button class="flex items-center gap-4 p-4 rounded-xl bg-white dark:bg-[#1a2632] border border-[#e5e7eb] dark:border-[#2a3b4d] shadow-sm hover:shadow-md hover:border-primary/50 transition-all group text-left">
+<div class="size-12 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">person_search</span>
+</div>
+<div>
+<p class="font-bold text-[#111418] dark:text-white leading-tight">Find Tutors</p>
+<p class="text-xs text-[#60758a] dark:text-gray-400 mt-1">Browse experts</p>
+</div>
+</button>
+<button class="flex items-center gap-4 p-4 rounded-xl bg-white dark:bg-[#1a2632] border border-[#e5e7eb] dark:border-[#2a3b4d] shadow-sm hover:shadow-md hover:border-primary/50 transition-all group text-left">
+<div class="size-12 rounded-lg bg-purple-50 dark:bg-purple-900/20 flex items-center justify-center text-purple-600 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">map</span>
+</div>
+<div>
+<p class="font-bold text-[#111418] dark:text-white leading-tight">Roadmaps</p>
+<p class="text-xs text-[#60758a] dark:text-gray-400 mt-1">View progress</p>
+</div>
+</button>
+<button class="flex items-center gap-4 p-4 rounded-xl bg-white dark:bg-[#1a2632] border border-[#e5e7eb] dark:border-[#2a3b4d] shadow-sm hover:shadow-md hover:border-primary/50 transition-all group text-left">
+<div class="size-12 rounded-lg bg-green-50 dark:bg-green-900/20 flex items-center justify-center text-green-600 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">calendar_add_on</span>
+</div>
+<div>
+<p class="font-bold text-[#111418] dark:text-white leading-tight">Book Session</p>
+<p class="text-xs text-[#60758a] dark:text-gray-400 mt-1">Schedule now</p>
+</div>
+</button>
+<button class="flex items-center gap-4 p-4 rounded-xl bg-white dark:bg-[#1a2632] border border-[#e5e7eb] dark:border-[#2a3b4d] shadow-sm hover:shadow-md hover:border-primary/50 transition-all group text-left">
+<div class="size-12 rounded-lg bg-orange-50 dark:bg-orange-900/20 flex items-center justify-center text-orange-600 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">mail</span>
+</div>
+<div>
+<p class="font-bold text-[#111418] dark:text-white leading-tight">Message</p>
+<p class="text-xs text-[#60758a] dark:text-gray-400 mt-1">Chat with teacher</p>
+</div>
+</button>
+</div>
+<!-- Dashboard Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<!-- Left Column (Main Content) -->
+<div class="lg:col-span-2 flex flex-col gap-8">
+<!-- Progress Section -->
+<section class="flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<h3 class="text-lg font-bold text-[#111418] dark:text-white">Active Roadmaps</h3>
+<a class="text-sm font-medium text-primary hover:underline" href="#">View all</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Roadmap Card 1 -->
+<div class="bg-white dark:bg-[#1a2632] p-5 rounded-xl border border-[#e5e7eb] dark:border-[#2a3b4d] shadow-sm">
+<div class="flex items-start justify-between mb-3">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">smart_toy</span>
+</div>
+<div>
+<p class="font-bold text-[#111418] dark:text-white">Robotics 101</p>
+<p class="text-xs text-[#60758a] dark:text-gray-400">Intermediate Level</p>
+</div>
+</div>
+<span class="px-2 py-1 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-xs font-bold rounded-md">Active</span>
+</div>
+<div class="flex items-end justify-between mb-1">
+<span class="text-sm font-medium text-[#60758a] dark:text-gray-400">Progress</span>
+<span class="text-sm font-bold text-[#111418] dark:text-white">40%</span>
+</div>
+<div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2.5">
+<div class="bg-primary h-2.5 rounded-full" style="width: 40%"></div>
+</div>
+<p class="mt-3 text-xs text-[#60758a] dark:text-gray-400">Next: Building Circuit Boards</p>
+</div>
+<!-- Roadmap Card 2 -->
+<div class="bg-white dark:bg-[#1a2632] p-5 rounded-xl border border-[#e5e7eb] dark:border-[#2a3b4d] shadow-sm">
+<div class="flex items-start justify-between mb-3">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-lg bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center text-yellow-600">
+<span class="material-symbols-outlined">code</span>
+</div>
+<div>
+<p class="font-bold text-[#111418] dark:text-white">Python for Kids</p>
+<p class="text-xs text-[#60758a] dark:text-gray-400">Beginner Level</p>
+</div>
+</div>
+<span class="px-2 py-1 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-xs font-bold rounded-md">Active</span>
+</div>
+<div class="flex items-end justify-between mb-1">
+<span class="text-sm font-medium text-[#60758a] dark:text-gray-400">Progress</span>
+<span class="text-sm font-bold text-[#111418] dark:text-white">75%</span>
+</div>
+<div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2.5">
+<div class="bg-yellow-500 h-2.5 rounded-full" style="width: 75%"></div>
+</div>
+<p class="mt-3 text-xs text-[#60758a] dark:text-gray-400">Next: Loops and Functions</p>
+</div>
+</div>
+</section>
+<!-- Upcoming Sessions -->
+<section class="flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<h3 class="text-lg font-bold text-[#111418] dark:text-white">Upcoming Sessions</h3>
+<div class="flex gap-2">
+<button class="size-8 rounded-full border border-[#dbe0e6] dark:border-[#2a3b4d] flex items-center justify-center hover:bg-gray-50 dark:hover:bg-[#2a3b4d]">
+<span class="material-symbols-outlined text-sm">chevron_left</span>
+</button>
+<button class="size-8 rounded-full border border-[#dbe0e6] dark:border-[#2a3b4d] flex items-center justify-center hover:bg-gray-50 dark:hover:bg-[#2a3b4d]">
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+</button>
+</div>
+</div>
+<div class="bg-white dark:bg-[#1a2632] rounded-xl border border-[#e5e7eb] dark:border-[#2a3b4d] shadow-sm divide-y divide-[#f0f2f5] dark:divide-[#2a3b4d] overflow-hidden">
+<!-- Session Item -->
+<div class="p-4 flex flex-col sm:flex-row sm:items-center gap-4 hover:bg-[#f9fafb] dark:hover:bg-[#23303d] transition-colors">
+<div class="flex flex-col items-center justify-center bg-blue-50 dark:bg-blue-900/20 text-primary w-14 h-14 rounded-lg shrink-0">
+<span class="text-xs font-bold uppercase">Tue</span>
+<span class="text-xl font-black">12</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-2 mb-1">
+<h4 class="font-bold text-[#111418] dark:text-white truncate">Math: Geometry Basics</h4>
+<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">Live</span>
+</div>
+<p class="text-sm text-[#60758a] dark:text-gray-400 flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">schedule</span> 4:00 PM - 5:00 PM • Mr. Smith
+                                    </p>
+</div>
+<div class="flex gap-2 mt-2 sm:mt-0 w-full sm:w-auto">
+<button class="flex-1 sm:flex-none px-4 py-2 rounded-lg bg-primary text-white text-sm font-bold hover:bg-primary/90 transition-colors">Join Class</button>
+<button class="px-2 py-2 rounded-lg border border-[#dbe0e6] dark:border-[#2a3b4d] text-[#60758a] hover:bg-gray-50 dark:hover:bg-[#2a3b4d]">
+<span class="material-symbols-outlined text-xl">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Session Item -->
+<div class="p-4 flex flex-col sm:flex-row sm:items-center gap-4 hover:bg-[#f9fafb] dark:hover:bg-[#23303d] transition-colors">
+<div class="flex flex-col items-center justify-center bg-[#f0f2f5] dark:bg-[#2a3b4d] text-[#60758a] dark:text-gray-400 w-14 h-14 rounded-lg shrink-0">
+<span class="text-xs font-bold uppercase">Thu</span>
+<span class="text-xl font-black">14</span>
+</div>
+<div class="flex-1 min-w-0">
+<h4 class="font-bold text-[#111418] dark:text-white truncate">Physics Lab: Motion</h4>
+<p class="text-sm text-[#60758a] dark:text-gray-400 flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">schedule</span> 3:30 PM - 4:30 PM • Ms. Johnson
+                                    </p>
+</div>
+<div class="flex gap-2 mt-2 sm:mt-0 w-full sm:w-auto">
+<button class="flex-1 sm:flex-none px-4 py-2 rounded-lg bg-white border border-[#dbe0e6] dark:bg-[#2a3b4d] dark:border-[#374b5f] text-[#111418] dark:text-white text-sm font-bold hover:bg-gray-50 dark:hover:bg-[#374b5f] transition-colors">Reschedule</button>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Column (Sidebar) -->
+<div class="flex flex-col gap-8">
+<!-- Notifications Panel -->
+<div class="bg-white dark:bg-[#1a2632] rounded-xl border border-[#e5e7eb] dark:border-[#2a3b4d] shadow-sm p-5">
+<h3 class="text-lg font-bold text-[#111418] dark:text-white mb-4">Notifications</h3>
+<div class="space-y-4">
+<!-- Notification Item -->
+<div class="flex gap-3">
+<div class="size-8 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-primary shrink-0">
+<span class="material-symbols-outlined text-sm">assignment_turned_in</span>
+</div>
+<div>
+<p class="text-sm text-[#111418] dark:text-white leading-tight mb-1">Homework Graded</p>
+<p class="text-xs text-[#60758a] dark:text-gray-400">Johnny received an A on his Robotics project.</p>
+<p class="text-[10px] text-[#9aaabb] mt-1">2 hours ago</p>
+</div>
+</div>
+<!-- Notification Item -->
+<div class="flex gap-3">
+<div class="size-8 rounded-full bg-green-50 dark:bg-green-900/20 flex items-center justify-center text-green-600 shrink-0">
+<span class="material-symbols-outlined text-sm">check_circle</span>
+</div>
+<div>
+<p class="text-sm text-[#111418] dark:text-white leading-tight mb-1">Session Confirmed</p>
+<p class="text-xs text-[#60758a] dark:text-gray-400">Physics Lab scheduled for Thursday.</p>
+<p class="text-[10px] text-[#9aaabb] mt-1">5 hours ago</p>
+</div>
+</div>
+<!-- Notification Item -->
+<div class="flex gap-3">
+<div class="size-8 rounded-full bg-orange-50 dark:bg-orange-900/20 flex items-center justify-center text-orange-600 shrink-0">
+<span class="material-symbols-outlined text-sm">military_tech</span>
+</div>
+<div>
+<p class="text-sm text-[#111418] dark:text-white leading-tight mb-1">New Badge Earned!</p>
+<p class="text-xs text-[#60758a] dark:text-gray-400">Johnny earned "Code Warrior".</p>
+<p class="text-[10px] text-[#9aaabb] mt-1">Yesterday</p>
+</div>
+</div>
+</div>
+<button class="w-full mt-5 py-2 text-sm font-medium text-primary hover:text-primary/80 border-t border-[#f0f2f5] dark:border-[#2a3b4d]">View All Notifications</button>
+</div>
+<!-- Recommended Tutors -->
+<section>
+<div class="flex items-center justify-between mb-4">
+<h3 class="text-lg font-bold text-[#111418] dark:text-white">Recommended Tutors</h3>
+</div>
+<div class="flex flex-col gap-3">
+<!-- Tutor Card -->
+<div class="bg-white dark:bg-[#1a2632] p-4 rounded-xl border border-[#e5e7eb] dark:border-[#2a3b4d] shadow-sm flex items-center gap-4 group cursor-pointer hover:border-primary/50 transition-colors">
+<div class="size-14 rounded-full bg-cover bg-center shrink-0" data-alt="Portrait of Sarah J., a science tutor" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAH30ftSO1EKf05kh1HlF6z-wbjxR4dMq-N12HFFRn0z58WXiEir6oYgaLoHLtUDo1qhI5wjBWnimKNzN0mqVrV7IJL_NcQJJZcmoJLk5gaiqoY8zYclcT90SdVRIX_KTsEu6fv29DPo4aByT4gSZjeXHJmqTY3S1unaWu8tAerzAg1EM0o27MwkSjKJTMeFT9u1eB07pFUwQP7duQH5rF5aCyq5zmotBZ4y1Ix7JMsU8I8ixHixZCBmY8sn7m_SxbQzuBZ1Nks9KHh');"></div>
+<div class="flex-1 min-w-0">
+<h4 class="font-bold text-[#111418] dark:text-white truncate">Sarah J.</h4>
+<p class="text-xs text-primary font-medium">Science &amp; Biology</p>
+<div class="flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-yellow-400 text-sm icon-filled">star</span>
+<span class="text-xs font-bold">4.9</span>
+<span class="text-xs text-[#60758a] dark:text-gray-400">(120 sessions)</span>
+</div>
+</div>
+<button class="size-8 rounded-full bg-[#f0f2f5] dark:bg-[#2a3b4d] flex items-center justify-center text-[#111418] dark:text-white group-hover:bg-primary group-hover:text-white transition-colors">
+<span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+<!-- Tutor Card -->
+<div class="bg-white dark:bg-[#1a2632] p-4 rounded-xl border border-[#e5e7eb] dark:border-[#2a3b4d] shadow-sm flex items-center gap-4 group cursor-pointer hover:border-primary/50 transition-colors">
+<div class="size-14 rounded-full bg-cover bg-center shrink-0" data-alt="Portrait of Mike T., a coding tutor" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDP89XQBSj5UiJobOLQFeCxeU4pI623TLeypdi8E-EbrpQEeoGCn1KeZXD3cZkbJQglKDx6vs7vpV_3e8b_kSfm8SFbps16ERGEKNEpllK_z6kwH3WbuHFuU6RNX9tikTgUIxILYJ1RcFxITuIaH2bSz6Q4yYF0M_Ob_GpeQ3_9yjs4luhwlIAfxzfzlXHpFz9A0sa_-CkUzfBAdnrRbwmO5sxmLwjmBvrYRUM3uwlh4VNGEbM0AjbyDdN1eQsEVBFAbu9uIVLSf7ek');"></div>
+<div class="flex-1 min-w-0">
+<h4 class="font-bold text-[#111418] dark:text-white truncate">Mike T.</h4>
+<p class="text-xs text-primary font-medium">Python &amp; Java</p>
+<div class="flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-yellow-400 text-sm icon-filled">star</span>
+<span class="text-xs font-bold">5.0</span>
+<span class="text-xs text-[#60758a] dark:text-gray-400">(85 sessions)</span>
+</div>
+</div>
+<button class="size-8 rounded-full bg-[#f0f2f5] dark:bg-[#2a3b4d] flex items-center justify-center text-[#111418] dark:text-white group-hover:bg-primary group-hover:text-white transition-colors">
+<span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</div>
+</section>
+</div>
+</div>
+</div>
+</main>
+</body></html>

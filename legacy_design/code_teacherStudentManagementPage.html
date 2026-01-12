@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>STEAM Spark - Teacher Dashboard</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#3899fa",
+                        "background-light": "#f5f7f8",
+                        "background-dark": "#0f1923",
+                        "card-light": "#ffffff",
+                        "card-dark": "#1e293b",
+                        "border-light": "#dbe0e6",
+                        "border-dark": "#334155",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-white transition-colors duration-200">
+<div class="flex h-screen w-full overflow-hidden">
+<!-- Sidebar -->
+<aside class="w-20 lg:w-64 flex-shrink-0 flex flex-col justify-between bg-card-light dark:bg-card-dark border-r border-border-light dark:border-border-dark overflow-y-auto transition-all duration-300 z-20">
+<div class="flex flex-col gap-4 p-4">
+<div class="flex items-center gap-3 px-2">
+<div class="bg-center bg-no-repeat bg-cover rounded-full size-10 shrink-0 bg-primary shadow-lg shadow-primary/30" data-alt="Abstract geometric 3d shape representing steam spark logo" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDLN6cIRw149RYkUNWbJH9F1MxD8SXUqoqXdu6DeNU4MvRcAKakPtpjbaA9Id5q3bq9O_zaQZSGnnZDNF-ggA1yiSgirgBJIWyhbv88YkZGZrmmXrBeRXGPLmZCIT5b8PH80QjwRvgM1nIqwa5cnkqYlFfZI1CL3LO6Xvf3Wn4fiw8YAgLXyEgO-bdiKRfJm8x4gjuuW4-VU90kl9Ys7LIosDNPKc53LQaEOM5yUoDl46gduViTQw8F1Lmyuir09wBDUdysuuC1KoJr");'></div>
+<h1 class="text-xl font-bold leading-normal hidden lg:block tracking-tight">STEAM Spark</h1>
+</div>
+<nav class="flex flex-col gap-2 mt-4">
+<a class="flex items-center gap-3 px-3 py-3 rounded-xl bg-primary/10 text-primary group transition-colors" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<p class="text-sm font-bold hidden lg:block">Dashboard</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined">calendar_month</span>
+<p class="text-sm font-medium hidden lg:block">Schedule</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined">menu_book</span>
+<p class="text-sm font-medium hidden lg:block">Curriculum</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined">bar_chart</span>
+<p class="text-sm font-medium hidden lg:block">Reports</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<p class="text-sm font-medium hidden lg:block">Settings</p>
+</a>
+</nav>
+</div>
+<div class="p-4 border-t border-border-light dark:border-border-dark">
+<div class="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer transition-colors">
+<div class="bg-center bg-no-repeat bg-cover rounded-full size-10 shrink-0 border-2 border-white dark:border-slate-700" data-alt="Portrait of a female teacher smiling" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAyg76gy-oZRn_H_-tWwZSXt9_rNDwS-yN3_eq-edBzWUDeKbcTSM13ztbBqa3MvMocsaGIvYOm50HAw38_Uj932NXVbGnQCTF-umgLZ-DvWp9w92wO5MUu2fhSyp41bPhtXyolDZPo-kDo0hXvgfY9WnEyOtA_RT0rAXL47HZyIL7JKNvKgjxgaR6rmgl3Xr84OnrLHfCmj_xrdodjLnlAKuw-dNuJ4GlQRcYFcoXd2HV1kUDgzzzG-CI2eNOtVIUeXQ2Vih_LQsTy");'></div>
+<div class="hidden lg:block overflow-hidden">
+<p class="text-sm font-bold truncate">Sarah Connor</p>
+<p class="text-xs text-slate-500 dark:text-slate-400 truncate">Lead Instructor</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col h-full overflow-hidden relative">
+<!-- Background Decoration -->
+<div class="absolute top-0 right-0 w-1/3 h-1/3 bg-gradient-to-bl from-primary/5 to-transparent pointer-events-none"></div>
+<div class="flex-1 overflow-y-auto p-4 md:p-8 lg:px-12">
+<div class="max-w-[1400px] mx-auto flex flex-col gap-8 pb-10">
+<!-- Header Section -->
+<header class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div class="flex flex-col gap-1">
+<h2 class="text-3xl md:text-4xl font-black tracking-tight">My Classroom</h2>
+<p class="text-slate-500 dark:text-slate-400 text-base md:text-lg">Manage enrolled students and track their STEAM journey.</p>
+</div>
+<button class="flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-lg shadow-primary/20 hover:shadow-primary/40 active:scale-95">
+<span class="material-symbols-outlined">add</span>
+<span>Add Student</span>
+</button>
+</header>
+<!-- Stats Section -->
+<section class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+<div class="bg-card-light dark:bg-card-dark rounded-xl p-6 border border-border-light dark:border-border-dark shadow-sm flex flex-col gap-2 relative overflow-hidden group">
+<div class="absolute -right-4 -top-4 bg-primary/10 w-24 h-24 rounded-full group-hover:scale-110 transition-transform"></div>
+<div class="flex items-center gap-2 text-slate-500 dark:text-slate-400">
+<span class="material-symbols-outlined">groups</span>
+<span class="text-sm font-medium">Total Students</span>
+</div>
+<p class="text-3xl font-black">24</p>
+</div>
+<div class="bg-card-light dark:bg-card-dark rounded-xl p-6 border border-border-light dark:border-border-dark shadow-sm flex flex-col gap-2 relative overflow-hidden group">
+<div class="absolute -right-4 -top-4 bg-orange-500/10 w-24 h-24 rounded-full group-hover:scale-110 transition-transform"></div>
+<div class="flex items-center gap-2 text-slate-500 dark:text-slate-400">
+<span class="material-symbols-outlined text-orange-500">assignment_late</span>
+<span class="text-sm font-medium">Assessments Due</span>
+</div>
+<p class="text-3xl font-black">5</p>
+</div>
+<div class="bg-card-light dark:bg-card-dark rounded-xl p-6 border border-border-light dark:border-border-dark shadow-sm flex flex-col gap-2 relative overflow-hidden group">
+<div class="absolute -right-4 -top-4 bg-green-500/10 w-24 h-24 rounded-full group-hover:scale-110 transition-transform"></div>
+<div class="flex items-center gap-2 text-slate-500 dark:text-slate-400">
+<span class="material-symbols-outlined text-green-500">trending_up</span>
+<span class="text-sm font-medium">Avg. Progress</span>
+</div>
+<p class="text-3xl font-black">78%</p>
+</div>
+</section>
+<!-- Filters & Search -->
+<section class="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center bg-card-light dark:bg-card-dark p-2 rounded-2xl border border-border-light dark:border-border-dark shadow-sm">
+<!-- Search -->
+<div class="w-full md:w-96">
+<label class="flex items-center w-full bg-background-light dark:bg-background-dark rounded-xl px-4 py-3 gap-3 focus-within:ring-2 focus-within:ring-primary/50 transition-all">
+<span class="material-symbols-outlined text-slate-400">search</span>
+<input class="bg-transparent border-none outline-none w-full text-sm font-medium placeholder:text-slate-400 focus:ring-0 p-0 text-slate-900 dark:text-white" placeholder="Search students..." type="text"/>
+</label>
+</div>
+<!-- Chips -->
+<div class="flex gap-2 overflow-x-auto pb-2 md:pb-0 w-full md:w-auto px-2 md:px-0 no-scrollbar">
+<button class="shrink-0 px-4 py-2 rounded-xl bg-primary text-white text-sm font-bold shadow-md shadow-primary/20">All Students</button>
+<button class="shrink-0 px-4 py-2 rounded-xl bg-background-light dark:bg-background-dark hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-sm font-medium transition-colors border border-transparent hover:border-slate-300 dark:hover:border-slate-600">Grade 3</button>
+<button class="shrink-0 px-4 py-2 rounded-xl bg-background-light dark:bg-background-dark hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-sm font-medium transition-colors border border-transparent hover:border-slate-300 dark:hover:border-slate-600">Grade 4</button>
+<button class="shrink-0 px-4 py-2 rounded-xl bg-background-light dark:bg-background-dark hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-sm font-medium transition-colors border border-transparent hover:border-slate-300 dark:hover:border-slate-600">Robotics</button>
+<button class="shrink-0 px-4 py-2 rounded-xl bg-background-light dark:bg-background-dark hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-sm font-medium transition-colors border border-transparent hover:border-slate-300 dark:hover:border-slate-600">Science</button>
+</div>
+</section>
+<!-- Student Grid -->
+<section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
+<!-- Student Card 1 -->
+<article class="bg-card-light dark:bg-card-dark rounded-2xl p-5 border border-border-light dark:border-border-dark shadow-sm hover:shadow-md transition-shadow flex flex-col gap-4">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-3">
+<div class="size-12 rounded-full bg-cover bg-center border border-slate-100 dark:border-slate-700" data-alt="Portrait of a young boy student" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCZQjk5uBikH0-8K07LZ3ajv-72QI26MoYaH_xPf5PMBoRcZfQmshjGkn9NeXVyiD3TMnzpvTkaRZFTCl8L8paB5-jM294Ggv6IYjq0BmhiIeB1YmGgfHdkJmZlffKoayg3kwdnT5sX7GqtZIMj3K_U52V6G3X1n2LlH74sL1IUmOKKUYtoprmiNaFbMsjmamNlSMxoG_CCglSVX2VUredOPqv0cIIT-adNk3MQ05-jE7S1jziRvkkfYgS92cn1SSTd0m-5J_S-7itT");'></div>
+<div>
+<h3 class="font-bold text-lg leading-tight">Alex Rivera</h3>
+<p class="text-xs font-medium text-slate-500 dark:text-slate-400">Grade 4 • Age 9</p>
+</div>
+</div>
+<span class="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-bold px-2 py-1 rounded-lg">Active</span>
+</div>
+<!-- Roadmap -->
+<div class="bg-background-light dark:bg-background-dark p-3 rounded-xl flex flex-col gap-2">
+<div class="flex justify-between items-end">
+<span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Current Goal</span>
+<span class="text-sm font-bold text-primary">75%</span>
+</div>
+<p class="text-sm font-bold truncate">Mastering Python Basics</p>
+<div class="h-2 w-full bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-3/4 rounded-full"></div>
+</div>
+</div>
+<!-- Contact -->
+<div class="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+<span class="material-symbols-outlined text-[20px] text-slate-400">face_3</span>
+<span class="truncate">Maria Rivera (Mother)</span>
+</div>
+<div class="mt-auto pt-2 flex gap-2">
+<button class="flex-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 py-2.5 rounded-xl text-sm font-bold transition-colors">Log Note</button>
+<button class="flex-1 bg-primary/10 hover:bg-primary/20 text-primary py-2.5 rounded-xl text-sm font-bold transition-colors">View Profile</button>
+</div>
+</article>
+<!-- Student Card 2 -->
+<article class="bg-card-light dark:bg-card-dark rounded-2xl p-5 border border-border-light dark:border-border-dark shadow-sm hover:shadow-md transition-shadow flex flex-col gap-4">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-3">
+<div class="size-12 rounded-full bg-cover bg-center border border-slate-100 dark:border-slate-700" data-alt="Portrait of a young male student" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAN3SMIsQhI1ppSfGspP5qcvf-9IZaRvJ4F4-wbRfBOTL5t28E-q4LB84vmrCndvSqwpYT3k71ZfJmySjicN7NtKsJM8YNqWq5Tp9PNrYAHU7cE-m3CGKvXcdtCUAyTD8KIx3muH2qpmptcUPNS-f_cL-CsrRp1T6V9XydVJ0oeqadDXxyinhyt54GgFcu9Us9-hfx1_absWx190wHt4lT1vI_i_1eVP7YOi4hOdb3k2TUigr4ahkUTaWQAsNx87nxX0FUHUcNBIHcu");'></div>
+<div>
+<h3 class="font-bold text-lg leading-tight">Jordan Lee</h3>
+<p class="text-xs font-medium text-slate-500 dark:text-slate-400">Grade 5 • Age 10</p>
+</div>
+</div>
+<span class="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-bold px-2 py-1 rounded-lg">Active</span>
+</div>
+<!-- Roadmap -->
+<div class="bg-background-light dark:bg-background-dark p-3 rounded-xl flex flex-col gap-2">
+<div class="flex justify-between items-end">
+<span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Current Goal</span>
+<span class="text-sm font-bold text-primary">40%</span>
+</div>
+<p class="text-sm font-bold truncate">Intro to Robotics</p>
+<div class="h-2 w-full bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-2/5 rounded-full"></div>
+</div>
+</div>
+<!-- Contact -->
+<div class="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+<span class="material-symbols-outlined text-[20px] text-slate-400">face_6</span>
+<span class="truncate">David Lee (Father)</span>
+</div>
+<div class="mt-auto pt-2 flex gap-2">
+<button class="flex-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 py-2.5 rounded-xl text-sm font-bold transition-colors">Log Note</button>
+<button class="flex-1 bg-primary/10 hover:bg-primary/20 text-primary py-2.5 rounded-xl text-sm font-bold transition-colors">View Profile</button>
+</div>
+</article>
+<!-- Student Card 3 (Needs Attention) -->
+<article class="bg-card-light dark:bg-card-dark rounded-2xl p-5 border border-orange-200 dark:border-orange-900/50 shadow-sm hover:shadow-md transition-shadow flex flex-col gap-4 relative overflow-hidden">
+<div class="absolute top-0 right-0 size-16 bg-gradient-to-bl from-orange-500/10 to-transparent rounded-bl-3xl"></div>
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-3">
+<div class="size-12 rounded-full bg-cover bg-center border border-slate-100 dark:border-slate-700" data-alt="Portrait of a young male student looking thoughtful" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCauVTH5j4lrHTspY4wmv6Xrzhk41OZg0plSVtX9fCddX9pyatyVZw8YXm-jai5T18v8vjRkVSbupRo3iJhieP5nJaPb_D4K3LAdUlgHYg7acbXKyRwgw3VYV7qpJwOKBHI1kHNuOKknSOzEBn42Bw5Mh6bqlF37UGZTekNKxmrrEyUGQrjr_eiyOwsJp5yB8HnkYx1rAQv9Dl21-QEkcQHo9ZN4uWhFK8A0WHg_8iWaXdzt1E8iAeyoI0iXqAAn4O-AE625Y8VdpI3");'></div>
+<div>
+<h3 class="font-bold text-lg leading-tight">Sam Chen</h3>
+<p class="text-xs font-medium text-slate-500 dark:text-slate-400">Grade 3 • Age 8</p>
+</div>
+</div>
+<span class="bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 text-xs font-bold px-2 py-1 rounded-lg">Review</span>
+</div>
+<!-- Roadmap -->
+<div class="bg-background-light dark:bg-background-dark p-3 rounded-xl flex flex-col gap-2">
+<div class="flex justify-between items-end">
+<span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Current Goal</span>
+<span class="text-sm font-bold text-orange-500">90%</span>
+</div>
+<p class="text-sm font-bold truncate">Simple Circuits</p>
+<div class="h-2 w-full bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+<div class="h-full bg-orange-500 w-[90%] rounded-full"></div>
+</div>
+</div>
+<!-- Contact -->
+<div class="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+<span class="material-symbols-outlined text-[20px] text-slate-400">face_3</span>
+<span class="truncate">Jenny Chen (Mother)</span>
+</div>
+<div class="mt-auto pt-2 flex gap-2">
+<button class="flex-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 py-2.5 rounded-xl text-sm font-bold transition-colors">Log Note</button>
+<button class="flex-1 bg-primary/10 hover:bg-primary/20 text-primary py-2.5 rounded-xl text-sm font-bold transition-colors">View Profile</button>
+</div>
+</article>
+<!-- Student Card 4 -->
+<article class="bg-card-light dark:bg-card-dark rounded-2xl p-5 border border-border-light dark:border-border-dark shadow-sm hover:shadow-md transition-shadow flex flex-col gap-4">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-3">
+<div class="size-12 rounded-full bg-cover bg-center border border-slate-100 dark:border-slate-700" data-alt="Portrait of a female student looking happy" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBDqGDuhPV1IR8J8AfbQNtCX3xr1CjQYjRWj0AOM0TATI4q-JFZA8_4jIyL-0B3Dm5u0hw_KYwfR1Bri-Ila5GiF64BW63E2c1PBkmPnFzaH19R41qFI0JIFnelrJ1YiKhqtfuiHjUjqlYcxS__4Vayw07q1ZhzMRD7YegEZNWpxHojDihnNQmGIJ5XyGudt16j4--7B8rQSkahhNL0eTpbfs6z-j9hudBaHUAEUIJRc_meI9XHgfEkw1_a-cELxuGWAccAMW6Ld_rs");'></div>
+<div>
+<h3 class="font-bold text-lg leading-tight">Lily Johnson</h3>
+<p class="text-xs font-medium text-slate-500 dark:text-slate-400">Grade 4 • Age 9</p>
+</div>
+</div>
+<span class="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-bold px-2 py-1 rounded-lg">Active</span>
+</div>
+<!-- Roadmap -->
+<div class="bg-background-light dark:bg-background-dark p-3 rounded-xl flex flex-col gap-2">
+<div class="flex justify-between items-end">
+<span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Current Goal</span>
+<span class="text-sm font-bold text-primary">25%</span>
+</div>
+<p class="text-sm font-bold truncate">Scratch Animation</p>
+<div class="h-2 w-full bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-1/4 rounded-full"></div>
+</div>
+</div>
+<!-- Contact -->
+<div class="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+<span class="material-symbols-outlined text-[20px] text-slate-400">face_6</span>
+<span class="truncate">Robert Johnson (Father)</span>
+</div>
+<div class="mt-auto pt-2 flex gap-2">
+<button class="flex-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 py-2.5 rounded-xl text-sm font-bold transition-colors">Log Note</button>
+<button class="flex-1 bg-primary/10 hover:bg-primary/20 text-primary py-2.5 rounded-xl text-sm font-bold transition-colors">View Profile</button>
+</div>
+</article>
+<!-- Student Card 5 -->
+<article class="bg-card-light dark:bg-card-dark rounded-2xl p-5 border border-border-light dark:border-border-dark shadow-sm hover:shadow-md transition-shadow flex flex-col gap-4">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-3">
+<div class="size-12 rounded-full bg-cover bg-center border border-slate-100 dark:border-slate-700" data-alt="Portrait of a young male student smiling" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCx9IlOvgWqXj2MFCzO0CY73jB59H4j0Y5SIuUByEYYMLeosEpqUkrECazeQ2VdC3wyR3lZYhyhtQUNU4opihl2k6uQpKaKixufAGc83uhyggFXHF5zZkkJ41uwgzMiT-ytq3osHVi9JT0s5GXybnr8DsDgFi7SDYdWXf6LEAcT9dnKfWcL8a1x82wy46hD61iFOopa6JAfvRfP8u8w0aKmyyYtuwiUY-7wIBzxyUkUU5tn227L7KHe78ISxjvm2VCfRKD9rFh2VZtJ");'></div>
+<div>
+<h3 class="font-bold text-lg leading-tight">Ethan Patel</h3>
+<p class="text-xs font-medium text-slate-500 dark:text-slate-400">Grade 5 • Age 10</p>
+</div>
+</div>
+<span class="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-bold px-2 py-1 rounded-lg">Active</span>
+</div>
+<!-- Roadmap -->
+<div class="bg-background-light dark:bg-background-dark p-3 rounded-xl flex flex-col gap-2">
+<div class="flex justify-between items-end">
+<span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Current Goal</span>
+<span class="text-sm font-bold text-primary">60%</span>
+</div>
+<p class="text-sm font-bold truncate">3D Printing Basics</p>
+<div class="h-2 w-full bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-3/5 rounded-full"></div>
+</div>
+</div>
+<!-- Contact -->
+<div class="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+<span class="material-symbols-outlined text-[20px] text-slate-400">face_3</span>
+<span class="truncate">Priya Patel (Mother)</span>
+</div>
+<div class="mt-auto pt-2 flex gap-2">
+<button class="flex-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 py-2.5 rounded-xl text-sm font-bold transition-colors">Log Note</button>
+<button class="flex-1 bg-primary/10 hover:bg-primary/20 text-primary py-2.5 rounded-xl text-sm font-bold transition-colors">View Profile</button>
+</div>
+</article>
+<!-- Student Card 6 -->
+<article class="bg-card-light dark:bg-card-dark rounded-2xl p-5 border border-border-light dark:border-border-dark shadow-sm hover:shadow-md transition-shadow flex flex-col gap-4">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-3">
+<div class="size-12 rounded-full bg-cover bg-center border border-slate-100 dark:border-slate-700" data-alt="Portrait of a female student with glasses" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuD-mNFuABZov7Y1ueadIfJFY0SstFY7M8KGCInqs9z98PLNdlj5dY-VsHisWdoYcpKvHxFVMLiLQ-0TV--Q49s_HWOcX8pg-AOJhtvk95VyE9uGuJa7Jt_VylVFq_uXxEwp8zSHshOecwuonVRrEYq5O9fICk19lIvm39yfJlorernQA2qbuLM4IvdAzKRgWRzkQIxiWuS0mbBBCFHbZ-UF2pmB8RUJtIp5O3Ntd67gp2NfLeq4p4yhQUl2i4I-YVxC4jCLBI9C3PdA");'></div>
+<div>
+<h3 class="font-bold text-lg leading-tight">Zoe Williams</h3>
+<p class="text-xs font-medium text-slate-500 dark:text-slate-400">Grade 3 • Age 8</p>
+</div>
+</div>
+<span class="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-bold px-2 py-1 rounded-lg">Active</span>
+</div>
+<!-- Roadmap -->
+<div class="bg-background-light dark:bg-background-dark p-3 rounded-xl flex flex-col gap-2">
+<div class="flex justify-between items-end">
+<span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Current Goal</span>
+<span class="text-sm font-bold text-primary">15%</span>
+</div>
+<p class="text-sm font-bold truncate">Intro to Mechanics</p>
+<div class="h-2 w-full bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[15%] rounded-full"></div>
+</div>
+</div>
+<!-- Contact -->
+<div class="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+<span class="material-symbols-outlined text-[20px] text-slate-400">face_6</span>
+<span class="truncate">Mark Williams (Father)</span>
+</div>
+<div class="mt-auto pt-2 flex gap-2">
+<button class="flex-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 py-2.5 rounded-xl text-sm font-bold transition-colors">Log Note</button>
+<button class="flex-1 bg-primary/10 hover:bg-primary/20 text-primary py-2.5 rounded-xl text-sm font-bold transition-colors">View Profile</button>
+</div>
+</article>
+</section>
+</div>
+</div>
+</main>
+</div>
+</body></html>

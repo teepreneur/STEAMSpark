@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>STEAM Spark - Future of STEAM Education</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Noto+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#3899fa",
+                        "primary-dark": "#2b7cd4",
+                        "secondary": "#34d399", // Green for Science
+                        "tertiary": "#fbbf24", // Yellow/Orange for Arts
+                        "accent": "#F472B6", // Pink for creativity
+                        "background-light": "#f8fafc",
+                        "background-dark": "#0f1923",
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#1a2733",
+                        "text-main-light": "#0f172a",
+                        "text-main-dark": "#e2e8f0",
+                        "text-sub-light": "#475569",
+                        "text-sub-dark": "#94a3b8",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "body": ["Noto Sans", "sans-serif"],
+                    },
+                    borderRadius: { "DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "2xl": "2rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: "Space Grotesk", "Noto Sans", sans-serif;
+        }
+        .bg-grid-pattern {
+            background-image: radial-gradient(rgba(56, 153, 250, 0.1) 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-text-main-light dark:text-text-main-dark overflow-x-hidden selection:bg-primary selection:text-white">
+<header class="sticky top-0 z-50 w-full border-b border-gray-200 dark:border-gray-800 bg-surface-light/95 dark:bg-surface-dark/95 backdrop-blur-md">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex h-20 items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary-dark text-white shadow-lg shadow-primary/30">
+<span class="material-symbols-outlined">science</span>
+<div class="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-tertiary ring-2 ring-white dark:ring-surface-dark"></div>
+</div>
+<span class="text-xl font-bold tracking-tight text-text-main-light dark:text-white">STEAM Spark</span>
+</div>
+<nav class="hidden md:flex items-center gap-8">
+<a class="text-sm font-bold text-text-sub-light dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors" href="#parents">Parents</a>
+<a class="text-sm font-bold text-text-sub-light dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors" href="#teachers">Teachers</a>
+<a class="text-sm font-bold text-text-sub-light dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors" href="#students">Students</a>
+</nav>
+<div class="flex items-center gap-3">
+<button class="hidden sm:flex h-10 items-center justify-center rounded-xl border-2 border-transparent px-4 text-sm font-bold text-text-main-light dark:text-white transition-colors hover:bg-gray-100 dark:hover:bg-gray-800">
+                        Login
+                    </button>
+<button class="flex h-10 items-center justify-center rounded-xl bg-text-main-light dark:bg-white px-5 text-sm font-bold text-white dark:text-background-dark shadow-sm transition-all hover:bg-primary hover:text-white dark:hover:bg-primary dark:hover:text-white">
+                        Sign Up
+                    </button>
+</div>
+</div>
+</div>
+</header>
+<section class="relative overflow-hidden pt-12 pb-20 lg:pt-28 lg:pb-32 bg-grid-pattern">
+<div class="absolute top-0 right-0 -mr-20 -mt-20 h-96 w-96 rounded-full bg-secondary/10 blur-3xl"></div>
+<div class="absolute bottom-0 left-0 -ml-20 -mb-20 h-96 w-96 rounded-full bg-primary/10 blur-3xl"></div>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+<div class="grid lg:grid-cols-2 gap-16 items-center">
+<div class="flex flex-col gap-8 text-center lg:text-left">
+<div class="inline-flex items-center gap-2 self-center lg:self-start rounded-full bg-white dark:bg-surface-dark border border-gray-200 dark:border-gray-700 px-4 py-1.5 text-xs font-bold shadow-sm">
+<span class="flex h-2 w-2 rounded-full bg-secondary animate-pulse"></span>
+<span class="text-text-sub-light dark:text-gray-300">Accepting Early Access Sign-ups</span>
+</div>
+<h1 class="text-5xl font-black leading-tight tracking-tight sm:text-6xl lg:text-7xl text-text-main-light dark:text-white">
+                        Ignite their <br/>
+<span class="text-transparent bg-clip-text bg-gradient-to-r from-primary via-secondary to-tertiary">Curiosity</span>
+</h1>
+<p class="text-xl leading-relaxed text-text-sub-light dark:text-gray-400 max-w-2xl mx-auto lg:mx-0 font-medium">
+                        The all-in-one STEAM platform connecting curious minds with expert mentors. Personalized learning paths in Science, Tech, Engineering, Arts, and Math.
+                    </p>
+<div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 w-full">
+<button class="w-full sm:w-auto flex h-14 items-center justify-center rounded-2xl bg-primary px-8 text-lg font-bold text-white shadow-xl shadow-primary/25 transition-all hover:scale-105 hover:bg-primary-dark ring-4 ring-primary/10">
+                            Parents: Get Started
+                        </button>
+<button class="w-full sm:w-auto flex h-14 items-center justify-center rounded-2xl bg-white dark:bg-surface-dark border-2 border-gray-100 dark:border-gray-700 px-8 text-lg font-bold text-text-main-light dark:text-white transition-all hover:border-secondary hover:text-secondary dark:hover:border-secondary dark:hover:text-secondary shadow-lg shadow-gray-200/50 dark:shadow-none">
+                            Teachers: Join Now
+                        </button>
+</div>
+<div class="flex items-center justify-center lg:justify-start gap-4 text-sm font-semibold text-text-sub-light dark:text-gray-500 mt-2">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-secondary text-lg">check_circle</span>
+<span>Free to join</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-secondary text-lg">check_circle</span>
+<span>Vetted Tutors</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-secondary text-lg">check_circle</span>
+<span>Cancel anytime</span>
+</div>
+</div>
+</div>
+<div class="relative lg:h-[600px] w-full flex items-center justify-center">
+<div class="relative w-full max-w-lg aspect-square lg:aspect-auto lg:h-full">
+<div class="absolute top-0 right-0 w-4/5 h-3/5 rounded-3xl overflow-hidden shadow-2xl border-4 border-white dark:border-surface-dark z-20 transform rotate-2 hover:rotate-0 transition-transform duration-500">
+<div class="h-full w-full bg-cover bg-center" data-alt="Young girl learning to code on a laptop" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuC87cP8KIzk1ffMHAvHiglw8AJrx8951snmwcmCLC6kneZhsV18YszaiblHTAls4AdsDPdWJmVsm48cHc2JvH_KTEG1cSHoTOI2adQbfZdHE8Svz5E8jYr_gnM17iBF-vlFYqAsO6eCYGh228hXuaOYEWW_bhlsBjv79jQgOFoWyDrFp4ntKAWEgPDwjP7AG2zpjHRcA8vlPd0ZhlbA4ZZbhcYytmWgHioUWmUsMQa4ZsbQh3cazAKh8gzxj0gTkKbAqrz52ZMqBCS0')"></div>
+<div class="absolute bottom-4 left-4 bg-white/90 dark:bg-surface-dark/90 backdrop-blur-sm px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg">
+<span class="material-symbols-outlined text-primary">code</span>
+<span>Python Level 1</span>
+</div>
+</div>
+<div class="absolute bottom-10 left-0 w-3/5 h-2/5 rounded-3xl overflow-hidden shadow-2xl border-4 border-white dark:border-surface-dark z-30 transform -rotate-3 hover:rotate-0 transition-transform duration-500">
+<div class="h-full w-full bg-cover bg-center" data-alt="Parent helping child with science project" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuD3bpytj1L6BwCTLWH2f3ZnGEup5ZnqwNn8GhYHkbRbaCKtR3dryu10H0Q65KIDcg2SRmNrpncaHtqAb9xgjAq0t7JOSwSNBnPcx6k2ChYQI-hXrdpLTwSM1gKNnFmIVswUxPZsjUc5jYJo4lf2QeIcoJCOd1vWF-TNSYGuTP6eoXPg_nUQ9i1efUbVd40rqiO_NYT0S7mW7NSxxP7w7Tq0u-FeMPXl712LAn2l-ZvJ2Pbkp5354lplxnesDzphM0XdWc7d7prdhRlS')"></div>
+<div class="absolute bottom-4 right-4 bg-white/90 dark:bg-surface-dark/90 backdrop-blur-sm px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg">
+<span class="material-symbols-outlined text-secondary">biotech</span>
+<span>Home Lab</span>
+</div>
+</div>
+<div class="absolute top-1/2 left-1/4 h-16 w-16 bg-tertiary rounded-2xl -rotate-12 flex items-center justify-center text-white shadow-lg z-40 animate-bounce">
+<span class="material-symbols-outlined text-4xl">lightbulb</span>
+</div>
+<div class="absolute bottom-20 right-10 h-14 w-14 bg-accent rounded-full flex items-center justify-center text-white shadow-lg z-40">
+<span class="material-symbols-outlined text-3xl">palette</span>
+</div>
+<div class="absolute -z-10 top-10 left-10 w-full h-full bg-gradient-to-tr from-primary/20 to-secondary/20 rounded-full blur-3xl"></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="py-20 bg-white dark:bg-surface-dark" id="how-it-works">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="text-center max-w-3xl mx-auto mb-16">
+<span class="text-primary font-bold tracking-wider uppercase text-sm">Simple Process</span>
+<h2 class="text-3xl font-black text-text-main-light dark:text-white sm:text-4xl mt-2 mb-4">Your STEAM Journey Starts Here</h2>
+</div>
+<div class="grid md:grid-cols-3 gap-8">
+<div class="relative p-8 rounded-3xl bg-background-light dark:bg-background-dark border-2 border-transparent hover:border-primary/20 hover:shadow-xl transition-all group">
+<div class="h-16 w-16 rounded-2xl bg-primary/10 text-primary flex items-center justify-center text-3xl font-black mb-6 group-hover:scale-110 transition-transform">1</div>
+<h3 class="text-xl font-bold text-text-main-light dark:text-white mb-3">Connect &amp; Match</h3>
+<p class="text-text-sub-light dark:text-gray-400 leading-relaxed">Parents create profiles and get instantly matched with vetted tutors based on child's interests and learning style.</p>
+</div>
+<div class="relative p-8 rounded-3xl bg-background-light dark:bg-background-dark border-2 border-transparent hover:border-secondary/20 hover:shadow-xl transition-all group">
+<div class="h-16 w-16 rounded-2xl bg-secondary/10 text-secondary flex items-center justify-center text-3xl font-black mb-6 group-hover:scale-110 transition-transform">2</div>
+<h3 class="text-xl font-bold text-text-main-light dark:text-white mb-3">Interactive Learning</h3>
+<p class="text-text-sub-light dark:text-gray-400 leading-relaxed">Students dive into gamified lessons, live video sessions, and hands-on projects that make learning sticky.</p>
+</div>
+<div class="relative p-8 rounded-3xl bg-background-light dark:bg-background-dark border-2 border-transparent hover:border-tertiary/20 hover:shadow-xl transition-all group">
+<div class="h-16 w-16 rounded-2xl bg-tertiary/10 text-tertiary flex items-center justify-center text-3xl font-black mb-6 group-hover:scale-110 transition-transform">3</div>
+<h3 class="text-xl font-bold text-text-main-light dark:text-white mb-3">Track &amp; Grow</h3>
+<p class="text-text-sub-light dark:text-gray-400 leading-relaxed">Watch the progress unfold on your dashboard. Earn badges, certificates, and build a portfolio of skills.</p>
+</div>
+</div>
+</div>
+</section>
+<section class="py-24 bg-background-light dark:bg-background-dark overflow-hidden" id="parents">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex flex-col lg:flex-row gap-16 items-center">
+<div class="lg:w-1/2 order-2 lg:order-1 relative">
+<div class="grid grid-cols-2 gap-4">
+<div class="space-y-4 translate-y-8">
+<div class="rounded-3xl bg-white dark:bg-surface-dark p-6 shadow-xl border border-gray-100 dark:border-gray-700">
+<div class="h-12 w-12 rounded-xl bg-green-100 dark:bg-green-900/30 text-green-600 flex items-center justify-center mb-4">
+<span class="material-symbols-outlined">shield_person</span>
+</div>
+<h4 class="font-bold text-lg mb-1">Safety First</h4>
+<p class="text-sm text-gray-500">100% ID Verified Tutors</p>
+</div>
+<div class="rounded-3xl overflow-hidden shadow-xl h-56 bg-cover bg-center border border-gray-100 dark:border-gray-700 relative group" data-alt="Abstract colorful geometric art pattern" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuA-UtMuh2l2lnycD752M5E7MUDIhXrNvjfaTu9AqmcTqypA-w5YC-CMA2tzzXAQmgpqS1fLyJBi8KU0ZPxCT6EEQ8WOgycAqelIvec1utWlhJJ1Rh0qpx45R7EKdbxbyRGOekmCd8Xt3U2Gp10A4e9uVVHv8VgD4n77e7qrZdvULw1CjcjNYqvLXnLkiUReCimsZ1IJ9LubCQaXeLFX3ZjeQPHdhagQQ6TZGXBfI5QxTzVy_umfdsy5xMgWhAnpRHTziM-diX2V1Thb')">
+<div class="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+<span class="text-white font-bold text-lg text-center px-4">AI-Powered Matching</span>
+</div>
+</div>
+</div>
+<div class="space-y-4">
+<div class="rounded-3xl overflow-hidden shadow-xl h-56 bg-cover bg-center border border-gray-100 dark:border-gray-700 relative group" data-alt="Close up of mechanical gears and robotics" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuD3w_MG9IljQWxa1hmOKXVt1YopxohVybCIjjjwDnlh6ECi4B-106glPBv47Vri_6HeqY6y7ehNB72-c-Pt9H-SWsPzOaOPosC9AD6QIZqGULg0YKgBiEgoZNs-xUT5hyJPOzAwntzh-_p8yZvL0GPPK-3pKPN70_cDrqgVVi7OUTiHuUFxm3gRTx2Fftp1f9pYmdbmPp07LBVc6aPeunJ9We1EqvYetqM9oKlpXsNzZJWmMssXYTYl2EO2w-p6Sjybg4h6YT930o0i')">
+<div class="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+<span class="text-white font-bold text-lg text-center px-4">STEM Kits Included</span>
+</div>
+</div>
+<div class="rounded-3xl bg-white dark:bg-surface-dark p-6 shadow-xl border border-gray-100 dark:border-gray-700">
+<div class="h-12 w-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 text-primary flex items-center justify-center mb-4">
+<span class="material-symbols-outlined">monitoring</span>
+</div>
+<h4 class="font-bold text-lg mb-1">Real-time Data</h4>
+<p class="text-sm text-gray-500">Track every milestone</p>
+</div>
+</div>
+</div>
+</div>
+<div class="lg:w-1/2 order-1 lg:order-2">
+<div class="inline-flex items-center gap-2 rounded-lg bg-primary/10 px-4 py-2 text-sm font-bold text-primary mb-6">
+<span class="material-symbols-outlined text-lg">family_restroom</span>
+                        For Parents
+                    </div>
+<h2 class="text-4xl lg:text-5xl font-black text-text-main-light dark:text-white mb-6">
+                        Complete Visibility.<br/>
+                        Total Peace of Mind.
+                    </h2>
+<p class="text-xl text-text-sub-light dark:text-gray-400 mb-8 leading-relaxed">
+                        We know education is an investment. STEAM Spark gives you the tools to ensure your child is safe, engaged, and actually learning.
+                    </p>
+<div class="space-y-6 mb-10">
+<div class="flex gap-4">
+<div class="flex-shrink-0 h-12 w-12 rounded-full bg-surface-light dark:bg-surface-dark border border-gray-200 dark:border-gray-700 flex items-center justify-center shadow-sm text-primary">
+<span class="material-symbols-outlined">school</span>
+</div>
+<div>
+<h4 class="font-bold text-lg text-text-main-light dark:text-white">Curated Curriculum</h4>
+<p class="text-text-sub-light dark:text-gray-400">Access world-class materials tailored to age groups (5-16 yrs).</p>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="flex-shrink-0 h-12 w-12 rounded-full bg-surface-light dark:bg-surface-dark border border-gray-200 dark:border-gray-700 flex items-center justify-center shadow-sm text-secondary">
+<span class="material-symbols-outlined">person_search</span>
+</div>
+<div>
+<h4 class="font-bold text-lg text-text-main-light dark:text-white">Expert Tutor Matching</h4>
+<p class="text-text-sub-light dark:text-gray-400">Find the perfect mentor who speaks your child's language.</p>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="flex-shrink-0 h-12 w-12 rounded-full bg-surface-light dark:bg-surface-dark border border-gray-200 dark:border-gray-700 flex items-center justify-center shadow-sm text-tertiary">
+<span class="material-symbols-outlined">trophy</span>
+</div>
+<div>
+<h4 class="font-bold text-lg text-text-main-light dark:text-white">Progress Tracking</h4>
+<p class="text-text-sub-light dark:text-gray-400">Weekly reports and live session feedback directly to your phone.</p>
+</div>
+</div>
+</div>
+<button class="flex h-12 items-center justify-center rounded-xl bg-text-main-light dark:bg-white px-8 text-base font-bold text-white dark:text-background-dark shadow-lg hover:bg-primary hover:text-white dark:hover:bg-primary dark:hover:text-white transition-colors">
+                        Create Parent Account
+                    </button>
+</div>
+</div>
+</div>
+</section>
+<section class="py-24 bg-white dark:bg-surface-dark" id="teachers">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex flex-col lg:flex-row gap-16 items-center">
+<div class="lg:w-1/2">
+<div class="inline-flex items-center gap-2 rounded-lg bg-secondary/10 px-4 py-2 text-sm font-bold text-secondary mb-6">
+<span class="material-symbols-outlined text-lg">school</span>
+                        For Teachers
+                    </div>
+<h2 class="text-4xl lg:text-5xl font-black text-text-main-light dark:text-white mb-6">
+                        Teach What You Love.<br/>
+                        Earn What You Deserve.
+                    </h2>
+<p class="text-xl text-text-sub-light dark:text-gray-400 mb-8 leading-relaxed">
+                        Turn your passion for STEAM into a thriving career. We handle the admin work—scheduling, payments, and resources—so you can focus on inspiring the next generation.
+                    </p>
+<div class="grid sm:grid-cols-2 gap-4 mb-10">
+<div class="p-5 rounded-2xl border-2 border-gray-100 dark:border-gray-700 hover:border-secondary/50 transition-colors bg-background-light dark:bg-background-dark">
+<span class="material-symbols-outlined text-secondary text-4xl mb-3">calendar_month</span>
+<h4 class="font-bold text-lg text-text-main-light dark:text-white mb-1">Flexibility</h4>
+<p class="text-sm text-text-sub-light dark:text-gray-400">Set your own hours and rates.</p>
+</div>
+<div class="p-5 rounded-2xl border-2 border-gray-100 dark:border-gray-700 hover:border-secondary/50 transition-colors bg-background-light dark:bg-background-dark">
+<span class="material-symbols-outlined text-secondary text-4xl mb-3">payments</span>
+<h4 class="font-bold text-lg text-text-main-light dark:text-white mb-1">Secure Pay</h4>
+<p class="text-sm text-text-sub-light dark:text-gray-400">Guaranteed bi-weekly payouts.</p>
+</div>
+</div>
+<button class="flex h-12 items-center justify-center rounded-xl border-2 border-secondary text-secondary px-8 text-base font-bold hover:bg-secondary hover:text-white transition-all">
+                        Apply to Teach
+                    </button>
+</div>
+<div class="lg:w-1/2 w-full">
+<div class="relative rounded-3xl bg-background-dark p-6 sm:p-10 shadow-2xl border border-gray-800">
+<div class="flex items-center justify-between mb-8">
+<div>
+<h3 class="text-white font-bold text-2xl">Teacher Dashboard</h3>
+<p class="text-gray-400 text-sm">Welcome back, Sarah</p>
+</div>
+<div class="h-12 w-12 rounded-full bg-gradient-to-tr from-secondary to-green-400 flex items-center justify-center text-white shadow-lg shadow-green-900/50">
+<span class="material-symbols-outlined">person</span>
+</div>
+</div>
+<div class="space-y-4 relative z-10">
+<div class="bg-surface-dark border border-gray-700 rounded-2xl p-5 hover:border-secondary/50 transition-colors cursor-default">
+<div class="flex justify-between items-end mb-2">
+<span class="text-gray-400 text-xs font-bold uppercase tracking-wider">Total Earnings</span>
+<span class="text-secondary text-xs font-bold bg-secondary/10 px-2 py-1 rounded-lg">+12% this week</span>
+</div>
+<div class="text-4xl font-mono text-white tracking-tight">$845.00</div>
+</div>
+<div class="bg-surface-dark border border-gray-700 rounded-2xl p-5 hover:border-primary/50 transition-colors">
+<div class="text-gray-400 text-xs font-bold uppercase mb-4 tracking-wider">Next Session Starts in 15m</div>
+<div class="flex items-center gap-4">
+<div class="h-14 w-14 rounded-xl bg-primary/20 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-2xl">smart_toy</span>
+</div>
+<div>
+<div class="text-white font-bold text-lg">Intro to Robotics</div>
+<div class="text-gray-400 text-sm">Today, 4:00 PM • 3 Students</div>
+</div>
+</div>
+<div class="mt-5 flex gap-3">
+<button class="flex-1 bg-primary hover:bg-primary-dark text-white text-sm font-bold py-2.5 rounded-xl transition-colors">Launch Class</button>
+<button class="px-4 bg-gray-700 hover:bg-gray-600 text-white rounded-xl transition-colors"><span class="material-symbols-outlined text-sm">more_horiz</span></button>
+</div>
+</div>
+</div>
+<div class="absolute -right-10 -bottom-10 h-40 w-40 rounded-full bg-secondary/20 blur-3xl pointer-events-none"></div>
+<div class="absolute -left-10 -top-10 h-40 w-40 rounded-full bg-primary/20 blur-3xl pointer-events-none"></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="py-24 bg-gradient-to-br from-primary to-blue-600 text-white relative overflow-hidden" id="students">
+<span class="material-symbols-outlined absolute top-10 left-10 text-9xl text-white opacity-5 rotate-12">settings</span>
+<span class="material-symbols-outlined absolute bottom-10 right-10 text-9xl text-white opacity-5 -rotate-12">rocket_launch</span>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+<div class="inline-block rounded-full bg-white/20 px-4 py-1 mb-6 border border-white/30 backdrop-blur-sm">
+<span class="font-bold text-sm tracking-wide">STUDENT EXPERIENCE</span>
+</div>
+<h2 class="text-4xl lg:text-5xl font-black mb-6">Learning That Feels Like Play</h2>
+<p class="text-xl text-blue-100 mb-12 max-w-2xl mx-auto font-medium">
+                Forget boring textbooks. Dive into gamified challenges, earn digital badges, and unlock new levels of knowledge on your personal roadmap.
+            </p>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
+<div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-colors">
+<span class="material-symbols-outlined text-4xl mb-3 text-tertiary">sports_esports</span>
+<h3 class="font-bold text-lg">Gamified</h3>
+<p class="text-sm text-blue-100 opacity-80">Level up as you learn</p>
+</div>
+<div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-colors">
+<span class="material-symbols-outlined text-4xl mb-3 text-secondary">military_tech</span>
+<h3 class="font-bold text-lg">Badges</h3>
+<p class="text-sm text-blue-100 opacity-80">Showcase achievements</p>
+</div>
+<div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-colors">
+<span class="material-symbols-outlined text-4xl mb-3 text-accent">map</span>
+<h3 class="font-bold text-lg">Roadmaps</h3>
+<p class="text-sm text-blue-100 opacity-80">Clear path to mastery</p>
+</div>
+<div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-colors">
+<span class="material-symbols-outlined text-4xl mb-3 text-white">group_add</span>
+<h3 class="font-bold text-lg">Friends</h3>
+<p class="text-sm text-blue-100 opacity-80">Learn with peers</p>
+</div>
+</div>
+<button class="bg-white text-primary px-10 py-4 rounded-xl font-bold text-lg hover:bg-blue-50 transition-colors shadow-xl hover:shadow-2xl transform hover:-translate-y-1">
+                Explore Student Features
+            </button>
+</div>
+</section>
+<section class="py-24 bg-background-light dark:bg-background-dark relative overflow-hidden" id="app-showcase">
+<div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-7xl pointer-events-none">
+<div class="absolute top-40 left-10 w-72 h-72 bg-primary/5 rounded-full blur-3xl"></div>
+<div class="absolute bottom-40 right-10 w-72 h-72 bg-secondary/5 rounded-full blur-3xl"></div>
+</div>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+<div class="text-center max-w-3xl mx-auto mb-20">
+<span class="text-accent font-bold tracking-wider uppercase text-sm">Platform Preview</span>
+<h2 class="text-3xl font-black text-text-main-light dark:text-white sm:text-4xl mt-2 mb-6">
+                Designed for the Entire Ecosystem
+            </h2>
+<p class="text-xl text-text-sub-light dark:text-gray-400 leading-relaxed">
+                Seamless interfaces tailored to the unique needs of parents, students, and teachers. Manage, learn, and grow from any device.
+            </p>
+</div>
+<div class="flex flex-col gap-24">
+<div class="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
+<div class="flex-1 flex justify-center lg:justify-end order-2 lg:order-1">
+<div class="relative mx-auto border-gray-800 dark:border-gray-800 bg-gray-800 border-[14px] rounded-[2.5rem] h-[600px] w-[300px] shadow-xl flex flex-col justify-start overflow-hidden">
+<div class="h-[32px] w-[3px] bg-gray-800 absolute -left-[17px] top-[72px] rounded-l-lg"></div>
+<div class="h-[46px] w-[3px] bg-gray-800 absolute -left-[17px] top-[124px] rounded-l-lg"></div>
+<div class="h-[46px] w-[3px] bg-gray-800 absolute -left-[17px] top-[178px] rounded-l-lg"></div>
+<div class="h-[64px] w-[3px] bg-gray-800 absolute -right-[17px] top-[142px] rounded-r-lg"></div>
+<div class="rounded-[2rem] overflow-hidden w-full h-full bg-background-light dark:bg-background-dark flex flex-col font-body">
+<div class="bg-surface-light dark:bg-surface-dark p-6 pt-10 pb-4 shadow-sm z-10">
+<div class="flex justify-between items-center mb-4">
+<div>
+<div class="text-xs text-text-sub-light dark:text-gray-500 uppercase font-bold">Parent Portal</div>
+<div class="text-lg font-bold text-text-main-light dark:text-white">The Smith Family</div>
+</div>
+<div class="h-8 w-8 rounded-full bg-primary/20 text-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-sm">notifications</span>
+</div>
+</div>
+</div>
+<div class="flex-1 overflow-hidden relative p-4 space-y-4">
+<div class="bg-surface-light dark:bg-surface-dark p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+<div class="flex items-center gap-3 mb-3">
+<div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-xl">👦</div>
+<div>
+<div class="font-bold text-sm text-text-main-light dark:text-white">Noah</div>
+<div class="text-xs text-text-sub-light dark:text-gray-500">Grade 5 • Coding</div>
+</div>
+</div>
+<div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2 mb-2">
+<div class="bg-primary h-2 rounded-full" style="width: 75%"></div>
+</div>
+<div class="flex justify-between text-xs text-text-sub-light dark:text-gray-500">
+<span>Python Basics</span>
+<span class="font-bold text-primary">75%</span>
+</div>
+</div>
+<div class="bg-surface-light dark:bg-surface-dark p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+<div class="text-xs font-bold text-gray-400 uppercase mb-3">Up Next</div>
+<div class="flex gap-3">
+<div class="h-12 w-12 rounded-lg bg-secondary/10 flex items-center justify-center text-secondary shrink-0">
+<span class="material-symbols-outlined">science</span>
+</div>
+<div>
+<div class="font-bold text-sm text-text-main-light dark:text-white">Chemistry Lab</div>
+<div class="text-xs text-text-sub-light dark:text-gray-500">Today, 4:00 PM</div>
+<div class="text-xs text-secondary font-semibold mt-1">Starting soon</div>
+</div>
+</div>
+</div>
+<div class="bg-gradient-to-br from-primary to-blue-600 p-4 rounded-xl shadow-lg text-white">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-yellow-300">star</span>
+<span class="text-sm font-bold">New Match!</span>
+</div>
+<p class="text-xs opacity-90 mb-3">We found a Math tutor for Emma based on your preferences.</p>
+<button class="w-full py-2 bg-white text-primary text-xs font-bold rounded-lg hover:bg-blue-50 transition-colors">View Profile</button>
+</div>
+</div>
+<div class="bg-surface-light dark:bg-surface-dark p-4 border-t border-gray-100 dark:border-gray-700 flex justify-between items-center text-gray-400">
+<span class="material-symbols-outlined text-primary">home</span>
+<span class="material-symbols-outlined">calendar_month</span>
+<span class="material-symbols-outlined">chat</span>
+<span class="material-symbols-outlined">person</span>
+</div>
+</div>
+</div>
+</div>
+<div class="flex-1 text-center lg:text-left order-1 lg:order-2">
+<div class="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary mb-4">
+<span class="material-symbols-outlined text-sm">smartphone</span>
+                        Mobile
+                    </div>
+<h3 class="text-3xl font-bold text-text-main-light dark:text-white mb-4">Parent Companion</h3>
+<p class="text-lg text-text-sub-light dark:text-gray-400 max-w-md mx-auto lg:mx-0 leading-relaxed">
+                        Stay connected to your child's education wherever you are. Approve tutors, view progress reports, and manage schedules directly from your pocket.
+                    </p>
+<ul class="mt-6 space-y-3 text-sm text-text-sub-light dark:text-gray-400 mx-auto lg:mx-0 max-w-md">
+<li class="flex items-center gap-2 justify-center lg:justify-start">
+<span class="material-symbols-outlined text-green-500 text-lg">check</span>
+                        Instant notifications for class updates
+                    </li>
+<li class="flex items-center gap-2 justify-center lg:justify-start">
+<span class="material-symbols-outlined text-green-500 text-lg">check</span>
+                        Easy one-tap payments
+                    </li>
+</ul>
+</div>
+</div>
+<div class="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
+<div class="flex-1 text-center lg:text-right">
+<div class="inline-flex items-center gap-2 rounded-full bg-secondary/10 px-3 py-1 text-xs font-bold text-secondary mb-4">
+<span class="material-symbols-outlined text-sm">tablet_mac</span>
+                        Tablet
+                    </div>
+<h3 class="text-3xl font-bold text-text-main-light dark:text-white mb-4">Interactive Learning Hub</h3>
+<p class="text-lg text-text-sub-light dark:text-gray-400 max-w-md mx-auto lg:ml-auto lg:mr-0 leading-relaxed">
+                        A dedicated space for students to explore. The tablet interface is perfect for touch-based coding blocks, digital drawing, and interactive science experiments.
+                    </p>
+<ul class="mt-6 space-y-3 text-sm text-text-sub-light dark:text-gray-400 mx-auto lg:ml-auto lg:mr-0 max-w-md">
+<li class="flex items-center gap-2 justify-center lg:justify-end">
+                        Drag-and-drop coding interface
+                        <span class="material-symbols-outlined text-green-500 text-lg">check</span>
+</li>
+<li class="flex items-center gap-2 justify-center lg:justify-end">
+                        Immersive AR/VR compatible view
+                        <span class="material-symbols-outlined text-green-500 text-lg">check</span>
+</li>
+</ul>
+</div>
+<div class="flex-1 flex justify-center lg:justify-start">
+<div class="relative mx-auto border-gray-800 dark:border-gray-800 bg-gray-800 border-[14px] rounded-[2rem] h-[450px] w-[600px] shadow-2xl flex flex-col justify-center overflow-hidden">
+<div class="h-[3px] w-[32px] bg-gray-800 absolute -top-[17px] left-[72px] rounded-b-lg"></div>
+<div class="rounded-[1.5rem] overflow-hidden w-full h-full bg-slate-900 flex flex-row font-body relative">
+<div class="w-16 bg-slate-800 border-r border-slate-700 flex flex-col items-center py-6 gap-6 z-20">
+<div class="h-10 w-10 rounded-full bg-gradient-to-br from-tertiary to-orange-500"></div>
+<span class="material-symbols-outlined text-white/50 hover:text-white cursor-pointer">home</span>
+<span class="material-symbols-outlined text-tertiary cursor-pointer">sports_esports</span>
+<span class="material-symbols-outlined text-white/50 hover:text-white cursor-pointer">school</span>
+<span class="material-symbols-outlined text-white/50 hover:text-white cursor-pointer mt-auto">settings</span>
+</div>
+<div class="flex-1 bg-slate-900 p-6 overflow-hidden relative">
+<div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5"></div>
+<div class="flex justify-between items-center mb-6 z-10 relative">
+<div>
+<h4 class="text-white font-bold text-xl">Mission Control</h4>
+<p class="text-slate-400 text-xs">Continue your journey, SpaceCadet_01</p>
+</div>
+<div class="flex gap-3">
+<div class="bg-slate-800 px-3 py-1 rounded-lg border border-slate-700 flex items-center gap-2">
+<span class="material-symbols-outlined text-yellow-400 text-sm">bolt</span>
+<span class="text-white font-bold text-sm">450 XP</span>
+</div>
+<div class="bg-slate-800 px-3 py-1 rounded-lg border border-slate-700 flex items-center gap-2">
+<span class="material-symbols-outlined text-red-400 text-sm">local_fire_department</span>
+<span class="text-white font-bold text-sm">5 Day Streak</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-3 gap-4 z-10 relative h-full">
+<div class="col-span-2 bg-gradient-to-br from-indigo-600 to-purple-700 rounded-2xl p-5 text-white relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-4 opacity-10">
+<span class="material-symbols-outlined text-9xl">rocket_launch</span>
+</div>
+<span class="bg-white/20 px-2 py-0.5 rounded text-[10px] font-bold uppercase mb-2 inline-block">Daily Quest</span>
+<h3 class="text-2xl font-black mb-1">Mars Colonization</h3>
+<p class="text-sm text-indigo-100 mb-4 max-w-[70%]">Build a sustainable habitat using basic engineering principles.</p>
+<div class="flex gap-2 mb-4">
+<span class="text-xs bg-black/20 px-2 py-1 rounded">Engineering</span>
+<span class="text-xs bg-black/20 px-2 py-1 rounded">Physics</span>
+</div>
+<button class="bg-white text-indigo-600 px-4 py-2 rounded-lg font-bold text-sm hover:bg-indigo-50 transition-colors">Resume Mission</button>
+</div>
+<div class="flex flex-col gap-4">
+<div class="bg-slate-800 rounded-2xl p-4 border border-slate-700 flex-1">
+<h5 class="text-slate-400 text-xs font-bold uppercase mb-3">Recent Badges</h5>
+<div class="grid grid-cols-2 gap-2">
+<div class="aspect-square bg-slate-700 rounded-lg flex items-center justify-center text-2xl">🤖</div>
+<div class="aspect-square bg-slate-700 rounded-lg flex items-center justify-center text-2xl">🔬</div>
+<div class="aspect-square bg-slate-700 rounded-lg flex items-center justify-center text-2xl">🎨</div>
+<div class="aspect-square bg-slate-700/30 rounded-lg flex items-center justify-center text-slate-500 text-xs font-bold border-2 border-dashed border-slate-600">+2</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="flex flex-col items-center gap-8">
+<div class="text-center max-w-2xl">
+<div class="inline-flex items-center gap-2 rounded-full bg-tertiary/10 px-3 py-1 text-xs font-bold text-tertiary mb-4">
+<span class="material-symbols-outlined text-sm">computer</span>
+                        Desktop
+                    </div>
+<h3 class="text-3xl font-bold text-text-main-light dark:text-white mb-4">Professional Command Center</h3>
+<p class="text-lg text-text-sub-light dark:text-gray-400 leading-relaxed">
+                        Teachers get a powerful desktop dashboard to manage classes, track earnings, and create curriculum. Everything you need to run your education business efficiently.
+                    </p>
+</div>
+<div class="w-full max-w-5xl mx-auto">
+<div class="relative mx-auto border-gray-800 dark:border-gray-800 bg-gray-800 border-[10px] rounded-xl shadow-2xl overflow-hidden">
+<div class="bg-gray-800 w-full h-8 flex gap-2 px-4 items-center border-b border-gray-700">
+<div class="h-3 w-3 rounded-full bg-red-500"></div>
+<div class="h-3 w-3 rounded-full bg-yellow-500"></div>
+<div class="h-3 w-3 rounded-full bg-green-500"></div>
+<div class="mx-auto bg-gray-900 rounded-md px-32 py-1 text-[10px] text-gray-500 font-mono">steamspark.edu/teacher/dashboard</div>
+</div>
+<div class="bg-background-light dark:bg-background-dark w-full aspect-[16/9] flex overflow-hidden">
+<div class="w-64 bg-surface-light dark:bg-surface-dark border-r border-gray-200 dark:border-gray-700 hidden md:flex flex-col p-4">
+<div class="flex items-center gap-2 mb-8 text-primary font-bold text-lg px-2">
+<span class="material-symbols-outlined">science</span> Spark Teacher
+                                </div>
+<nav class="space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 bg-primary/10 text-primary rounded-lg text-sm font-medium" href="#">
+<span class="material-symbols-outlined text-lg">dashboard</span> Dashboard
+                                    </a>
+<a class="flex items-center gap-3 px-3 py-2 text-text-sub-light dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-sm font-medium" href="#">
+<span class="material-symbols-outlined text-lg">calendar_month</span> Schedule
+                                    </a>
+<a class="flex items-center gap-3 px-3 py-2 text-text-sub-light dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-sm font-medium" href="#">
+<span class="material-symbols-outlined text-lg">school</span> My Classes
+                                    </a>
+<a class="flex items-center gap-3 px-3 py-2 text-text-sub-light dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-sm font-medium" href="#">
+<span class="material-symbols-outlined text-lg">payments</span> Earnings
+                                    </a>
+<a class="flex items-center gap-3 px-3 py-2 text-text-sub-light dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-sm font-medium" href="#">
+<span class="material-symbols-outlined text-lg">forum</span> Messages
+                                    </a>
+</nav>
+<div class="mt-auto pt-4 border-t border-gray-200 dark:border-gray-700">
+<div class="flex items-center gap-3 px-2">
+<div class="h-8 w-8 rounded-full bg-secondary text-white flex items-center justify-center font-bold text-xs">PT</div>
+<div class="text-xs">
+<div class="font-bold text-text-main-light dark:text-white">Prof. Thompson</div>
+<div class="text-text-sub-light dark:text-gray-500">Science Dept.</div>
+</div>
+</div>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto p-6 lg:p-8">
+<div class="flex justify-between items-center mb-8">
+<h2 class="text-2xl font-bold text-text-main-light dark:text-white">Dashboard Overview</h2>
+<button class="bg-primary text-white px-4 py-2 rounded-lg text-sm font-bold shadow-md hover:bg-primary-dark transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-lg">add</span> Create New Class
+                                    </button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+<div class="bg-surface-light dark:bg-surface-dark p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+<div class="flex justify-between items-start mb-2">
+<div class="text-text-sub-light dark:text-gray-500 text-xs font-bold uppercase">Total Earnings</div>
+<span class="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-0.5 rounded-full">+18%</span>
+</div>
+<div class="text-3xl font-black text-text-main-light dark:text-white">$2,450</div>
+</div>
+<div class="bg-surface-light dark:bg-surface-dark p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+<div class="flex justify-between items-start mb-2">
+<div class="text-text-sub-light dark:text-gray-500 text-xs font-bold uppercase">Active Students</div>
+<span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-full">New</span>
+</div>
+<div class="text-3xl font-black text-text-main-light dark:text-white">24</div>
+</div>
+<div class="bg-surface-light dark:bg-surface-dark p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+<div class="flex justify-between items-start mb-2">
+<div class="text-text-sub-light dark:text-gray-500 text-xs font-bold uppercase">Upcoming Hours</div>
+</div>
+<div class="text-3xl font-black text-text-main-light dark:text-white">12h</div>
+</div>
+</div>
+<div class="bg-surface-light dark:bg-surface-dark rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+<div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 font-bold text-text-main-light dark:text-white">Upcoming Classes</div>
+<div class="overflow-x-auto">
+<table class="w-full text-sm text-left">
+<thead class="bg-gray-50 dark:bg-gray-800/50 text-text-sub-light dark:text-gray-500">
+<tr>
+<th class="px-6 py-3">Class Name</th>
+<th class="px-6 py-3">Students</th>
+<th class="px-6 py-3">Time</th>
+<th class="px-6 py-3">Status</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+<tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+<td class="px-6 py-4 font-medium text-text-main-light dark:text-white">Intro to Robotics</td>
+<td class="px-6 py-4">
+<div class="flex -space-x-2">
+<div class="h-6 w-6 rounded-full bg-blue-400 border-2 border-white dark:border-surface-dark"></div>
+<div class="h-6 w-6 rounded-full bg-green-400 border-2 border-white dark:border-surface-dark"></div>
+<div class="h-6 w-6 rounded-full bg-gray-300 border-2 border-white dark:border-surface-dark flex items-center justify-center text-[8px] font-bold">+2</div>
+</div>
+</td>
+<td class="px-6 py-4">Today, 4:00 PM</td>
+<td class="px-6 py-4"><span class="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">Confirmed</span></td>
+</tr>
+<tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+<td class="px-6 py-4 font-medium text-text-main-light dark:text-white">Javascript Basics</td>
+<td class="px-6 py-4">
+<div class="flex -space-x-2">
+<div class="h-6 w-6 rounded-full bg-purple-400 border-2 border-white dark:border-surface-dark"></div>
+</div>
+</td>
+<td class="px-6 py-4">Tomorrow, 10:00 AM</td>
+<td class="px-6 py-4"><span class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-bold">Pending</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="py-24 bg-background-light dark:bg-background-dark">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<h2 class="text-3xl font-black text-center text-text-main-light dark:text-white mb-16">Trusted by the Community</h2>
+<div class="grid md:grid-cols-3 gap-8">
+<div class="bg-white dark:bg-surface-dark p-8 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-800">
+<div class="flex items-center gap-1 text-tertiary mb-6">
+<span class="material-symbols-outlined text-lg">star</span>
+<span class="material-symbols-outlined text-lg">star</span>
+<span class="material-symbols-outlined text-lg">star</span>
+<span class="material-symbols-outlined text-lg">star</span>
+<span class="material-symbols-outlined text-lg">star</span>
+</div>
+<p class="text-text-sub-light dark:text-gray-300 mb-8 italic text-lg leading-relaxed">"My daughter used to struggle with math, but the gamified approach here completely changed her perspective. She loves earning badges!"</p>
+<div class="flex items-center gap-4 border-t border-gray-100 dark:border-gray-700 pt-6">
+<div class="h-12 w-12 rounded-full bg-gray-200 bg-cover bg-center" data-alt="Portrait of a smiling mother" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBkmdNLBl0hT_qeAf_OaactLNcnKKblF5Abz-XIHXUFVjFNRoiIoKJTPO7Z-hQh4cC4b-X3Unhmx923vm-uE1F0DWap804s5gXx267mq8YiPI16GlEILsMXMzbALXManvwkPpajfy5Ef4h5BRnT74_6zz0dPUiKQbqkL9iqBscNg39OYtkf3GydhorcW-XqliyfgD1dHqmTBWHWV8dB-toeygz0rd7KLe8Npmo0rq4EwAzi_DHLOPR6WsTCN9Ur03PM3GLdlHzkBBqa')"></div>
+<div>
+<div class="font-bold text-text-main-light dark:text-white">Elena R.</div>
+<div class="text-sm text-text-sub-light dark:text-gray-500">Parent of 2</div>
+</div>
+</div>
+</div>
+<div class="bg-white dark:bg-surface-dark p-8 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-800">
+<div class="flex items-center gap-1 text-tertiary mb-6">
+<span class="material-symbols-outlined text-lg">star</span>
+<span class="material-symbols-outlined text-lg">star</span>
+<span class="material-symbols-outlined text-lg">star</span>
+<span class="material-symbols-outlined text-lg">star</span>
+<span class="material-symbols-outlined text-lg">star</span>
+</div>
+<p class="text-text-sub-light dark:text-gray-300 mb-8 italic text-lg leading-relaxed">"As a retired engineer, I wanted to give back. The platform makes it so easy to schedule classes and connect with curious minds."</p>
+<div class="flex items-center gap-4 border-t border-gray-100 dark:border-gray-700 pt-6">
+<div class="h-12 w-12 rounded-full bg-gray-200 bg-cover bg-center" data-alt="Portrait of an older man with glasses" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuB-Nw56rTZgq09RKTMEjebS3HALuX5TUCV1LcxPIr6Va9l7iE4HxOhPUsanf1A93YVLKuADtLk3Hcm23YSlvV1tggngVJBtt2yubSJjp84MxMLuwl6gIKhHuZzj2wApNXh0E5MtsPTplT5CoIS3IakYUaUQ6wdA3zCL9OsRXgDF0DTcD2A3TM-UmXUZchXFF1fzkC_PgEhsR8ZlOyVRnxIB9FSDKsswqBaRW68nWrBR_7LNB57opzfD2Qhsz_SqyW1zlCteHOxHI2El')"></div>
+<div>
+<div class="font-bold text-text-main-light dark:text-white">Marcus T.</div>
+<div class="text-sm text-text-sub-light dark:text-gray-500">Physics Tutor</div>
+</div>
+</div>
+</div>
+<div class="bg-white dark:bg-surface-dark p-8 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-800">
+<div class="flex items-center gap-1 text-tertiary mb-6">
+<span class="material-symbols-outlined text-lg">star</span>
+<span class="material-symbols-outlined text-lg">star</span>
+<span class="material-symbols-outlined text-lg">star</span>
+<span class="material-symbols-outlined text-lg">star</span>
+<span class="material-symbols-outlined text-lg">star</span>
+</div>
+<p class="text-text-sub-light dark:text-gray-300 mb-8 italic text-lg leading-relaxed">"The robotics roadmap is awesome! I built my first moving robot last week. The live help from my tutor was super useful."</p>
+<div class="flex items-center gap-4 border-t border-gray-100 dark:border-gray-700 pt-6">
+<div class="h-12 w-12 rounded-full bg-gray-200 bg-cover bg-center" data-alt="Portrait of a young boy smiling" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDQEdbBunk91X6mi5Or5wuxsfteGS71MBKzC5wLYku-auf3TaAZJ1duMjIHaK_LW283ThUzFxAwb8oncG0dNfqyJVep3Xip_71FAJ4ZLxu5w7anoL_PleQdRJHd_YYtIo852Q7CwfU1MXxMAQYg6KWAJ1I34zubhXzOIMfQxzHdjdhqukShc6E0Wadwj_cifOt97uyEsQJb1swj1HMOfsppOHaQ3at_hkJZ_runrYfy_42Lpxugs3GqsP2dZZDdOQLoF-DoQqy-IJwY')"></div>
+<div>
+<div class="font-bold text-text-main-light dark:text-white">Leo K.</div>
+<div class="text-sm text-text-sub-light dark:text-gray-500">Student (Age 12)</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="py-24 bg-surface-light dark:bg-surface-dark border-t border-gray-100 dark:border-gray-800">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="text-center mb-12">
+<h2 class="text-4xl font-black text-text-main-light dark:text-white mb-4">Ready to Ignite the Spark?</h2>
+<p class="text-lg text-text-sub-light dark:text-gray-400">Join thousands of parents and educators transforming STEAM education.</p>
+</div>
+<div class="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+<div class="group relative overflow-hidden rounded-3xl bg-blue-50 dark:bg-blue-900/10 p-10 text-center border-2 border-blue-100 dark:border-blue-900/30 hover:border-primary transition-colors">
+<div class="mb-6 flex justify-center">
+<div class="h-16 w-16 rounded-2xl bg-primary text-white flex items-center justify-center text-3xl shadow-lg shadow-primary/30">
+<span class="material-symbols-outlined">family_restroom</span>
+</div>
+</div>
+<h3 class="text-2xl font-bold text-text-main-light dark:text-white mb-3">I'm a Parent</h3>
+<p class="text-text-sub-light dark:text-gray-400 mb-8">Get personalized learning plans for your child.</p>
+<button class="w-full h-12 rounded-xl bg-primary font-bold text-white shadow-lg hover:bg-primary-dark transition-colors">
+                        Parent Sign Up
+                    </button>
+</div>
+<div class="group relative overflow-hidden rounded-3xl bg-green-50 dark:bg-green-900/10 p-10 text-center border-2 border-green-100 dark:border-green-900/30 hover:border-secondary transition-colors">
+<div class="mb-6 flex justify-center">
+<div class="h-16 w-16 rounded-2xl bg-secondary text-white flex items-center justify-center text-3xl shadow-lg shadow-secondary/30">
+<span class="material-symbols-outlined">school</span>
+</div>
+</div>
+<h3 class="text-2xl font-bold text-text-main-light dark:text-white mb-3">I'm an Educator</h3>
+<p class="text-text-sub-light dark:text-gray-400 mb-8">Start teaching and earning on your schedule.</p>
+<button class="w-full h-12 rounded-xl bg-white dark:bg-surface-dark border-2 border-secondary font-bold text-secondary shadow-lg hover:bg-secondary hover:text-white transition-colors">
+                        Teacher Sign Up
+                    </button>
+</div>
+</div>
+</div>
+</section>
+<footer class="bg-background-light dark:bg-background-dark pt-20 pb-10 border-t border-gray-200 dark:border-gray-800">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-10 mb-16">
+<div class="col-span-2 lg:col-span-2 pr-8">
+<div class="flex items-center gap-2 mb-6">
+<div class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white">
+<span class="material-symbols-outlined">science</span>
+</div>
+<span class="text-2xl font-bold tracking-tight text-text-main-light dark:text-white">STEAM Spark</span>
+</div>
+<p class="text-text-sub-light dark:text-gray-500 text-sm leading-relaxed mb-8 max-w-sm">
+                        Empowering the next generation of innovators through accessible, engaging, and safe STEAM education. Join the revolution today.
+                    </p>
+<div class="flex gap-4">
+<a class="h-10 w-10 rounded-full bg-surface-light dark:bg-surface-dark flex items-center justify-center text-gray-400 hover:text-primary hover:bg-white shadow-sm transition-all" href="#"><span class="material-symbols-outlined">public</span></a>
+<a class="h-10 w-10 rounded-full bg-surface-light dark:bg-surface-dark flex items-center justify-center text-gray-400 hover:text-primary hover:bg-white shadow-sm transition-all" href="#"><span class="material-symbols-outlined">mail</span></a>
+<a class="h-10 w-10 rounded-full bg-surface-light dark:bg-surface-dark flex items-center justify-center text-gray-400 hover:text-primary hover:bg-white shadow-sm transition-all" href="#"><span class="material-symbols-outlined">chat_bubble</span></a>
+</div>
+</div>
+<div>
+<h4 class="font-bold text-text-main-light dark:text-white mb-6">Platform</h4>
+<ul class="space-y-4 text-sm text-text-sub-light dark:text-gray-500">
+<li><a class="hover:text-primary transition-colors" href="#">How it Works</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">For Parents</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">For Teachers</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Pricing</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-bold text-text-main-light dark:text-white mb-6">Resources</h4>
+<ul class="space-y-4 text-sm text-text-sub-light dark:text-gray-500">
+<li><a class="hover:text-primary transition-colors" href="#">Blog</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Community</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Help Center</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Safety Guidelines</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-bold text-text-main-light dark:text-white mb-6">Legal</h4>
+<ul class="space-y-4 text-sm text-text-sub-light dark:text-gray-500">
+<li><a class="hover:text-primary transition-colors" href="#">Privacy Policy</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Terms of Service</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Cookie Policy</a></li>
+</ul>
+</div>
+</div>
+<div class="pt-8 border-t border-gray-200 dark:border-gray-800 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-text-sub-light dark:text-gray-500">
+<span>© 2023 STEAM Spark Education Inc. All rights reserved.</span>
+<div class="flex gap-6">
+<a class="hover:text-primary transition-colors" href="#">Privacy</a>
+<a class="hover:text-primary transition-colors" href="#">Terms</a>
+<a class="hover:text-primary transition-colors" href="#">Sitemap</a>
+</div>
+</div>
+</div>
+</footer>
+</body></html>

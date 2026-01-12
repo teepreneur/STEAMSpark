@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Find Tutors - STEAM Spark</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#258cf4",
+                        "background-light": "#f5f7f8",
+                        "background-dark": "#101922",
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#1a2632",
+                        "text-main": "#111418",
+                        "text-sub": "#60758a",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "sans-serif"],
+                        "body": ["Noto Sans", "sans-serif"],
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar for sidebar */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #dbe0e6;
+            border-radius: 20px;
+        }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #2b3b4b;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-text-main dark:text-white font-display overflow-x-hidden flex flex-col min-h-screen">
+<!-- Top Navigation -->
+<header class="sticky top-0 z-50 flex w-full flex-col bg-surface-light dark:bg-surface-dark border-b border-[#f0f2f5] dark:border-[#2b3b4b]">
+<div class="flex items-center justify-between whitespace-nowrap px-6 py-3 lg:px-10">
+<div class="flex items-center gap-4 text-text-main dark:text-white">
+<div class="size-8 text-primary">
+<svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_6_535)">
+<path clip-rule="evenodd" d="M47.2426 24L24 47.2426L0.757355 24L24 0.757355L47.2426 24ZM12.2426 21H35.7574L24 9.24264L12.2426 21Z" fill="currentColor" fill-rule="evenodd"></path>
+</g>
+<defs>
+<clippath id="clip0_6_535"><rect fill="white" height="48" width="48"></rect></clippath>
+</defs>
+</svg>
+</div>
+<h2 class="text-xl font-bold leading-tight tracking-[-0.015em] text-text-main dark:text-white">STEAM Spark</h2>
+</div>
+<div class="hidden lg:flex flex-1 justify-end gap-8">
+<div class="flex items-center gap-9">
+<a class="text-text-main dark:text-gray-200 text-sm font-medium hover:text-primary transition-colors" href="#">Find Tutors</a>
+<a class="text-text-main dark:text-gray-200 text-sm font-medium hover:text-primary transition-colors" href="#">Resources</a>
+<a class="text-text-main dark:text-gray-200 text-sm font-medium hover:text-primary transition-colors" href="#">Community</a>
+<a class="text-text-main dark:text-gray-200 text-sm font-medium hover:text-primary transition-colors" href="#">About Us</a>
+</div>
+<button class="flex items-center justify-center overflow-hidden rounded-lg h-10 bg-[#f0f2f5] dark:bg-[#2b3b4b] text-text-main dark:text-white gap-2 text-sm font-bold px-4 hover:bg-gray-200 dark:hover:bg-[#37495b] transition-colors">
+<span class="material-symbols-outlined" style="font-size: 20px;">person</span>
+<span>Log In</span>
+</button>
+</div>
+<button class="lg:hidden flex items-center justify-center text-text-main dark:text-white">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</div>
+</header>
+<!-- Main Content Layout -->
+<main class="flex-1 flex flex-col items-center">
+<!-- Page Header & Search Section -->
+<section class="w-full max-w-[1280px] px-4 lg:px-8 py-8 md:py-12 flex flex-col gap-6">
+<div class="flex flex-col gap-3 text-center md:text-left">
+<h1 class="text-3xl md:text-4xl lg:text-5xl font-black leading-tight tracking-[-0.033em] text-text-main dark:text-white">
+                    Find the perfect spark for your <span class="text-primary">learning journey</span>
+</h1>
+<p class="text-text-sub dark:text-gray-400 text-base md:text-lg font-normal">
+                    Connect with expert tutors in Science, Technology, Engineering, Arts, and Math.
+                </p>
+</div>
+<!-- Search Bar -->
+<div class="w-full max-w-3xl">
+<label class="flex flex-col h-14 w-full shadow-sm">
+<div class="flex w-full flex-1 items-stretch rounded-xl h-full overflow-hidden bg-surface-light dark:bg-surface-dark border border-[#dbe0e6] dark:border-[#2b3b4b] focus-within:ring-2 focus-within:ring-primary focus-within:border-primary transition-all">
+<div class="text-text-sub dark:text-gray-400 flex items-center justify-center pl-4 pr-2">
+<span class="material-symbols-outlined" style="font-size: 24px;">search</span>
+</div>
+<input class="flex w-full min-w-0 flex-1 resize-none bg-transparent text-text-main dark:text-white focus:outline-0 placeholder:text-text-sub dark:placeholder:text-gray-500 px-2 text-base font-normal leading-normal border-none focus:ring-0" placeholder="Search for Physics, Coding, or Piano..." value=""/>
+<button class="bg-primary hover:bg-blue-600 text-white font-bold px-6 py-2 m-1 rounded-lg transition-colors">
+                            Search
+                        </button>
+</div>
+</label>
+</div>
+</section>
+<!-- Content Grid: Sidebar + Results -->
+<div class="w-full max-w-[1280px] px-4 lg:px-8 pb-20 flex flex-col lg:flex-row gap-8">
+<!-- Sidebar Filters -->
+<aside class="w-full lg:w-1/4 shrink-0 flex flex-col gap-4">
+<div class="flex items-center justify-between pb-2 border-b border-[#f0f2f5] dark:border-[#2b3b4b] lg:hidden">
+<h3 class="font-bold text-lg">Filters</h3>
+<button class="text-primary text-sm font-medium">Reset</button>
+</div>
+<div class="flex flex-col gap-3 lg:sticky lg:top-24">
+<!-- Price Range Slider -->
+<div class="rounded-xl border border-[#dbe0e6] dark:border-[#2b3b4b] bg-surface-light dark:bg-surface-dark p-5">
+<p class="text-text-main dark:text-white text-base font-medium mb-4">Hourly Rate</p>
+<div class="flex flex-col gap-4">
+<div class="relative h-1 w-full rounded-full bg-[#dbe0e6] dark:bg-[#2b3b4b]">
+<div class="absolute left-[20%] right-[30%] h-full rounded-full bg-primary"></div>
+<div class="absolute top-1/2 -mt-2 -ml-2 left-[20%] size-4 rounded-full border-2 border-primary bg-white cursor-pointer shadow-sm"></div>
+<div class="absolute top-1/2 -mt-2 -ml-2 right-[30%] size-4 rounded-full border-2 border-primary bg-white cursor-pointer shadow-sm"></div>
+</div>
+<div class="flex justify-between items-center text-sm text-text-sub dark:text-gray-400 font-medium">
+<span>$20</span>
+<span>$85+</span>
+</div>
+</div>
+</div>
+<!-- Subject Area Accordion -->
+<details class="group rounded-xl border border-[#dbe0e6] dark:border-[#2b3b4b] bg-surface-light dark:bg-surface-dark px-4 py-2" open="">
+<summary class="flex cursor-pointer items-center justify-between py-2 text-text-main dark:text-white font-medium select-none">
+                            Subject Area
+                            <span class="material-symbols-outlined transition-transform group-open:rotate-180 text-text-sub dark:text-gray-400">expand_more</span>
+</summary>
+<div class="pt-2 pb-3 flex flex-col gap-2">
+<label class="flex items-center gap-3 cursor-pointer group/item">
+<input class="size-4 rounded border-[#dbe0e6] text-primary focus:ring-primary dark:bg-[#101922] dark:border-[#2b3b4b]" type="checkbox"/>
+<span class="text-sm text-text-sub dark:text-gray-400 group-hover/item:text-text-main dark:group-hover/item:text-white transition-colors">Mathematics</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group/item">
+<input class="size-4 rounded border-[#dbe0e6] text-primary focus:ring-primary dark:bg-[#101922] dark:border-[#2b3b4b]" type="checkbox"/>
+<span class="text-sm text-text-sub dark:text-gray-400 group-hover/item:text-text-main dark:group-hover/item:text-white transition-colors">Computer Science</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group/item">
+<input checked="" class="size-4 rounded border-[#dbe0e6] text-primary focus:ring-primary dark:bg-[#101922] dark:border-[#2b3b4b]" type="checkbox"/>
+<span class="text-sm text-text-sub dark:text-gray-400 group-hover/item:text-text-main dark:group-hover/item:text-white transition-colors">Physics</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group/item">
+<input class="size-4 rounded border-[#dbe0e6] text-primary focus:ring-primary dark:bg-[#101922] dark:border-[#2b3b4b]" type="checkbox"/>
+<span class="text-sm text-text-sub dark:text-gray-400 group-hover/item:text-text-main dark:group-hover/item:text-white transition-colors">Music &amp; Arts</span>
+</label>
+</div>
+</details>
+<!-- Format Accordion -->
+<details class="group rounded-xl border border-[#dbe0e6] dark:border-[#2b3b4b] bg-surface-light dark:bg-surface-dark px-4 py-2">
+<summary class="flex cursor-pointer items-center justify-between py-2 text-text-main dark:text-white font-medium select-none">
+                            Format
+                            <span class="material-symbols-outlined transition-transform group-open:rotate-180 text-text-sub dark:text-gray-400">expand_more</span>
+</summary>
+<div class="pt-2 pb-3 flex flex-col gap-2">
+<label class="flex items-center gap-3 cursor-pointer">
+<input class="size-4 text-primary focus:ring-primary bg-transparent border-[#dbe0e6] dark:border-[#2b3b4b]" name="format" type="radio"/>
+<span class="text-sm text-text-sub dark:text-gray-400">Any</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer">
+<input checked="" class="size-4 text-primary focus:ring-primary bg-transparent border-[#dbe0e6] dark:border-[#2b3b4b]" name="format" type="radio"/>
+<span class="text-sm text-text-sub dark:text-gray-400">Online</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer">
+<input class="size-4 text-primary focus:ring-primary bg-transparent border-[#dbe0e6] dark:border-[#2b3b4b]" name="format" type="radio"/>
+<span class="text-sm text-text-sub dark:text-gray-400">In-Person</span>
+</label>
+</div>
+</details>
+<!-- Rating Accordion -->
+<details class="group rounded-xl border border-[#dbe0e6] dark:border-[#2b3b4b] bg-surface-light dark:bg-surface-dark px-4 py-2">
+<summary class="flex cursor-pointer items-center justify-between py-2 text-text-main dark:text-white font-medium select-none">
+                            Rating
+                            <span class="material-symbols-outlined transition-transform group-open:rotate-180 text-text-sub dark:text-gray-400">expand_more</span>
+</summary>
+<div class="pt-2 pb-3 flex flex-col gap-2">
+<label class="flex items-center gap-3 cursor-pointer">
+<input class="size-4 rounded border-[#dbe0e6] text-primary focus:ring-primary dark:bg-[#101922] dark:border-[#2b3b4b]" type="checkbox"/>
+<div class="flex items-center text-amber-500">
+<span class="material-symbols-outlined text-[20px] fill-current">star</span>
+<span class="material-symbols-outlined text-[20px] fill-current">star</span>
+<span class="material-symbols-outlined text-[20px] fill-current">star</span>
+<span class="material-symbols-outlined text-[20px] fill-current">star</span>
+<span class="material-symbols-outlined text-[20px]">star</span>
+<span class="text-sm text-text-sub dark:text-gray-400 ml-2">&amp; Up</span>
+</div>
+</label>
+</div>
+</details>
+<button class="mt-2 w-full rounded-lg bg-[#f0f2f5] dark:bg-[#2b3b4b] dark:text-white dark:hover:bg-[#37495b] py-2.5 text-sm font-bold text-text-main hover:bg-gray-200 transition-colors">
+                        Clear All Filters
+                    </button>
+</div>
+</aside>
+<!-- Results Grid -->
+<div class="flex-1 flex flex-col">
+<!-- Toolbar -->
+<div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+<p class="text-text-main dark:text-white font-medium">Showing <span class="font-bold">124</span> tutors</p>
+<div class="flex items-center gap-2">
+<span class="text-sm text-text-sub dark:text-gray-400 hidden sm:block">Sort by:</span>
+<div class="relative">
+<select class="appearance-none bg-surface-light dark:bg-surface-dark border border-[#dbe0e6] dark:border-[#2b3b4b] text-text-main dark:text-white text-sm rounded-lg pl-3 pr-8 py-2 focus:ring-primary focus:border-primary cursor-pointer">
+<option>Relevance</option>
+<option>Price: Low to High</option>
+<option>Price: High to Low</option>
+<option>Highest Rated</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-text-main dark:text-white">
+<span class="material-symbols-outlined text-sm">expand_more</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+<!-- Tutor Card 1 -->
+<article class="flex flex-col rounded-xl border border-[#dbe0e6] dark:border-[#2b3b4b] bg-surface-light dark:bg-surface-dark p-5 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 group">
+<div class="flex items-start gap-4">
+<div class="h-16 w-16 shrink-0 overflow-hidden rounded-full bg-gray-200">
+<img alt="Portrait of Sarah Jenkins smiling warmly" class="h-full w-full object-cover" data-alt="Portrait of Sarah Jenkins smiling warmly" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDKYQmaQERfKnNMIxs9GsYqZdWj4tgmg1o5UKONAMrTvqmZzZ01ayv-6wPj0O1frDvgaDslZ4DT3nuM0oEQuDLePpbK4l3RgFdNCGXQgt4LAFsRGA7837Z4VCYJJ7RJKmL2XrVRVdh0gnsA2J5zMjSPH0f0VIFM7d0qp3B2OyB2s6j40Qs1i6zsQAFb_uXIWRAh9KMJjjcuSRggoYmek2LTioYhrv3bbSLQZkw31l8neqR2kxX15Bd2vhw1neKgt8Os8y1LPiMfeo4t"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between">
+<h3 class="font-bold text-lg text-text-main dark:text-white truncate">Sarah Jenkins</h3>
+<span class="material-symbols-outlined text-primary" style="font-size: 20px; font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+<p class="text-sm text-text-sub dark:text-gray-400 truncate">Physics &amp; Calculus Expert</p>
+<div class="mt-1 flex items-center gap-1 text-sm font-bold text-amber-500">
+<span class="material-symbols-outlined text-[18px] fill-current" style="font-variation-settings: 'FILL' 1;">star</span>
+<span>5.0</span>
+<span class="font-normal text-text-sub dark:text-gray-500">(84 reviews)</span>
+</div>
+</div>
+</div>
+<p class="mt-4 text-sm text-text-main dark:text-gray-300 line-clamp-2 leading-relaxed">
+                            Former NASA engineer with a passion for teaching. I make complex physics concepts easy to understand through real-world examples.
+                        </p>
+<div class="mt-4 flex flex-wrap gap-2">
+<span class="inline-flex items-center rounded-md bg-blue-50 dark:bg-blue-900/30 px-2.5 py-1 text-xs font-medium text-blue-700 dark:text-blue-200">Physics</span>
+<span class="inline-flex items-center rounded-md bg-purple-50 dark:bg-purple-900/30 px-2.5 py-1 text-xs font-medium text-purple-700 dark:text-purple-200">Calculus</span>
+<span class="inline-flex items-center rounded-md bg-gray-100 dark:bg-gray-800 px-2.5 py-1 text-xs font-medium text-gray-600 dark:text-gray-400">SAT Prep</span>
+</div>
+<div class="mt-5 pt-4 border-t border-[#f0f2f5] dark:border-[#2b3b4b] flex items-center justify-between">
+<div class="flex flex-col">
+<span class="text-xs text-text-sub dark:text-gray-400">Starting at</span>
+<span class="text-lg font-bold text-text-main dark:text-white">$45<span class="text-sm font-normal text-text-sub dark:text-gray-400">/hr</span></span>
+</div>
+<button class="bg-primary hover:bg-blue-600 text-white text-sm font-bold px-4 py-2 rounded-lg transition-colors">
+                                View Profile
+                            </button>
+</div>
+</article>
+<!-- Tutor Card 2 -->
+<article class="flex flex-col rounded-xl border border-[#dbe0e6] dark:border-[#2b3b4b] bg-surface-light dark:bg-surface-dark p-5 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 group">
+<div class="flex items-start gap-4">
+<div class="h-16 w-16 shrink-0 overflow-hidden rounded-full bg-gray-200">
+<img alt="Portrait of David Chen in a casual shirt" class="h-full w-full object-cover" data-alt="Portrait of David Chen in a casual shirt" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCcCuSXjf3Js23jsozTLU0DKDi7WEARZ0U2TTy_gLPE3tkRT8ha0InCAZzo9WraxZqRNgMO85HqWa8dSwbyS5N7y6VHr_PpOa0rwkMvyxPRJBApijXKxT1nS9PAgW0psCwMSAEfQzpnUljmDZ4ZElr4Rwe8rPBZq63JY8iy6_J-DH6CkQjTihGe9GlprZhEhOctXmS_54hbWCmpjEcpwIyQQzxqkvHfOKLyhC4On2fJjJpVFz6iDox5VIt_21l-SCj39dvdU7ZlcBdI"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between">
+<h3 class="font-bold text-lg text-text-main dark:text-white truncate">David Chen</h3>
+<span class="material-symbols-outlined text-primary" style="font-size: 20px; font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+<p class="text-sm text-text-sub dark:text-gray-400 truncate">Computer Science Graduate</p>
+<div class="mt-1 flex items-center gap-1 text-sm font-bold text-amber-500">
+<span class="material-symbols-outlined text-[18px] fill-current" style="font-variation-settings: 'FILL' 1;">star</span>
+<span>4.8</span>
+<span class="font-normal text-text-sub dark:text-gray-500">(42 reviews)</span>
+</div>
+</div>
+</div>
+<p class="mt-4 text-sm text-text-main dark:text-gray-300 line-clamp-2 leading-relaxed">
+                            Specializing in Python, Java, and Web Development. I help students build their first portfolio projects from scratch.
+                        </p>
+<div class="mt-4 flex flex-wrap gap-2">
+<span class="inline-flex items-center rounded-md bg-green-50 dark:bg-green-900/30 px-2.5 py-1 text-xs font-medium text-green-700 dark:text-green-200">Python</span>
+<span class="inline-flex items-center rounded-md bg-blue-50 dark:bg-blue-900/30 px-2.5 py-1 text-xs font-medium text-blue-700 dark:text-blue-200">React</span>
+<span class="inline-flex items-center rounded-md bg-gray-100 dark:bg-gray-800 px-2.5 py-1 text-xs font-medium text-gray-600 dark:text-gray-400">Coding</span>
+</div>
+<div class="mt-5 pt-4 border-t border-[#f0f2f5] dark:border-[#2b3b4b] flex items-center justify-between">
+<div class="flex flex-col">
+<span class="text-xs text-text-sub dark:text-gray-400">Starting at</span>
+<span class="text-lg font-bold text-text-main dark:text-white">$35<span class="text-sm font-normal text-text-sub dark:text-gray-400">/hr</span></span>
+</div>
+<button class="bg-primary hover:bg-blue-600 text-white text-sm font-bold px-4 py-2 rounded-lg transition-colors">
+                                View Profile
+                            </button>
+</div>
+</article>
+<!-- Tutor Card 3 -->
+<article class="flex flex-col rounded-xl border border-[#dbe0e6] dark:border-[#2b3b4b] bg-surface-light dark:bg-surface-dark p-5 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 group">
+<div class="flex items-start gap-4">
+<div class="h-16 w-16 shrink-0 overflow-hidden rounded-full bg-gray-200">
+<img alt="Portrait of Maya Patel looking professional" class="h-full w-full object-cover" data-alt="Portrait of Maya Patel looking professional" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBbho6lS6lF8SICO8IVGa7RlsmFcYWlqphgiGPDF5-r6IkFSXii0lP0v0CSVusvXUG5xxWpt74ZsDHZ7rQf0shGOKWI5TNVsxvx-Zlz0uqxWocQ3WcGsrpm-qYX9ibkRGQBV_4CsJrf6dcToMBuzNyjbWbLVczoYYrzSrCW4jPAVT0bs6qdZWOLSN8GBkBMbSA8uUk8ZzkQjy03-WpvY2stbdQhJ6186cgSq86s-SV3T0gfKNqDVc8zRrMtmkrD8hCSex3vPaZP4p3h"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between">
+<h3 class="font-bold text-lg text-text-main dark:text-white truncate">Maya Patel</h3>
+</div>
+<p class="text-sm text-text-sub dark:text-gray-400 truncate">Piano &amp; Music Theory</p>
+<div class="mt-1 flex items-center gap-1 text-sm font-bold text-amber-500">
+<span class="material-symbols-outlined text-[18px] fill-current" style="font-variation-settings: 'FILL' 1;">star</span>
+<span>5.0</span>
+<span class="font-normal text-text-sub dark:text-gray-500">(15 reviews)</span>
+</div>
+</div>
+</div>
+<p class="mt-4 text-sm text-text-main dark:text-gray-300 line-clamp-2 leading-relaxed">
+                            Conservatory-trained pianist offering lessons for all ages. Let's unlock your musical potential with a fun curriculum.
+                        </p>
+<div class="mt-4 flex flex-wrap gap-2">
+<span class="inline-flex items-center rounded-md bg-red-50 dark:bg-red-900/30 px-2.5 py-1 text-xs font-medium text-red-700 dark:text-red-200">Piano</span>
+<span class="inline-flex items-center rounded-md bg-orange-50 dark:bg-orange-900/30 px-2.5 py-1 text-xs font-medium text-orange-700 dark:text-orange-200">Music Theory</span>
+</div>
+<div class="mt-5 pt-4 border-t border-[#f0f2f5] dark:border-[#2b3b4b] flex items-center justify-between">
+<div class="flex flex-col">
+<span class="text-xs text-text-sub dark:text-gray-400">Starting at</span>
+<span class="text-lg font-bold text-text-main dark:text-white">$50<span class="text-sm font-normal text-text-sub dark:text-gray-400">/hr</span></span>
+</div>
+<button class="bg-primary hover:bg-blue-600 text-white text-sm font-bold px-4 py-2 rounded-lg transition-colors">
+                                View Profile
+                            </button>
+</div>
+</article>
+<!-- Tutor Card 4 -->
+<article class="flex flex-col rounded-xl border border-[#dbe0e6] dark:border-[#2b3b4b] bg-surface-light dark:bg-surface-dark p-5 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 group">
+<div class="flex items-start gap-4">
+<div class="h-16 w-16 shrink-0 overflow-hidden rounded-full bg-gray-200">
+<img alt="Portrait of Marcus Johnson smiling in a suit" class="h-full w-full object-cover" data-alt="Portrait of Marcus Johnson smiling in a suit" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBb0YMee6rHv7epNof7eONzfhoHIFxp6ANPFq0J-cUXWznT4SFXdvMd_Q4En8e7C5g1b6AJ93fzyokBscCGd2z3A-xwbMKJ5SDDRqke--2AXEXxLMC1ZJlbCw6gj0ngFdiKRcLSf3Y_gI58Z1V920EcEMMXn_aQ1lszAp81tMUAj3HS6AMbTf-_i6K2cN3ntlQD95raq_PGYV7Fdksl8r7oy2bzcDVFDlTB9V2gdGjBfdjgcm3AuCOoIIczldOArgF_TX4lc8jWXN73"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between">
+<h3 class="font-bold text-lg text-text-main dark:text-white truncate">Marcus Johnson</h3>
+<span class="material-symbols-outlined text-primary" style="font-size: 20px; font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+<p class="text-sm text-text-sub dark:text-gray-400 truncate">Robotics &amp; Engineering</p>
+<div class="mt-1 flex items-center gap-1 text-sm font-bold text-amber-500">
+<span class="material-symbols-outlined text-[18px] fill-current" style="font-variation-settings: 'FILL' 1;">star</span>
+<span>4.7</span>
+<span class="font-normal text-text-sub dark:text-gray-500">(28 reviews)</span>
+</div>
+</div>
+</div>
+<p class="mt-4 text-sm text-text-main dark:text-gray-300 line-clamp-2 leading-relaxed">
+                            Hands-on learning with Arduino and Raspberry Pi. I guide students through building their own functional robots.
+                        </p>
+<div class="mt-4 flex flex-wrap gap-2">
+<span class="inline-flex items-center rounded-md bg-indigo-50 dark:bg-indigo-900/30 px-2.5 py-1 text-xs font-medium text-indigo-700 dark:text-indigo-200">Robotics</span>
+<span class="inline-flex items-center rounded-md bg-cyan-50 dark:bg-cyan-900/30 px-2.5 py-1 text-xs font-medium text-cyan-700 dark:text-cyan-200">Engineering</span>
+</div>
+<div class="mt-5 pt-4 border-t border-[#f0f2f5] dark:border-[#2b3b4b] flex items-center justify-between">
+<div class="flex flex-col">
+<span class="text-xs text-text-sub dark:text-gray-400">Starting at</span>
+<span class="text-lg font-bold text-text-main dark:text-white">$40<span class="text-sm font-normal text-text-sub dark:text-gray-400">/hr</span></span>
+</div>
+<button class="bg-primary hover:bg-blue-600 text-white text-sm font-bold px-4 py-2 rounded-lg transition-colors">
+                                View Profile
+                            </button>
+</div>
+</article>
+<!-- Tutor Card 5 -->
+<article class="flex flex-col rounded-xl border border-[#dbe0e6] dark:border-[#2b3b4b] bg-surface-light dark:bg-surface-dark p-5 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 group">
+<div class="flex items-start gap-4">
+<div class="h-16 w-16 shrink-0 overflow-hidden rounded-full bg-gray-200">
+<img alt="Portrait of Emily Zhang with glasses" class="h-full w-full object-cover" data-alt="Portrait of Emily Zhang with glasses" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAcvF1Bg3fHqm6JJDZkQPQxFuMdtuhDJx98Tu5wwz1aNnmcNIUx5MzBGx2vhxP5RsKhyr6n2WTdTYKshoQx51yQgNYquWXnJZcy02eJjYoPIcRFtHzkC29be_P84lL7CtEd1sOEG8OBfWajjVhwegup_ai6SyHhYgaCnUkON-pxuzSd3iCdbqrol8AbDDe-e4shbSXQoyQqEgp0azo5Uq9AvUUTk-ja03SNeq-pyttkV05-mmxmps6TcD_FhtCRu2vktQPqW1UXV_sn"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between">
+<h3 class="font-bold text-lg text-text-main dark:text-white truncate">Emily Zhang</h3>
+</div>
+<p class="text-sm text-text-sub dark:text-gray-400 truncate">Chemistry Tutor</p>
+<div class="mt-1 flex items-center gap-1 text-sm font-bold text-amber-500">
+<span class="material-symbols-outlined text-[18px] fill-current" style="font-variation-settings: 'FILL' 1;">star</span>
+<span>4.9</span>
+<span class="font-normal text-text-sub dark:text-gray-500">(56 reviews)</span>
+</div>
+</div>
+</div>
+<p class="mt-4 text-sm text-text-main dark:text-gray-300 line-clamp-2 leading-relaxed">
+                            PhD candidate in Organic Chemistry. I help students prepare for AP Chemistry exams and college-level coursework.
+                        </p>
+<div class="mt-4 flex flex-wrap gap-2">
+<span class="inline-flex items-center rounded-md bg-teal-50 dark:bg-teal-900/30 px-2.5 py-1 text-xs font-medium text-teal-700 dark:text-teal-200">Chemistry</span>
+<span class="inline-flex items-center rounded-md bg-green-50 dark:bg-green-900/30 px-2.5 py-1 text-xs font-medium text-green-700 dark:text-green-200">Biology</span>
+</div>
+<div class="mt-5 pt-4 border-t border-[#f0f2f5] dark:border-[#2b3b4b] flex items-center justify-between">
+<div class="flex flex-col">
+<span class="text-xs text-text-sub dark:text-gray-400">Starting at</span>
+<span class="text-lg font-bold text-text-main dark:text-white">$55<span class="text-sm font-normal text-text-sub dark:text-gray-400">/hr</span></span>
+</div>
+<button class="bg-primary hover:bg-blue-600 text-white text-sm font-bold px-4 py-2 rounded-lg transition-colors">
+                                View Profile
+                            </button>
+</div>
+</article>
+<!-- Tutor Card 6 -->
+<article class="flex flex-col rounded-xl border border-[#dbe0e6] dark:border-[#2b3b4b] bg-surface-light dark:bg-surface-dark p-5 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 group">
+<div class="flex items-start gap-4">
+<div class="h-16 w-16 shrink-0 overflow-hidden rounded-full bg-gray-200">
+<img alt="Portrait of James Wilson" class="h-full w-full object-cover" data-alt="Portrait of James Wilson" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCpsZta8QnNkTzbW-5rg3MDV8t0m8qQyG32Tg_5c_Dr_68udYgeLwemzZkvrDmiJ3w7r4waq3JS8_TKklVDKM3y1jQ5ZD48jMyH3IHuvYsU8w4HMVJKBwHxvG8tPwqWhBRh00j6vbaUiD25Vfu99rKHgD9545WPRSMj0G_MqFHsYlG9GCWsMgl9kfm9xMYEbjpcGnMn-H6S-z04OjfLnrctqMhSeQIOB9h2U1dimhaCSLrz-gAkaJwRyT4ksPAhJ7S6y9BdDzdNeGMZ"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between">
+<h3 class="font-bold text-lg text-text-main dark:text-white truncate">James Wilson</h3>
+<span class="material-symbols-outlined text-primary" style="font-size: 20px; font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+<p class="text-sm text-text-sub dark:text-gray-400 truncate">Art &amp; Digital Design</p>
+<div class="mt-1 flex items-center gap-1 text-sm font-bold text-amber-500">
+<span class="material-symbols-outlined text-[18px] fill-current" style="font-variation-settings: 'FILL' 1;">star</span>
+<span>4.6</span>
+<span class="font-normal text-text-sub dark:text-gray-500">(21 reviews)</span>
+</div>
+</div>
+</div>
+<p class="mt-4 text-sm text-text-main dark:text-gray-300 line-clamp-2 leading-relaxed">
+                            Professional illustrator teaching digital art techniques, Adobe Creative Suite, and traditional sketching fundamentals.
+                        </p>
+<div class="mt-4 flex flex-wrap gap-2">
+<span class="inline-flex items-center rounded-md bg-pink-50 dark:bg-pink-900/30 px-2.5 py-1 text-xs font-medium text-pink-700 dark:text-pink-200">Digital Art</span>
+<span class="inline-flex items-center rounded-md bg-purple-50 dark:bg-purple-900/30 px-2.5 py-1 text-xs font-medium text-purple-700 dark:text-purple-200">Design</span>
+</div>
+<div class="mt-5 pt-4 border-t border-[#f0f2f5] dark:border-[#2b3b4b] flex items-center justify-between">
+<div class="flex flex-col">
+<span class="text-xs text-text-sub dark:text-gray-400">Starting at</span>
+<span class="text-lg font-bold text-text-main dark:text-white">$30<span class="text-sm font-normal text-text-sub dark:text-gray-400">/hr</span></span>
+</div>
+<button class="bg-primary hover:bg-blue-600 text-white text-sm font-bold px-4 py-2 rounded-lg transition-colors">
+                                View Profile
+                            </button>
+</div>
+</article>
+</div>
+<!-- Pagination -->
+<div class="mt-12 flex justify-center">
+<div class="flex gap-2">
+<button class="flex items-center justify-center size-10 rounded-lg border border-[#dbe0e6] dark:border-[#2b3b4b] bg-surface-light dark:bg-surface-dark text-text-main dark:text-white hover:bg-gray-50 dark:hover:bg-[#37495b]">
+<span class="material-symbols-outlined text-sm">chevron_left</span>
+</button>
+<button class="flex items-center justify-center size-10 rounded-lg bg-primary text-white font-bold">1</button>
+<button class="flex items-center justify-center size-10 rounded-lg border border-[#dbe0e6] dark:border-[#2b3b4b] bg-surface-light dark:bg-surface-dark text-text-main dark:text-white hover:bg-gray-50 dark:hover:bg-[#37495b] font-medium">2</button>
+<button class="flex items-center justify-center size-10 rounded-lg border border-[#dbe0e6] dark:border-[#2b3b4b] bg-surface-light dark:bg-surface-dark text-text-main dark:text-white hover:bg-gray-50 dark:hover:bg-[#37495b] font-medium">3</button>
+<span class="flex items-center justify-center size-10 text-text-sub dark:text-gray-400">...</span>
+<button class="flex items-center justify-center size-10 rounded-lg border border-[#dbe0e6] dark:border-[#2b3b4b] bg-surface-light dark:bg-surface-dark text-text-main dark:text-white hover:bg-gray-50 dark:hover:bg-[#37495b]">
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>
