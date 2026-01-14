@@ -388,7 +388,7 @@ export default function LandingPage() {
 
                     {/* Device Previews */}
                     <div className="flex flex-col gap-24">
-                        {/* Mobile Preview */}
+                        {/* Mobile Preview - Parent Companion */}
                         <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
                             <div className="flex-1 flex justify-center lg:justify-end order-2 lg:order-1">
                                 <div className="relative mx-auto border-slate-800 bg-slate-800 border-[14px] rounded-[2.5rem] h-[500px] w-[250px] shadow-xl">
@@ -458,6 +458,216 @@ export default function LandingPage() {
                                         Easy one-tap payments
                                     </li>
                                 </ul>
+                            </div>
+                        </div>
+
+                        {/* Tablet Preview - Interactive Learning Hub */}
+                        <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
+                            <div className="flex-1 text-center lg:text-right">
+                                <div className="inline-flex items-center gap-2 rounded-full bg-emerald-400/10 px-3 py-1 text-xs font-bold text-emerald-500 mb-4">
+                                    <Tablet className="size-3" />
+                                    Tablet
+                                </div>
+                                <h3 className="text-3xl font-bold mb-4">Interactive Learning Hub</h3>
+                                <p className="text-lg text-slate-500 dark:text-slate-400 max-w-md mx-auto lg:ml-auto lg:mr-0 leading-relaxed">
+                                    A dedicated space for students to explore. The tablet interface is perfect for touch-based coding blocks, digital drawing, and interactive science experiments.
+                                </p>
+                                <ul className="mt-6 space-y-3 text-sm text-slate-500 dark:text-slate-400 mx-auto lg:ml-auto lg:mr-0 max-w-md">
+                                    <li className="flex items-center gap-2 justify-center lg:justify-end">
+                                        Drag-and-drop coding interface
+                                        <Check className="size-4 text-green-500" />
+                                    </li>
+                                    <li className="flex items-center gap-2 justify-center lg:justify-end">
+                                        Immersive AR/VR compatible view
+                                        <Check className="size-4 text-green-500" />
+                                    </li>
+                                </ul>
+                            </div>
+                            <div className="flex-1 flex justify-center lg:justify-start">
+                                <div className="relative mx-auto border-slate-800 bg-slate-800 border-[14px] rounded-[2rem] h-[380px] w-[520px] shadow-2xl overflow-hidden">
+                                    <div className="rounded-[1.5rem] overflow-hidden w-full h-full bg-slate-900 flex flex-row relative">
+                                        {/* Sidebar */}
+                                        <div className="w-14 bg-slate-800 border-r border-slate-700 flex flex-col items-center py-4 gap-4 z-20">
+                                            <div className="h-8 w-8 rounded-full bg-gradient-to-br from-amber-400 to-orange-500" />
+                                            <Home className="size-4 text-white/50 hover:text-white cursor-pointer" />
+                                            <Gamepad2 className="size-4 text-amber-400 cursor-pointer" />
+                                            <GraduationCap className="size-4 text-white/50 hover:text-white cursor-pointer" />
+                                            <Settings className="size-4 text-white/50 hover:text-white cursor-pointer mt-auto" />
+                                        </div>
+                                        {/* Main Content */}
+                                        <div className="flex-1 bg-slate-900 p-4 overflow-hidden relative">
+                                            <div className="absolute inset-0 opacity-5 bg-[radial-gradient(rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[length:16px_16px]" />
+                                            <div className="flex justify-between items-center mb-4 z-10 relative">
+                                                <div>
+                                                    <h4 className="text-white font-bold text-lg">Mission Control</h4>
+                                                    <p className="text-slate-400 text-[10px]">Continue your journey, SpaceCadet_01</p>
+                                                </div>
+                                                <div className="flex gap-2">
+                                                    <div className="bg-slate-800 px-2 py-1 rounded-lg border border-slate-700 flex items-center gap-1">
+                                                        <Sparkles className="size-3 text-yellow-400" />
+                                                        <span className="text-white font-bold text-[10px]">450 XP</span>
+                                                    </div>
+                                                    <div className="bg-slate-800 px-2 py-1 rounded-lg border border-slate-700 flex items-center gap-1">
+                                                        <Rocket className="size-3 text-red-400" />
+                                                        <span className="text-white font-bold text-[10px]">5 Day Streak</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="grid grid-cols-3 gap-3 z-10 relative">
+                                                <div className="col-span-2 bg-gradient-to-br from-indigo-600 to-purple-700 rounded-xl p-4 text-white relative overflow-hidden">
+                                                    <Rocket className="absolute top-2 right-2 size-16 text-white opacity-10" />
+                                                    <span className="bg-white/20 px-2 py-0.5 rounded text-[8px] font-bold uppercase mb-1 inline-block">Daily Quest</span>
+                                                    <h3 className="text-lg font-black mb-0.5">Mars Colonization</h3>
+                                                    <p className="text-[10px] text-indigo-100 mb-2 max-w-[70%]">Build a sustainable habitat using basic engineering principles.</p>
+                                                    <div className="flex gap-1 mb-2">
+                                                        <span className="text-[8px] bg-black/20 px-1.5 py-0.5 rounded">Engineering</span>
+                                                        <span className="text-[8px] bg-black/20 px-1.5 py-0.5 rounded">Physics</span>
+                                                    </div>
+                                                    <button className="bg-white text-indigo-600 px-3 py-1.5 rounded-lg font-bold text-[10px] hover:bg-indigo-50 transition-colors">Resume Mission</button>
+                                                </div>
+                                                <div className="flex flex-col gap-3">
+                                                    <div className="bg-slate-800 rounded-xl p-3 border border-slate-700 flex-1">
+                                                        <h5 className="text-slate-400 text-[8px] font-bold uppercase mb-2">Recent Badges</h5>
+                                                        <div className="grid grid-cols-2 gap-1">
+                                                            <div className="aspect-square bg-slate-700 rounded-lg flex items-center justify-center text-lg">🤖</div>
+                                                            <div className="aspect-square bg-slate-700 rounded-lg flex items-center justify-center text-lg">🔬</div>
+                                                            <div className="aspect-square bg-slate-700 rounded-lg flex items-center justify-center text-lg">🎨</div>
+                                                            <div className="aspect-square bg-slate-700/30 rounded-lg flex items-center justify-center text-slate-500 text-[8px] font-bold border-2 border-dashed border-slate-600">+2</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Desktop Preview - Professional Command Center */}
+                        <div className="flex flex-col items-center gap-8">
+                            <div className="text-center max-w-2xl">
+                                <div className="inline-flex items-center gap-2 rounded-full bg-amber-400/10 px-3 py-1 text-xs font-bold text-amber-500 mb-4">
+                                    <Monitor className="size-3" />
+                                    Desktop
+                                </div>
+                                <h3 className="text-3xl font-bold mb-4">Professional Command Center</h3>
+                                <p className="text-lg text-slate-500 dark:text-slate-400 leading-relaxed">
+                                    Teachers get a powerful desktop dashboard to manage classes, track earnings, and create curriculum. Everything you need to run your education business efficiently.
+                                </p>
+                            </div>
+                            <div className="w-full max-w-5xl mx-auto">
+                                <div className="relative mx-auto border-slate-800 bg-slate-800 border-[10px] rounded-xl shadow-2xl overflow-hidden">
+                                    {/* Browser Chrome */}
+                                    <div className="bg-slate-800 w-full h-7 flex gap-2 px-3 items-center border-b border-slate-700">
+                                        <div className="h-2.5 w-2.5 rounded-full bg-red-500" />
+                                        <div className="h-2.5 w-2.5 rounded-full bg-yellow-500" />
+                                        <div className="h-2.5 w-2.5 rounded-full bg-green-500" />
+                                        <div className="mx-auto bg-slate-900 rounded-md px-24 py-0.5 text-[8px] text-slate-500 font-mono">steamspark.edu/teacher/dashboard</div>
+                                    </div>
+                                    {/* Dashboard Content */}
+                                    <div className="bg-slate-50 dark:bg-[#0f1923] w-full aspect-[16/9] flex overflow-hidden">
+                                        {/* Sidebar */}
+                                        <div className="w-52 bg-white dark:bg-[#1a2733] border-r border-slate-200 dark:border-slate-700 hidden md:flex flex-col p-3">
+                                            <div className="flex items-center gap-2 mb-6 text-[#3899fa] font-bold text-sm px-2">
+                                                <Atom className="size-4" /> Spark Teacher
+                                            </div>
+                                            <nav className="space-y-1">
+                                                <a className="flex items-center gap-2 px-2 py-1.5 bg-[#3899fa]/10 text-[#3899fa] rounded-lg text-xs font-medium" href="#">
+                                                    <BarChart3 className="size-3" /> Dashboard
+                                                </a>
+                                                <a className="flex items-center gap-2 px-2 py-1.5 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-xs font-medium" href="#">
+                                                    <Calendar className="size-3" /> Schedule
+                                                </a>
+                                                <a className="flex items-center gap-2 px-2 py-1.5 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-xs font-medium" href="#">
+                                                    <GraduationCap className="size-3" /> My Classes
+                                                </a>
+                                                <a className="flex items-center gap-2 px-2 py-1.5 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-xs font-medium" href="#">
+                                                    <CreditCard className="size-3" /> Earnings
+                                                </a>
+                                                <a className="flex items-center gap-2 px-2 py-1.5 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-xs font-medium" href="#">
+                                                    <MessageSquare className="size-3" /> Messages
+                                                </a>
+                                            </nav>
+                                            <div className="mt-auto pt-3 border-t border-slate-200 dark:border-slate-700">
+                                                <div className="flex items-center gap-2 px-2">
+                                                    <div className="h-6 w-6 rounded-full bg-emerald-400 text-white flex items-center justify-center font-bold text-[8px]">PT</div>
+                                                    <div className="text-[10px]">
+                                                        <div className="font-bold">Prof. Thompson</div>
+                                                        <div className="text-slate-500">Science Dept.</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {/* Main Content */}
+                                        <div className="flex-1 overflow-y-auto p-4 lg:p-6">
+                                            <div className="flex justify-between items-center mb-6">
+                                                <h2 className="text-lg font-bold">Dashboard Overview</h2>
+                                                <button className="bg-[#3899fa] text-white px-3 py-1.5 rounded-lg text-[10px] font-bold shadow-md hover:bg-[#2b7cd4] transition-colors flex items-center gap-1">
+                                                    <Plus className="size-3" /> Create New Class
+                                                </button>
+                                            </div>
+                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                                                <div className="bg-white dark:bg-[#1a2733] p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                                                    <div className="flex justify-between items-start mb-1">
+                                                        <div className="text-slate-500 text-[8px] font-bold uppercase">Total Earnings</div>
+                                                        <span className="bg-green-100 text-green-700 text-[8px] font-bold px-1.5 py-0.5 rounded-full">+18%</span>
+                                                    </div>
+                                                    <div className="text-2xl font-black">GHS 2,450</div>
+                                                </div>
+                                                <div className="bg-white dark:bg-[#1a2733] p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                                                    <div className="flex justify-between items-start mb-1">
+                                                        <div className="text-slate-500 text-[8px] font-bold uppercase">Active Students</div>
+                                                        <span className="bg-blue-100 text-blue-700 text-[8px] font-bold px-1.5 py-0.5 rounded-full">New</span>
+                                                    </div>
+                                                    <div className="text-2xl font-black">24</div>
+                                                </div>
+                                                <div className="bg-white dark:bg-[#1a2733] p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                                                    <div className="text-slate-500 text-[8px] font-bold uppercase mb-1">Upcoming Hours</div>
+                                                    <div className="text-2xl font-black">12h</div>
+                                                </div>
+                                            </div>
+                                            <div className="bg-white dark:bg-[#1a2733] rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+                                                <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-700 font-bold text-sm">Upcoming Classes</div>
+                                                <div className="overflow-x-auto">
+                                                    <table className="w-full text-[10px] text-left">
+                                                        <thead className="bg-slate-50 dark:bg-slate-800/50 text-slate-500">
+                                                            <tr>
+                                                                <th className="px-4 py-2">Class Name</th>
+                                                                <th className="px-4 py-2">Students</th>
+                                                                <th className="px-4 py-2">Time</th>
+                                                                <th className="px-4 py-2">Status</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
+                                                            <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                                                                <td className="px-4 py-2 font-medium">Intro to Robotics</td>
+                                                                <td className="px-4 py-2">
+                                                                    <div className="flex -space-x-1">
+                                                                        <div className="h-4 w-4 rounded-full bg-blue-400 border-2 border-white dark:border-[#1a2733]" />
+                                                                        <div className="h-4 w-4 rounded-full bg-green-400 border-2 border-white dark:border-[#1a2733]" />
+                                                                        <div className="h-4 w-4 rounded-full bg-slate-300 border-2 border-white dark:border-[#1a2733] flex items-center justify-center text-[6px] font-bold">+2</div>
+                                                                    </div>
+                                                                </td>
+                                                                <td className="px-4 py-2">Today, 4:00 PM</td>
+                                                                <td className="px-4 py-2"><span className="px-1.5 py-0.5 bg-green-100 text-green-700 rounded-full text-[8px] font-bold">Confirmed</span></td>
+                                                            </tr>
+                                                            <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                                                                <td className="px-4 py-2 font-medium">Javascript Basics</td>
+                                                                <td className="px-4 py-2">
+                                                                    <div className="flex -space-x-1">
+                                                                        <div className="h-4 w-4 rounded-full bg-purple-400 border-2 border-white dark:border-[#1a2733]" />
+                                                                    </div>
+                                                                </td>
+                                                                <td className="px-4 py-2">Tomorrow, 10:00 AM</td>
+                                                                <td className="px-4 py-2"><span className="px-1.5 py-0.5 bg-yellow-100 text-yellow-700 rounded-full text-[8px] font-bold">Pending</span></td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
