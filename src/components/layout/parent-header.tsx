@@ -4,7 +4,8 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { Atom, Search, Bell, User, UserPlus, Settings, LogOut, Menu, CheckCircle, CreditCard, Medal, MessageSquare, ClipboardCheck } from "lucide-react"
+import { Search, Bell, User, UserPlus, Settings, LogOut, Menu, CheckCircle, CreditCard, Medal, MessageSquare, ClipboardCheck } from "lucide-react"
+import { Logo } from "@/components/ui/logo"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from "@/components/ui/sheet"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
@@ -59,9 +60,7 @@ export function ParentHeader() {
                 <div className="flex items-center gap-8">
                     {/* Logo */}
                     <Link href="/parent/dashboard" className="flex items-center gap-3">
-                        <div className="size-10 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
-                            <Atom size={24} />
-                        </div>
+                        <Logo size={40} />
                         <h2 className="text-xl font-bold tracking-tight">STEAM Spark</h2>
                     </Link>
 

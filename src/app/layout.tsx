@@ -8,8 +8,26 @@ const lexend = Lexend({
 });
 
 export const metadata: Metadata = {
-  title: "STEAM Spark",
-  description: "Igniting curiosities, one lesson at a time.",
+  metadataBase: new URL("https://steamsparkgh.com"),
+  title: {
+    template: "%s | STEAM Spark",
+    default: "STEAM Spark - Personalized STEAM Education",
+  },
+  description: "STEAM Spark connects curious minds with expert mentors. Personalized learning paths in Science, Technology, Engineering, Arts, and Math for kids ages 5-16.",
+  keywords: ["STEAM education", "tutoring", "online learning", "kids education", "Ghana education", "coding for kids", "math tutoring", "science tutoring"],
+  authors: [{ name: "STEAM Spark" }],
+  creator: "STEAM Spark",
+  publisher: "STEAM Spark",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
+  },
+  manifest: "/manifest.json",
 };
 
 export default function RootLayout({

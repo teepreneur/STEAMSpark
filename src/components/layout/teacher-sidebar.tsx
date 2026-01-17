@@ -9,7 +9,6 @@ import {
     Users,
     DollarSign,
     Settings,
-    Atom,
     Ticket,
     Bell,
     MessageSquare,
@@ -19,6 +18,7 @@ import {
     ClipboardCheck,
     UserPlus,
 } from "lucide-react"
+import { Logo } from "@/components/ui/logo"
 import { LogoutButton } from "@/components/auth/logout-button"
 import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
@@ -138,9 +138,7 @@ export function TeacherSidebar({ className }: { className?: string }) {
             <div className="p-6">
                 <div className="flex items-center justify-between mb-8">
                     <div className="flex items-center gap-3">
-                        <div className="bg-primary/10 flex items-center justify-center rounded-xl size-10 shrink-0 text-primary">
-                            <Atom size={24} />
-                        </div>
+                        <Logo size={40} />
                         <div className="flex flex-col">
                             <h1 className="text-lg font-bold leading-tight tracking-tight">STEAM Spark</h1>
                             <p className="text-muted-foreground text-xs font-normal">Teacher Portal</p>
