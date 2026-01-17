@@ -7,7 +7,8 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Atom, Eye, EyeOff, Mail, Lock, Loader2, Rocket, Brain, Palette, ArrowLeft, CheckCircle } from "lucide-react"
+import { Eye, EyeOff, Mail, Lock, Loader2, Rocket, Brain, Palette, ArrowLeft, CheckCircle } from "lucide-react"
+import { Logo } from "@/components/ui/logo"
 
 export default function LoginPage() {
     const [email, setEmail] = useState("")
@@ -83,9 +84,7 @@ export default function LoginPage() {
             <div className="min-h-screen flex flex-col bg-background">
                 <header className="flex items-center justify-between px-6 lg:px-10 py-4 border-b border-border bg-card shrink-0">
                     <Link href="/" className="flex items-center gap-3">
-                        <div className="size-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
-                            <Atom className="size-5" />
-                        </div>
+                        <Logo size={32} />
                         <h2 className="text-xl font-bold tracking-tight">STEAM Spark</h2>
                     </Link>
                 </header>
@@ -176,9 +175,7 @@ export default function LoginPage() {
             {/* Header */}
             <header className="flex items-center justify-between px-6 lg:px-10 py-4 border-b border-border bg-card shrink-0">
                 <Link href="/" className="flex items-center gap-3">
-                    <div className="size-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
-                        <Atom className="size-5" />
-                    </div>
+                    <Logo size={32} />
                     <h2 className="text-xl font-bold tracking-tight">STEAM Spark</h2>
                 </Link>
                 <div className="flex items-center gap-3">
@@ -245,8 +242,8 @@ export default function LoginPage() {
                     <div className="w-full max-w-md">
                         {/* Mobile Hero */}
                         <div className="lg:hidden text-center mb-8">
-                            <div className="size-16 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mx-auto mb-4">
-                                <Atom className="size-8" />
+                            <div className="flex justify-center mb-4">
+                                <Logo size={64} />
                             </div>
                             <h1 className="text-2xl font-bold mb-2">Welcome back</h1>
                             <p className="text-muted-foreground">Sign in to continue to STEAM Spark</p>

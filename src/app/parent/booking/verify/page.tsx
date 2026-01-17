@@ -3,7 +3,8 @@
 import { useEffect, useState, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
-import { Atom, CheckCircle, XCircle, Loader2 } from "lucide-react"
+import { CheckCircle, XCircle, Loader2 } from "lucide-react"
+import { Logo } from "@/components/ui/logo"
 import { Button } from "@/components/ui/button"
 
 function PaymentVerifyContent() {
@@ -104,9 +105,7 @@ export default function PaymentVerifyPage() {
             {/* Header */}
             <header className="flex items-center justify-center px-6 py-4 border-b border-border bg-card">
                 <Link href="/" className="flex items-center gap-3">
-                    <div className="size-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
-                        <Atom className="size-5" />
-                    </div>
+                    <Logo size={32} />
                     <h2 className="text-xl font-bold tracking-tight">STEAM Spark</h2>
                 </Link>
             </header>

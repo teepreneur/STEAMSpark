@@ -5,9 +5,10 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import {
-    Atom, User, ShieldCheck, GraduationCap, CalendarDays, Rocket,
+    User, ShieldCheck, GraduationCap, CalendarDays, Rocket,
     Mail, Lock, CloudUpload, X, Plus, ArrowLeft, ArrowRight, Loader2, Check
 } from "lucide-react"
+import { Logo } from "@/components/ui/logo"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -149,9 +150,7 @@ export default function TeacherSignupPage() {
                 <div className="relative z-10 flex flex-col h-full">
                     {/* Logo */}
                     <Link href="/" className="flex items-center gap-3 mb-10">
-                        <div className="size-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-                            <Atom className="size-5" />
-                        </div>
+                        <Logo size={32} />
                         <h2 className="text-xl font-bold tracking-tight">STEAM Spark</h2>
                     </Link>
 

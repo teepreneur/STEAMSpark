@@ -1,9 +1,10 @@
 import {
-    Atom, Rocket, Brain, Palette, Users, ChevronRight, GraduationCap,
+    Rocket, Brain, Palette, Users, ChevronRight, GraduationCap,
     Heart, Shield, BarChart3, Calendar, CreditCard, Star, Check,
     Gamepad2, Award, Map, UserPlus, Smartphone, Tablet, Monitor,
     Home, MessageSquare, Settings, Plus, Play, Sparkles, ArrowRight
 } from "lucide-react"
+import { Logo } from "@/components/ui/logo"
 
 // App subdomain for all app-related links
 const APP_URL = process.env.NODE_ENV === 'production'
@@ -18,10 +19,7 @@ export default function LandingPage() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex h-20 items-center justify-between">
                         <div className="flex items-center gap-3">
-                            <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#3899fa] to-[#2b7cd4] text-white shadow-lg shadow-[#3899fa]/30">
-                                <Atom className="size-5" />
-                                <div className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-amber-400 ring-2 ring-white dark:ring-[#1a2733]" />
-                            </div>
+                            <Logo size={40} />
                             <span className="text-xl font-bold tracking-tight">STEAM Spark</span>
                         </div>
                         <nav className="hidden md:flex items-center gap-8">
@@ -569,7 +567,7 @@ export default function LandingPage() {
                                         {/* Sidebar */}
                                         <div className="w-52 bg-white dark:bg-[#1a2733] border-r border-slate-200 dark:border-slate-700 hidden md:flex flex-col p-3">
                                             <div className="flex items-center gap-2 mb-6 text-[#3899fa] font-bold text-sm px-2">
-                                                <Atom className="size-4" /> Spark Teacher
+                                                <Logo size={16} /> Spark Teacher
                                             </div>
                                             <nav className="space-y-1">
                                                 <a className="flex items-center gap-2 px-2 py-1.5 bg-[#3899fa]/10 text-[#3899fa] rounded-lg text-xs font-medium" href="#">
@@ -770,9 +768,7 @@ export default function LandingPage() {
                     <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-10 mb-16">
                         <div className="col-span-2 lg:col-span-2 pr-8">
                             <div className="flex items-center gap-2 mb-6">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#3899fa] text-white">
-                                    <Atom className="size-5" />
-                                </div>
+                                <Logo size={40} />
                                 <span className="text-2xl font-bold tracking-tight">STEAM Spark</span>
                             </div>
                             <p className="text-slate-500 dark:text-slate-500 text-sm leading-relaxed mb-8 max-w-sm">

@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Atom } from "lucide-react"
+import { Logo } from "@/components/ui/logo"
 
 export default function SignupPage() {
     const [email, setEmail] = useState("")
@@ -79,8 +79,8 @@ export default function SignupPage() {
         <div className="min-h-screen flex items-center justify-center bg-muted/50 p-4">
             <Card className="w-full max-w-md shadow-xl">
                 <CardHeader className="space-y-1 flex flex-col items-center text-center">
-                    <div className="size-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary mb-4">
-                        <Atom size={32} />
+                    <div className="mb-4">
+                        <Logo size={48} />
                     </div>
                     <CardTitle className="text-2xl font-bold">Create an account</CardTitle>
                     <CardDescription>

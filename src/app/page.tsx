@@ -1,8 +1,9 @@
 "use client"
 
 import Link from "next/link"
-import { Atom, Rocket, Brain, Palette, Users, ChevronRight, GraduationCap, Heart } from "lucide-react"
+import { Rocket, Brain, Palette, Users, ChevronRight, GraduationCap, Heart } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Logo } from "@/components/ui/logo"
 
 export default function OnboardingPage() {
   return (
@@ -10,9 +11,7 @@ export default function OnboardingPage() {
       {/* Header */}
       <header className="flex items-center justify-between px-6 lg:px-10 py-4 border-b border-border bg-card">
         <div className="flex items-center gap-3">
-          <div className="size-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
-            <Atom className="size-6" />
-          </div>
+          <Logo size={40} />
           <h2 className="text-xl font-bold tracking-tight">STEAM Spark</h2>
         </div>
         <div className="flex items-center gap-4">

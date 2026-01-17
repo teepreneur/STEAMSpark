@@ -7,7 +7,8 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Atom, Lock, Loader2, CheckCircle, Eye, EyeOff } from "lucide-react"
+import { Lock, Loader2, CheckCircle, Eye, EyeOff } from "lucide-react"
+import { Logo } from "@/components/ui/logo"
 
 function ResetPasswordForm() {
     const [password, setPassword] = useState("")
@@ -152,9 +153,7 @@ export default function ResetPasswordPage() {
         <div className="min-h-screen flex flex-col bg-background">
             <header className="flex items-center justify-between px-6 lg:px-10 py-4 border-b border-border bg-card shrink-0">
                 <Link href="/" className="flex items-center gap-3">
-                    <div className="size-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
-                        <Atom className="size-5" />
-                    </div>
+                    <Logo size={32} />
                     <h2 className="text-xl font-bold tracking-tight">STEAM Spark</h2>
                 </Link>
             </header>

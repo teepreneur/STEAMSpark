@@ -4,7 +4,8 @@ import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
-import { Atom, Eye, EyeOff, User, Baby, Bot, Code, Calculator, FlaskConical, Palette, Cog, Flag, Loader2 } from "lucide-react"
+import { Eye, EyeOff, User, Baby, Bot, Code, Calculator, FlaskConical, Palette, Cog, Flag, Loader2 } from "lucide-react"
+import { Logo } from "@/components/ui/logo"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -120,9 +121,7 @@ export default function ParentSignupPage() {
             {/* Header */}
             <header className="flex items-center justify-between px-6 lg:px-10 py-4 border-b border-border bg-card shrink-0">
                 <Link href="/" className="flex items-center gap-3">
-                    <div className="size-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
-                        <Atom className="size-5" />
-                    </div>
+                    <Logo size={32} />
                     <h2 className="text-xl font-bold tracking-tight">STEAM Spark</h2>
                 </Link>
                 <div className="flex items-center gap-3">

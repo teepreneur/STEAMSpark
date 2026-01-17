@@ -4,7 +4,8 @@ import { useState, useEffect, use } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
-import { Atom, ArrowLeft, CreditCard, Smartphone, Building2, CheckCircle, Loader2, Shield, AlertCircle, Tag, Percent } from "lucide-react"
+import { ArrowLeft, CreditCard, Smartphone, Building2, CheckCircle, Loader2, Shield, AlertCircle, Tag, Percent } from "lucide-react"
+import { Logo } from "@/components/ui/logo"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
@@ -167,9 +168,7 @@ export default function PaymentPage({ params }: { params: Promise<{ id: string }
             {/* Header */}
             <header className="flex items-center justify-between px-6 lg:px-10 py-4 border-b border-border bg-card">
                 <Link href="/" className="flex items-center gap-3">
-                    <div className="size-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
-                        <Atom className="size-5" />
-                    </div>
+                    <Logo size={32} />
                     <h2 className="text-xl font-bold tracking-tight">STEAM Spark</h2>
                 </Link>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
