@@ -23,7 +23,7 @@ export async function middleware(request: NextRequest) {
             return NextResponse.rewrite(url)
         }
         // Redirect any other paths to the app subdomain
-        if (!pathname.startsWith('/marketing') && !pathname.startsWith('/_next') && !pathname.startsWith('/api')) {
+        if (!pathname.startsWith('/marketing') && !pathname.startsWith('/earlyaccess') && !pathname.startsWith('/_next') && !pathname.startsWith('/api')) {
             const url = new URL(request.url)
             url.host = APP_SUBDOMAIN
             return NextResponse.redirect(url)
