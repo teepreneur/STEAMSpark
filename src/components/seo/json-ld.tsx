@@ -5,7 +5,7 @@ export function OrganizationJsonLd() {
         name: "STEAM Spark",
         url: "https://steamsparkgh.com",
         logo: "https://steamsparkgh.com/logo-spark-v2.png",
-        description: "STEAM Spark connects curious minds with expert mentors. Personalized learning paths in Science, Technology, Engineering, Arts, and Math for kids ages 5-16.",
+        description: "STEAM Spark connects curious minds with expert mentors. Personalized learning paths in Science, Technology, Engineering, Arts, and Math for kids and teens ages 5-18.",
         address: {
             "@type": "PostalAddress",
             addressLocality: "Accra",
@@ -39,7 +39,7 @@ export function WebsiteJsonLd() {
         "@type": "WebSite",
         name: "STEAM Spark",
         url: "https://steamsparkgh.com",
-        description: "Personalized STEAM education for kids in Ghana",
+        description: "Personalized STEAM education for kids and teens in Ghana",
         potentialAction: {
             "@type": "SearchAction",
             target: {
