@@ -168,7 +168,7 @@ export default function PaymentPage({ params }: { params: Promise<{ id: string }
             {/* Header */}
             <header className="flex items-center justify-between px-6 lg:px-10 py-4 border-b border-border bg-card">
                 <Link href="/" className="flex items-center">
-                    <Logo size={32} variant="full" />
+                    <Logo size={28} variant="full" />
                 </Link>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Shield className="size-4 text-green-500" />

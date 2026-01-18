@@ -150,7 +150,7 @@ export default function TeacherSignupPage() {
                 <div className="relative z-10 flex flex-col h-full">
                     {/* Logo */}
                     <Link href="/" className="flex items-center mb-10">
-                        <Logo size={32} variant="full" />
+                        <Logo size={28} variant="full" />
                     </Link>
 
                     {/* Stepper */}
@@ -199,7 +199,7 @@ export default function TeacherSignupPage() {
             <main className="flex-1 flex flex-col min-h-screen overflow-y-auto bg-background">
                 <div className="md:hidden flex items-center justify-between p-4 bg-card border-b border-border">
                     <Link href="/" className="flex items-center">
-                        <Logo size={24} variant="full" />
+                        <Logo size={20} variant="full" />
                     </Link>
                     <span className="text-sm text-muted-foreground">Step {currentStep} of 5</span>
                 </div>
