@@ -10,7 +10,7 @@ interface LogoProps {
 export function Logo({ size = 24, className = "" }: LogoProps) {
     return (
         <Image
-            src="/logo.png"
+            src="/logo-spark-v2.png"
             alt="STEAM Spark Logo"
             width={size}
             height={size}

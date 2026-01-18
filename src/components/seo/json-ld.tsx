@@ -4,10 +4,11 @@ export function OrganizationJsonLd() {
         "@type": "EducationalOrganization",
         name: "STEAM Spark",
         url: "https://steamsparkgh.com",
-        logo: "https://steamsparkgh.com/logo.png",
+        logo: "https://steamsparkgh.com/logo-spark-v2.png",
         description: "STEAM Spark connects curious minds with expert mentors. Personalized learning paths in Science, Technology, Engineering, Arts, and Math for kids ages 5-16.",
         address: {
             "@type": "PostalAddress",
+            addressLocality: "Accra",
             addressCountry: "GH",
         },
         areaServed: {

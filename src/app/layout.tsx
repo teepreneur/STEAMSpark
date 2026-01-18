@@ -24,8 +24,8 @@ export const metadata: Metadata = {
     telephone: false,
   },
   icons: {
-    icon: "/favicon.ico",
-    apple: "/apple-touch-icon.png",
+    icon: "/icon-spark-v2.png",
+    apple: "/apple-icon-v2.png",
   },
   manifest: "/manifest.json",
 };

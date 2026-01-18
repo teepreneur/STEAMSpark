@@ -21,7 +21,7 @@ export const metadata: Metadata = {
         description: "Connect your child with expert tutors in Science, Technology, Engineering, Arts, and Math. Personalized learning paths and gamified lessons.",
         images: [
             {
-                url: "/og-image.png",
+                url: "/og-image-v2.png",
                 width: 1200,
                 height: 630,
                 alt: "STEAM Spark - Igniting curiosities, one lesson at a time",
@@ -32,7 +32,7 @@ export const metadata: Metadata = {
         card: "summary_large_image",
         title: "STEAM Spark | Personalized STEAM Education for Kids",
         description: "Connect your child with expert STEAM tutors. Personalized learning, gamified lessons, real-time progress tracking.",
-        images: ["/og-image.png"],
+        images: ["/og-image-v2.png"],
     },
     robots: {
         index: true,
