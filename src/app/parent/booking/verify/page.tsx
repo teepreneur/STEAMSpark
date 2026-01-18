@@ -105,7 +105,7 @@ export default function PaymentVerifyPage() {
             {/* Header */}
             <header className="flex items-center justify-center px-6 py-4 border-b border-border bg-card">
                 <Link href="/" className="flex items-center">
-                    <Logo size={28} variant="full" />
+                    <Logo size={32} variant="full" />
                 </Link>
             </header>
 

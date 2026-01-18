@@ -11,7 +11,7 @@ export default function OnboardingPage() {
       {/* Header */}
       <header className="flex items-center justify-between px-6 lg:px-10 py-4 border-b border-border bg-card">
         <div className="flex items-center">
-          <Logo size={32} variant="full" />
+          <Logo size={36} variant="full" />
         </div>
         <div className="flex items-center gap-4">
           <span className="hidden sm:inline text-sm text-muted-foreground">Already a member?</span>

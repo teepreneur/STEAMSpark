@@ -60,7 +60,7 @@ export function ParentHeader() {
                 <div className="flex items-center gap-8">
                     {/* Logo */}
                     <Link href="/parent/dashboard" className="flex items-center">
-                        <Logo size={32} variant="full" />
+                        <Logo size={36} variant="full" />
                     </Link>
 
                     {/* Desktop Nav */}

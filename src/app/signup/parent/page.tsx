@@ -121,7 +121,7 @@ export default function ParentSignupPage() {
             {/* Header */}
             <header className="flex items-center justify-between px-6 lg:px-10 py-4 border-b border-border bg-card shrink-0">
                 <Link href="/" className="flex items-center">
-                    <Logo size={28} variant="full" />
+                    <Logo size={32} variant="full" />
                 </Link>
                 <div className="flex items-center gap-3">
                     <span className="hidden sm:inline text-sm text-muted-foreground">Already a member?</span>

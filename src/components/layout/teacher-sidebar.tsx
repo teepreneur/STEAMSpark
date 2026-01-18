@@ -138,7 +138,7 @@ export function TeacherSidebar({ className }: { className?: string }) {
             <div className="p-6">
                 <div className="flex items-center justify-between mb-8">
                     <div className="flex flex-col gap-2">
-                        <Logo size={28} variant="full" />
+                        <Logo size={32} variant="full" />
                         <p className="text-muted-foreground text-xs font-normal">Teacher Portal</p>
                     </div>
 
