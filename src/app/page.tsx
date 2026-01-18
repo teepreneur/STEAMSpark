@@ -10,9 +10,8 @@ export default function OnboardingPage() {
     <div className="min-h-screen flex flex-col bg-background">
       {/* Header */}
       <header className="flex items-center justify-between px-6 lg:px-10 py-4 border-b border-border bg-card">
-        <div className="flex items-center gap-3">
-          <Logo size={40} />
-          <h2 className="text-xl font-bold tracking-tight">STEAM Spark</h2>
+        <div className="flex items-center">
+          <Logo size={40} variant="full" />
         </div>
         <div className="flex items-center gap-4">
           <span className="hidden sm:inline text-sm text-muted-foreground">Already a member?</span>

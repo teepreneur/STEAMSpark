@@ -104,9 +104,8 @@ export default function PaymentVerifyPage() {
         <div className="min-h-screen bg-background flex flex-col">
             {/* Header */}
             <header className="flex items-center justify-center px-6 py-4 border-b border-border bg-card">
-                <Link href="/" className="flex items-center gap-3">
-                    <Logo size={32} />
-                    <h2 className="text-xl font-bold tracking-tight">STEAM Spark</h2>
+                <Link href="/" className="flex items-center">
+                    <Logo size={32} variant="full" />
                 </Link>
             </header>
 

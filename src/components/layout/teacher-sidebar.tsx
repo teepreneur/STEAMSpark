@@ -137,12 +137,9 @@ export function TeacherSidebar({ className }: { className?: string }) {
         <aside className={cn("w-64 bg-white dark:bg-[#1a2632] border-r border-border flex flex-col h-screen sticky top-0", className)}>
             <div className="p-6">
                 <div className="flex items-center justify-between mb-8">
-                    <div className="flex items-center gap-3">
-                        <Logo size={40} />
-                        <div className="flex flex-col">
-                            <h1 className="text-lg font-bold leading-tight tracking-tight">STEAM Spark</h1>
-                            <p className="text-muted-foreground text-xs font-normal">Teacher Portal</p>
-                        </div>
+                    <div className="flex flex-col gap-2">
+                        <Logo size={32} variant="full" />
+                        <p className="text-muted-foreground text-xs font-normal">Teacher Portal</p>
                     </div>
 
                     {/* Notification Bell */}

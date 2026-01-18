@@ -18,9 +18,8 @@ export default function LandingPage() {
             <header className="sticky top-0 z-50 w-full border-b border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-[#1a2733]/95 backdrop-blur-md">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex h-20 items-center justify-between">
-                        <div className="flex items-center gap-3">
-                            <Logo size={40} />
-                            <span className="text-xl font-bold tracking-tight">STEAM Spark</span>
+                        <div className="flex items-center">
+                            <Logo size={40} variant="full" />
                         </div>
                         <nav className="hidden md:flex items-center gap-8">
                             <a className="text-sm font-bold text-slate-500 dark:text-slate-300 hover:text-[#3899fa] transition-colors" href="#parents">Parents</a>
@@ -767,9 +766,8 @@ export default function LandingPage() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-10 mb-16">
                         <div className="col-span-2 lg:col-span-2 pr-8">
-                            <div className="flex items-center gap-2 mb-6">
-                                <Logo size={40} />
-                                <span className="text-2xl font-bold tracking-tight">STEAM Spark</span>
+                            <div className="flex items-center mb-6">
+                                <Logo size={40} variant="full" />
                             </div>
                             <p className="text-slate-500 dark:text-slate-500 text-sm leading-relaxed mb-8 max-w-sm">
                                 Empowering the next generation of innovators through accessible, engaging, and safe STEAM education. Join the revolution today.

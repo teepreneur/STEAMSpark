@@ -59,9 +59,8 @@ export function ParentHeader() {
             <div className="px-4 md:px-10 py-3 flex items-center justify-between">
                 <div className="flex items-center gap-8">
                     {/* Logo */}
-                    <Link href="/parent/dashboard" className="flex items-center gap-3">
-                        <Logo size={40} />
-                        <h2 className="text-xl font-bold tracking-tight">STEAM Spark</h2>
+                    <Link href="/parent/dashboard" className="flex items-center">
+                        <Logo size={40} variant="full" />
                     </Link>
 
                     {/* Desktop Nav */}

@@ -9,14 +9,18 @@ interface LogoProps {
 }
 
 export function Logo({ size = 24, className = "", variant = "icon" }: LogoProps) {
-    const src = variant === "full" ? "/logo-spark-v2.png" : "/icon-spark-v2.png"
+    const src = variant === "full" ? "/logo-transparent-v2.png" : "/icon-spark-v2.png"
+
+    // Full logo has ~4:1 aspect ratio, icon is 1:1
+    const width = variant === "full" ? size * 4 : size
+    const height = size
 
     return (
         <Image
             src={src}
             alt="STEAM Spark Logo"
-            width={size}
-            height={size}
+            width={width}
+            height={height}
             className={className}
             priority
         />

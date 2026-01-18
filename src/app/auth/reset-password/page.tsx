@@ -152,9 +152,8 @@ export default function ResetPasswordPage() {
     return (
         <div className="min-h-screen flex flex-col bg-background">
             <header className="flex items-center justify-between px-6 lg:px-10 py-4 border-b border-border bg-card shrink-0">
-                <Link href="/" className="flex items-center gap-3">
-                    <Logo size={32} />
-                    <h2 className="text-xl font-bold tracking-tight">STEAM Spark</h2>
+                <Link href="/" className="flex items-center">
+                    <Logo size={32} variant="full" />
                 </Link>
             </header>
 
