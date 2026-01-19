@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { Loader2, CheckCircle, ArrowRight, Crown, Wallet, Feather, HeartHandshake, Rocket } from 'lucide-react'
 import { Logo } from '@/components/ui/logo'
@@ -47,6 +47,33 @@ export default function TeacherEarlyAccessClient() {
         }))
     }
 
+    const [countdown, setCountdown] = useState(5)
+
+    useEffect(() => {
+        if (isSuccess) {
+            const timer = setInterval(() => {
+                setCountdown((prev) => {
+                    if (prev <= 1) {
+                        clearInterval(timer)
+                        setIsSuccess(false)
+                        setFormData({
+                            name: '',
+                            email: '',
+                            phone: '',
+                            subject: '',
+                            experience: '',
+                            reason: ''
+                        })
+                        return 5
+                    }
+                    return prev - 1
+                })
+            }, 1000)
+
+            return () => clearInterval(timer)
+        }
+    }, [isSuccess])
+
     if (isSuccess) {
         return (
             <div className="min-h-screen flex items-center justify-center p-4 bg-slate-50">
@@ -58,9 +85,25 @@ export default function TeacherEarlyAccessClient() {
                     <p className="text-slate-600 mb-6">
                         Thanks for joining the STEAM Spark revolution. We'll be in touch soon with your early access invite.
                     </p>
-                    <a href="https://steamsparkgh.com" className="text-blue-600 font-medium hover:underline">
-                        Back to Home
-                    </a>
+                    <p className="text-sm text-slate-400">
+                        Redirecting to form in {countdown}s...
+                    </p>
+                    <button
+                        onClick={() => {
+                            setIsSuccess(false)
+                            setFormData({
+                                name: '',
+                                email: '',
+                                phone: '',
+                                subject: '',
+                                experience: '',
+                                reason: ''
+                            })
+                        }}
+                        className="text-blue-600 font-medium hover:underline mt-2 text-sm"
+                    >
+                        Return immediately
+                    </button>
                 </div>
             </div>
         )
