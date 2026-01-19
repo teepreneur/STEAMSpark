@@ -45,7 +45,7 @@ export async function POST(request: Request) {
             try {
                 await resend.emails.send({
                     from: 'STEAM Spark <onboarding@resend.dev>',
-                    to: ['steamsparkworld@gmail.com'],
+                    to: ['triumphtetteh@gmail.com'],
                     subject: `New Teacher Early Access: ${name}`,
                     html: `
                         <h1>New Teacher Application</h1>
