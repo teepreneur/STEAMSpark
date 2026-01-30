@@ -22,8 +22,16 @@ export async function middleware(request: NextRequest) {
             url.pathname = '/marketing'
             return NextResponse.rewrite(url)
         }
+
+        // Serve the Theory of Change page
+        if (pathname === '/theoryofchange') {
+            const url = request.nextUrl.clone()
+            url.pathname = '/marketing/theoryofchange'
+            return NextResponse.rewrite(url)
+        }
+
         // Redirect any other paths to the app subdomain
-        if (!pathname.startsWith('/marketing') && !pathname.startsWith('/earlyaccess') && !pathname.startsWith('/_next') && !pathname.startsWith('/api')) {
+        if (!pathname.startsWith('/marketing') && !pathname.startsWith('/earlyaccess') && !pathname.startsWith('/_next') && !pathname.startsWith('/api') && !pathname.startsWith('/theoryofchange')) {
             const url = new URL(request.url)
             url.host = APP_SUBDOMAIN
             return NextResponse.redirect(url)
