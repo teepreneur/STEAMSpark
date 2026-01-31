@@ -21,7 +21,6 @@ const steps = [
     { id: 2, label: "Verify Credentials", icon: ShieldCheck },
     { id: 3, label: "Your Expertise", icon: GraduationCap },
     { id: 4, label: "Schedule", icon: CalendarDays },
-    { id: 5, label: "First Gig", icon: Rocket },
 ]
 
 const allSubjects = [
@@ -38,7 +37,7 @@ export default function TeacherSignupPage() {
     const [error, setError] = useState<string | null>(null)
     const [currentStep, setCurrentStep] = useState(1)
     const [submitted, setSubmitted] = useState(false)
-    const totalSteps = 5
+    const totalSteps = 4
 
     // Step 1: Account Info
     const [firstName, setFirstName] = useState("")
@@ -56,10 +55,6 @@ export default function TeacherSignupPage() {
 
     // Step 4: Schedule (simplified)
     const [availableDays, setAvailableDays] = useState<string[]>(["monday", "wednesday", "friday"])
-
-    // Step 5: First Gig (Optional, simplified)
-    const [gigTitle, setGigTitle] = useState("")
-    const [gigPrice, setGigPrice] = useState("45")
 
     const addSubject = () => {
         if (subjectInput.trim() && !selectedSubjects.includes(subjectInput.trim())) {
@@ -80,7 +75,7 @@ export default function TeacherSignupPage() {
     }
 
     const handleNext = () => {
-        if (currentStep < 5) setCurrentStep(currentStep + 1)
+        if (currentStep < 4) setCurrentStep(currentStep + 1)
     }
 
     const handleBack = () => {
@@ -119,17 +114,6 @@ export default function TeacherSignupPage() {
                 subjects: selectedSubjects,
                 verification_status: 'pending'
             }).eq('id', authData.user.id)
-
-            // 4. Create first gig if provided
-            if (gigTitle) {
-                await supabase.from('gigs').insert({
-                    teacher_id: authData.user.id,
-                    title: gigTitle,
-                    price: parseFloat(gigPrice) || 45,
-                    status: 'draft',
-                    subject: selectedSubjects[0] || 'General'
-                })
-            }
 
             setSubmitted(true)
             // Scroll to top for confirmation view
@@ -206,7 +190,7 @@ export default function TeacherSignupPage() {
                     <Link href="/" className="flex items-center">
                         <Logo size={24} variant="full" />
                     </Link>
-                    <span className="text-sm text-muted-foreground">Step {currentStep} of 5</span>
+                    <span className="text-sm text-muted-foreground">Step {currentStep} of 4</span>
                 </div>
 
                 <div className="flex-1 max-w-3xl mx-auto w-full p-6 md:p-12 lg:p-16">
@@ -389,31 +373,10 @@ export default function TeacherSignupPage() {
                                 </div>
                             )}
 
-                            {/* STEP 5: First Gig */}
-                            {currentStep === 5 && (
-                                <div className="space-y-6">
-                                    <h3 className="text-lg font-semibold border-b border-border pb-2">Create Your First Gig (Optional)</h3>
-                                    <p className="text-muted-foreground">Set up your first class offering. You can skip this and do it later from your dashboard.</p>
-
-                                    <div className="space-y-4">
-                                        <div className="space-y-2">
-                                            <Label>Gig Title</Label>
-                                            <Input
-                                                placeholder="e.g., Intro to Robotics with Python"
-                                                value={gigTitle}
-                                                onChange={(e) => setGigTitle(e.target.value)}
-                                            />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label>Hourly Rate ($)</Label>
-                                            <Input
-                                                type="number"
-                                                placeholder="45"
-                                                value={gigPrice}
-                                                onChange={(e) => setGigPrice(e.target.value)}
-                                            />
-                                        </div>
-                                    </div>
+                            {/* Skip Step Logic */}
+                            {currentStep === 4 && (
+                                <div className="hidden">
+                                    {/* Placeholder to keep layout consistent if needed */}
                                 </div>
                             )}
 
@@ -423,24 +386,36 @@ export default function TeacherSignupPage() {
                                     <ArrowLeft className="size-4 mr-2" /> Back
                                 </Button>
 
-                                {currentStep < 5 ? (
-                                    <Button onClick={handleNext}>
-                                        Continue <ArrowRight className="size-4 ml-2" />
-                                    </Button>
-                                ) : (
-                                    <Button onClick={handleSubmit} disabled={loading}>
-                                        {loading ? (
-                                            <>
-                                                <Loader2 className="size-4 mr-2 animate-spin" />
-                                                Creating...
-                                            </>
-                                        ) : (
-                                            <>
-                                                Complete Signup <Check className="size-4 ml-2" />
-                                            </>
-                                        )}
-                                    </Button>
-                                )}
+                                <div className="flex items-center gap-3">
+                                    {currentStep > 1 && (
+                                        <Button
+                                            variant="outline"
+                                            onClick={currentStep < 4 ? handleNext : handleSubmit}
+                                            disabled={loading}
+                                        >
+                                            Skip for now
+                                        </Button>
+                                    )}
+
+                                    {currentStep < 4 ? (
+                                        <Button onClick={handleNext}>
+                                            Continue <ArrowRight className="size-4 ml-2" />
+                                        </Button>
+                                    ) : (
+                                        <Button onClick={handleSubmit} disabled={loading}>
+                                            {loading ? (
+                                                <>
+                                                    <Loader2 className="size-4 mr-2 animate-spin" />
+                                                    Creating...
+                                                </>
+                                            ) : (
+                                                <>
+                                                    Complete Signup <Check className="size-4 ml-2" />
+                                                </>
+                                            )}
+                                        </Button>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     )}
