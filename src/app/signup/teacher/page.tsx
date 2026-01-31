@@ -4,6 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
+import { getURL } from "@/lib/utils/url"
 import {
     User, ShieldCheck, GraduationCap, CalendarDays, Rocket,
     Mail, Lock, CloudUpload, X, Plus, ArrowLeft, ArrowRight, Loader2, Check
@@ -33,9 +34,11 @@ export default function TeacherSignupPage() {
     const supabase = createClient()
     const router = useRouter()
 
-    const [currentStep, setCurrentStep] = useState(1)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
+    const [currentStep, setCurrentStep] = useState(1)
+    const [submitted, setSubmitted] = useState(false)
+    const totalSteps = 5
 
     // Step 1: Account Info
     const [firstName, setFirstName] = useState("")
@@ -94,6 +97,7 @@ export default function TeacherSignupPage() {
                 email,
                 password,
                 options: {
+                    emailRedirectTo: `${getURL()}/auth/callback?next=/login`,
                     data: {
                         full_name: `${firstName} ${lastName}`,
                         role: 'teacher'
@@ -127,8 +131,9 @@ export default function TeacherSignupPage() {
                 })
             }
 
-            router.push('/teacher/dashboard')
-            router.refresh()
+            setSubmitted(true)
+            // Scroll to top for confirmation view
+            window.scrollTo(0, 0)
 
         } catch (err: any) {
             setError(err.message || "An error occurred during signup")
@@ -218,211 +223,232 @@ export default function TeacherSignupPage() {
                     )}
 
                     {/* Step Content */}
-                    <div className="flex flex-col gap-10">
-                        {/* STEP 1: Account Info */}
-                        {currentStep === 1 && (
-                            <div className="space-y-6">
-                                <h3 className="text-lg font-semibold border-b border-border pb-2">Personal Information</h3>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div className="space-y-2">
-                                        <Label>First Name</Label>
-                                        <Input placeholder="Jane" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Last Name</Label>
-                                        <Input placeholder="Doe" value={lastName} onChange={(e) => setLastName(e.target.value)} />
-                                    </div>
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Email Address</Label>
-                                    <div className="relative">
-                                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-                                        <Input className="pl-12" placeholder="jane.doe@example.com" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-                                    </div>
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Create Password</Label>
-                                    <div className="relative">
-                                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-                                        <Input className="pl-12" placeholder="••••••••" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-                                    </div>
-                                    <p className="text-xs text-muted-foreground">Must be at least 8 characters long.</p>
-                                </div>
+                    {submitted ? (
+                        <div className="flex flex-col items-center justify-center text-center py-12 px-4 bg-primary/5 rounded-3xl border border-primary/10">
+                            <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mb-6">
+                                <Mail className="size-10 text-primary animate-bounce" />
                             </div>
-                        )}
-
-                        {/* STEP 2: Credentials */}
-                        {currentStep === 2 && (
-                            <div className="space-y-6">
-                                <div className="flex items-center justify-between border-b border-border pb-2">
-                                    <h3 className="text-lg font-semibold">Credentials</h3>
-                                    <div className="flex items-center gap-1 text-xs text-green-600 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded">
-                                        <Lock className="size-3" /> Encrypted & Secure
-                                    </div>
-                                </div>
-
-                                <div className="border-2 border-dashed border-border rounded-xl p-8 flex flex-col items-center justify-center text-center bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer group relative">
-                                    <input type="file" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onChange={handleFileChange} multiple />
-                                    <div className="size-12 rounded-full bg-card shadow-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                                        <CloudUpload className="size-6 text-primary" />
-                                    </div>
-                                    <p className="font-medium mb-1">Click to upload or drag and drop</p>
-                                    <p className="text-sm text-muted-foreground mb-4">Resume, Teaching Certification, or Portfolio (PDF, JPG)</p>
-                                    <span className="text-primary text-sm font-semibold">Browse Files</span>
-                                </div>
-
-                                {uploadedFiles.length > 0 && (
-                                    <div className="flex flex-wrap gap-2">
-                                        {uploadedFiles.map((file, idx) => (
-                                            <span key={idx} className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium">
-                                                {file}
-                                                <button onClick={() => setUploadedFiles(uploadedFiles.filter((_, i) => i !== idx))}>
-                                                    <X className="size-4 hover:text-red-500" />
-                                                </button>
-                                            </span>
-                                        ))}
-                                    </div>
-                                )}
-
-                                <p className="text-sm text-muted-foreground italic">
-                                    Tip: Uploading credentials increases your profile visibility and trust score.
+                            <h1 className="text-3xl font-bold mb-4">Check your email</h1>
+                            <p className="text-lg text-muted-foreground max-w-md mb-8">
+                                We've sent a confirmation link to <span className="text-foreground font-bold">{email}</span>.
+                                Please click the link to verify your account and complete your signup.
+                            </p>
+                            <div className="flex flex-col gap-4 w-full max-w-xs mx-auto">
+                                <Button size="lg" className="w-full font-bold shadow-xl" asChild>
+                                    <Link href="/login">Go to Login</Link>
+                                </Button>
+                                <p className="text-sm text-muted-foreground">
+                                    Didn't receive it? <button onClick={handleSubmit} className="text-primary hover:underline font-medium">Click to resend</button>
                                 </p>
                             </div>
-                        )}
+                        </div>
+                    ) : (
+                        <div className="flex flex-col gap-10">
+                            {/* STEP 1: Account Info */}
+                            {currentStep === 1 && (
+                                <div className="space-y-6">
+                                    <h3 className="text-lg font-semibold border-b border-border pb-2">Personal Information</h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div className="space-y-2">
+                                            <Label>First Name</Label>
+                                            <Input placeholder="Jane" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label>Last Name</Label>
+                                            <Input placeholder="Doe" value={lastName} onChange={(e) => setLastName(e.target.value)} />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Email Address</Label>
+                                        <div className="relative">
+                                            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                                            <Input className="pl-12" placeholder="jane.doe@example.com" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Create Password</Label>
+                                        <div className="relative">
+                                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                                            <Input className="pl-12" placeholder="••••••••" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+                                        </div>
+                                        <p className="text-xs text-muted-foreground">Must be at least 8 characters long.</p>
+                                    </div>
+                                </div>
+                            )}
 
-                        {/* STEP 3: Expertise */}
-                        {currentStep === 3 && (
-                            <div className="space-y-6">
-                                <h3 className="text-lg font-semibold border-b border-border pb-2">Expertise & Skills</h3>
+                            {/* STEP 2: Credentials */}
+                            {currentStep === 2 && (
+                                <div className="space-y-6">
+                                    <div className="flex items-center justify-between border-b border-border pb-2">
+                                        <h3 className="text-lg font-semibold">Credentials</h3>
+                                        <div className="flex items-center gap-1 text-xs text-green-600 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded">
+                                            <Lock className="size-3" /> Encrypted & Secure
+                                        </div>
+                                    </div>
 
-                                <div className="space-y-3">
-                                    <Label>Subjects You Teach</Label>
-                                    <div className="flex flex-wrap gap-2 mb-3">
-                                        {selectedSubjects.map((subject) => (
-                                            <span key={subject} className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium border border-primary/20">
-                                                {subject}
-                                                <button onClick={() => removeSubject(subject)}>
-                                                    <X className="size-4 hover:text-red-500" />
-                                                </button>
-                                            </span>
+                                    <div className="border-2 border-dashed border-border rounded-xl p-8 flex flex-col items-center justify-center text-center bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer group relative">
+                                        <input type="file" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onChange={handleFileChange} multiple />
+                                        <div className="size-12 rounded-full bg-card shadow-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                            <CloudUpload className="size-6 text-primary" />
+                                        </div>
+                                        <p className="font-medium mb-1">Click to upload or drag and drop</p>
+                                        <p className="text-sm text-muted-foreground mb-4">Resume, Teaching Certification, or Portfolio (PDF, JPG)</p>
+                                        <span className="text-primary text-sm font-semibold">Browse Files</span>
+                                    </div>
+
+                                    {uploadedFiles.length > 0 && (
+                                        <div className="flex flex-wrap gap-2">
+                                            {uploadedFiles.map((file, idx) => (
+                                                <span key={idx} className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium">
+                                                    {file}
+                                                    <button onClick={() => setUploadedFiles(uploadedFiles.filter((_, i) => i !== idx))}>
+                                                        <X className="size-4 hover:text-red-500" />
+                                                    </button>
+                                                </span>
+                                            ))}
+                                        </div>
+                                    )}
+
+                                    <p className="text-sm text-muted-foreground italic">
+                                        Tip: Uploading credentials increases your profile visibility and trust score.
+                                    </p>
+                                </div>
+                            )}
+
+                            {/* STEP 3: Expertise */}
+                            {currentStep === 3 && (
+                                <div className="space-y-6">
+                                    <h3 className="text-lg font-semibold border-b border-border pb-2">Expertise & Skills</h3>
+
+                                    <div className="space-y-3">
+                                        <Label>Subjects You Teach</Label>
+                                        <div className="flex flex-wrap gap-2 mb-3">
+                                            {selectedSubjects.map((subject) => (
+                                                <span key={subject} className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium border border-primary/20">
+                                                    {subject}
+                                                    <button onClick={() => removeSubject(subject)}>
+                                                        <X className="size-4 hover:text-red-500" />
+                                                    </button>
+                                                </span>
+                                            ))}
+                                        </div>
+                                        <div className="relative">
+                                            <Input
+                                                placeholder="Type to search subjects (e.g. Physics, Art, Math)..."
+                                                value={subjectInput}
+                                                onChange={(e) => setSubjectInput(e.target.value)}
+                                                onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addSubject())}
+                                                list="subjects-list"
+                                            />
+                                            <datalist id="subjects-list">
+                                                {allSubjects.filter(s => !selectedSubjects.includes(s)).map(s => (
+                                                    <option key={s} value={s} />
+                                                ))}
+                                            </datalist>
+                                            <Button type="button" variant="ghost" size="sm" className="absolute right-2 top-1/2 -translate-y-1/2 text-primary" onClick={addSubject}>
+                                                <Plus className="size-4 mr-1" /> Add
+                                            </Button>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label>Bio / About You</Label>
+                                        <Textarea
+                                            placeholder="Tell students about your teaching style and experience..."
+                                            rows={4}
+                                            value={bio}
+                                            onChange={(e) => setBio(e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* STEP 4: Schedule */}
+                            {currentStep === 4 && (
+                                <div className="space-y-6">
+                                    <h3 className="text-lg font-semibold border-b border-border pb-2">Your Availability</h3>
+                                    <p className="text-muted-foreground">Select the days you're typically available. You can refine this later in settings.</p>
+
+                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                        {["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"].map((day) => (
+                                            <button
+                                                key={day}
+                                                type="button"
+                                                onClick={() => setAvailableDays(prev => prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day])}
+                                                className={cn(
+                                                    "p-3 rounded-lg border text-center capitalize font-medium transition-all",
+                                                    availableDays.includes(day)
+                                                        ? "bg-primary/10 border-primary text-primary"
+                                                        : "border-border hover:border-primary/50"
+                                                )}
+                                            >
+                                                {day.slice(0, 3)}
+                                            </button>
                                         ))}
                                     </div>
-                                    <div className="relative">
-                                        <Input
-                                            placeholder="Type to search subjects (e.g. Physics, Art, Math)..."
-                                            value={subjectInput}
-                                            onChange={(e) => setSubjectInput(e.target.value)}
-                                            onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addSubject())}
-                                            list="subjects-list"
-                                        />
-                                        <datalist id="subjects-list">
-                                            {allSubjects.filter(s => !selectedSubjects.includes(s)).map(s => (
-                                                <option key={s} value={s} />
-                                            ))}
-                                        </datalist>
-                                        <Button type="button" variant="ghost" size="sm" className="absolute right-2 top-1/2 -translate-y-1/2 text-primary" onClick={addSubject}>
-                                            <Plus className="size-4 mr-1" /> Add
-                                        </Button>
-                                    </div>
                                 </div>
-
-                                <div className="space-y-2">
-                                    <Label>Bio / About You</Label>
-                                    <Textarea
-                                        placeholder="Tell students about your teaching style and experience..."
-                                        rows={4}
-                                        value={bio}
-                                        onChange={(e) => setBio(e.target.value)}
-                                    />
-                                </div>
-                            </div>
-                        )}
-
-                        {/* STEP 4: Schedule */}
-                        {currentStep === 4 && (
-                            <div className="space-y-6">
-                                <h3 className="text-lg font-semibold border-b border-border pb-2">Your Availability</h3>
-                                <p className="text-muted-foreground">Select the days you're typically available. You can refine this later in settings.</p>
-
-                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                                    {["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"].map((day) => (
-                                        <button
-                                            key={day}
-                                            type="button"
-                                            onClick={() => setAvailableDays(prev => prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day])}
-                                            className={cn(
-                                                "p-3 rounded-lg border text-center capitalize font-medium transition-all",
-                                                availableDays.includes(day)
-                                                    ? "bg-primary/10 border-primary text-primary"
-                                                    : "border-border hover:border-primary/50"
-                                            )}
-                                        >
-                                            {day.slice(0, 3)}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-
-                        {/* STEP 5: First Gig */}
-                        {currentStep === 5 && (
-                            <div className="space-y-6">
-                                <h3 className="text-lg font-semibold border-b border-border pb-2">Create Your First Gig (Optional)</h3>
-                                <p className="text-muted-foreground">Set up your first class offering. You can skip this and do it later from your dashboard.</p>
-
-                                <div className="space-y-4">
-                                    <div className="space-y-2">
-                                        <Label>Gig Title</Label>
-                                        <Input
-                                            placeholder="e.g., Intro to Robotics with Python"
-                                            value={gigTitle}
-                                            onChange={(e) => setGigTitle(e.target.value)}
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Hourly Rate ($)</Label>
-                                        <Input
-                                            type="number"
-                                            placeholder="45"
-                                            value={gigPrice}
-                                            onChange={(e) => setGigPrice(e.target.value)}
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Navigation Buttons */}
-                        <div className="flex items-center justify-between pt-6 mt-4 border-t border-border">
-                            <Button variant="ghost" onClick={handleBack} disabled={currentStep === 1}>
-                                <ArrowLeft className="size-4 mr-2" /> Back
-                            </Button>
-
-                            {currentStep < 5 ? (
-                                <Button onClick={handleNext}>
-                                    Continue <ArrowRight className="size-4 ml-2" />
-                                </Button>
-                            ) : (
-                                <Button onClick={handleSubmit} disabled={loading}>
-                                    {loading ? (
-                                        <>
-                                            <Loader2 className="size-4 mr-2 animate-spin" />
-                                            Creating...
-                                        </>
-                                    ) : (
-                                        <>
-                                            Complete Signup <Check className="size-4 ml-2" />
-                                        </>
-                                    )}
-                                </Button>
                             )}
-                        </div>
 
-                        <div className="text-center pb-8">
-                            <p className="text-sm text-muted-foreground">
-                                Already have an account? <Link className="text-primary font-medium hover:underline" href="/login">Log in</Link>
-                            </p>
+                            {/* STEP 5: First Gig */}
+                            {currentStep === 5 && (
+                                <div className="space-y-6">
+                                    <h3 className="text-lg font-semibold border-b border-border pb-2">Create Your First Gig (Optional)</h3>
+                                    <p className="text-muted-foreground">Set up your first class offering. You can skip this and do it later from your dashboard.</p>
+
+                                    <div className="space-y-4">
+                                        <div className="space-y-2">
+                                            <Label>Gig Title</Label>
+                                            <Input
+                                                placeholder="e.g., Intro to Robotics with Python"
+                                                value={gigTitle}
+                                                onChange={(e) => setGigTitle(e.target.value)}
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label>Hourly Rate ($)</Label>
+                                            <Input
+                                                type="number"
+                                                placeholder="45"
+                                                value={gigPrice}
+                                                onChange={(e) => setGigPrice(e.target.value)}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Navigation Buttons */}
+                            <div className="flex items-center justify-between pt-6 mt-4 border-t border-border">
+                                <Button variant="ghost" onClick={handleBack} disabled={currentStep === 1}>
+                                    <ArrowLeft className="size-4 mr-2" /> Back
+                                </Button>
+
+                                {currentStep < 5 ? (
+                                    <Button onClick={handleNext}>
+                                        Continue <ArrowRight className="size-4 ml-2" />
+                                    </Button>
+                                ) : (
+                                    <Button onClick={handleSubmit} disabled={loading}>
+                                        {loading ? (
+                                            <>
+                                                <Loader2 className="size-4 mr-2 animate-spin" />
+                                                Creating...
+                                            </>
+                                        ) : (
+                                            <>
+                                                Complete Signup <Check className="size-4 ml-2" />
+                                            </>
+                                        )}
+                                    </Button>
+                                )}
+                            </div>
                         </div>
+                    )}
+
+                    <div className="text-center pb-8">
+                        <p className="text-sm text-muted-foreground">
+                            Already have an account? <Link className="text-primary font-medium hover:underline" href="/login">Log in</Link>
+                        </p>
                     </div>
                 </div>
             </main>

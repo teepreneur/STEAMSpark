@@ -138,8 +138,8 @@ export function GigsList({ initialGigs }: GigsListProps) {
                                 <div
                                     className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
                                     style={{
-                                        backgroundImage: (gig as any).cover_image
-                                            ? `url('${(gig as any).cover_image}')`
+                                        backgroundImage: gig.cover_image
+                                            ? `url('${gig.cover_image}')`
                                             : "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
                                     }}
                                 ></div>
@@ -172,17 +172,17 @@ export function GigsList({ initialGigs }: GigsListProps) {
                                 <div className="flex items-center justify-between mt-auto pt-2">
                                     <div className="flex items-center gap-3">
                                         <span className="text-xs font-bold text-muted-foreground">Duration: {gig.duration || 60}m</span>
-                                        {(gig as any).class_type && (
+                                        {gig.class_type && (
                                             <span className={cn(
                                                 "text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide",
-                                                (gig as any).class_type === 'online'
+                                                gig.class_type === 'online'
                                                     ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
-                                                    : (gig as any).class_type === 'in_person'
+                                                    : gig.class_type === 'in_person'
                                                         ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
                                                         : "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400"
                                             )}>
-                                                {(gig as any).class_type === 'online' ? '💻 Online'
-                                                    : (gig as any).class_type === 'in_person' ? '🏫 In-Person'
+                                                {gig.class_type === 'online' ? '💻 Online'
+                                                    : gig.class_type === 'in_person' ? '🏫 In-Person'
                                                         : '🔄 Hybrid'}
                                             </span>
                                         )}

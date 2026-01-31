@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { createClient } from "@/lib/supabase/client"
+import { getURL } from "@/lib/utils/url"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -17,6 +18,7 @@ export default function SignupPage() {
     const [role, setRole] = useState<"parent" | "teacher">("parent")
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
+    const [submitted, setSubmitted] = useState(false)
     const router = useRouter()
     const supabase = createClient()
 
@@ -30,6 +32,7 @@ export default function SignupPage() {
             email,
             password,
             options: {
+                emailRedirectTo: `${getURL()}/auth/callback?next=/login`,
                 data: {
                     full_name: fullName,
                     role: role,
@@ -71,8 +74,41 @@ export default function SignupPage() {
                 // Non-blocking for now, can be fixed by user later or backend trigger
             }
 
-            router.push(role === 'teacher' ? '/teacher/dashboard' : '/parent/dashboard')
+            setSubmitted(true)
         }
+    }
+
+    if (submitted) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-muted/50 p-4">
+                <Card className="w-full max-w-md shadow-xl text-center">
+                    <CardHeader>
+                        <div className="flex justify-center mb-6">
+                            <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center">
+                                <span className="text-4xl animate-bounce">📧</span>
+                            </div>
+                        </div>
+                        <CardTitle className="text-3xl font-bold">Check your email</CardTitle>
+                        <CardDescription className="text-lg">
+                            We've sent a verification link to <span className="text-foreground font-semibold">{email}</span>.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-muted-foreground mb-6">
+                            Please verify your email address to complete your registration and unlock your dashboard.
+                        </p>
+                        <Button className="w-full font-bold shadow-lg" size="lg" asChild>
+                            <a href="/login">Go to Sign In</a>
+                        </Button>
+                    </CardContent>
+                    <CardFooter className="justify-center">
+                        <p className="text-sm text-muted-foreground">
+                            Didn't get the email? <button onClick={handleSignup} className="text-primary hover:underline">Resend</button>
+                        </p>
+                    </CardFooter>
+                </Card>
+            </div>
+        )
     }
 
     return (

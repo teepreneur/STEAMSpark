@@ -89,6 +89,15 @@ export interface Database {
                     duration: number | null
                     subject: string | null
                     status: 'active' | 'draft' | 'archived' | null
+                    total_sessions: number | null
+                    session_duration: number | null
+                    max_students: number | null
+                    cover_image: string | null
+                    requirements: Json | null
+                    topics: Json | null
+                    class_type: string | null
+                    meeting_platform: string | null
+                    meeting_link: string | null
                     created_at: string
                 }
                 Insert: {
@@ -100,6 +109,15 @@ export interface Database {
                     duration?: number | null
                     subject?: string | null
                     status?: 'active' | 'draft' | 'archived' | null
+                    total_sessions?: number | null
+                    session_duration?: number | null
+                    max_students?: number | null
+                    cover_image?: string | null
+                    requirements?: Json | null
+                    topics?: Json | null
+                    class_type?: string | null
+                    meeting_platform?: string | null
+                    meeting_link?: string | null
                     created_at?: string
                 }
                 Update: {
@@ -111,6 +129,15 @@ export interface Database {
                     duration?: number | null
                     subject?: string | null
                     status?: 'active' | 'draft' | 'archived' | null
+                    total_sessions?: number | null
+                    session_duration?: number | null
+                    max_students?: number | null
+                    cover_image?: string | null
+                    requirements?: Json | null
+                    topics?: Json | null
+                    class_type?: string | null
+                    meeting_platform?: string | null
+                    meeting_link?: string | null
                     created_at?: string
                 }
             }

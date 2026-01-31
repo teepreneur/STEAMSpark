@@ -4,7 +4,8 @@ import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
-import { Eye, EyeOff, User, Baby, Bot, Code, Calculator, FlaskConical, Palette, Cog, Flag, Loader2 } from "lucide-react"
+import { getURL } from "@/lib/utils/url"
+import { Eye, EyeOff, User, Baby, Bot, Code, Calculator, FlaskConical, Palette, Cog, Flag, Loader2, Mail } from "lucide-react"
 import { Logo } from "@/components/ui/logo"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -35,6 +36,7 @@ export default function ParentSignupPage() {
     const [loading, setLoading] = useState(false)
     const [showPassword, setShowPassword] = useState(false)
     const [error, setError] = useState<string | null>(null)
+    const [submitted, setSubmitted] = useState(false)
 
     // Parent fields
     const [fullName, setFullName] = useState("")
@@ -65,6 +67,7 @@ export default function ParentSignupPage() {
                 email,
                 password,
                 options: {
+                    emailRedirectTo: `${getURL()}/auth/callback?next=/login`,
                     data: {
                         full_name: fullName,
                         role: 'parent'
@@ -106,8 +109,10 @@ export default function ParentSignupPage() {
                 }
             }
 
-            router.push('/parent/dashboard')
-            router.refresh()
+            setSubmitted(true)
+            // Scroll to top
+            const container = document.querySelector('.overflow-y-auto')
+            if (container) container.scrollTo(0, 0)
 
         } catch (err: any) {
             setError(err.message || "An error occurred during signup")
@@ -175,165 +180,186 @@ export default function ParentSignupPage() {
                             </div>
                         )}
 
-                        <form onSubmit={handleSubmit} className="flex flex-col gap-8">
-                            {/* Parent Section */}
-                            <div className="space-y-4">
-                                <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-                                    <User className="size-4" /> Parent Details
-                                </h3>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="fullName">Full Name</Label>
-                                        <Input
-                                            id="fullName"
-                                            placeholder="Jane Doe"
-                                            value={fullName}
-                                            onChange={(e) => setFullName(e.target.value)}
-                                            required
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="email">Email Address</Label>
-                                        <Input
-                                            id="email"
-                                            type="email"
-                                            placeholder="jane@example.com"
-                                            value={email}
-                                            onChange={(e) => setEmail(e.target.value)}
-                                            required
-                                        />
-                                    </div>
+                        {submitted ? (
+                            <div className="flex flex-col items-center justify-center text-center py-12 bg-primary/5 rounded-3xl border border-primary/10">
+                                <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mb-6">
+                                    <Mail className="size-10 text-primary animate-bounce flex shrink-0" />
                                 </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="password">Password</Label>
-                                    <div className="relative">
-                                        <Input
-                                            id="password"
-                                            type={showPassword ? "text" : "password"}
-                                            placeholder="Create a strong password"
-                                            value={password}
-                                            onChange={(e) => setPassword(e.target.value)}
-                                            required
-                                            minLength={6}
-                                            className="pr-10"
-                                        />
-                                        <button
-                                            type="button"
-                                            onClick={() => setShowPassword(!showPassword)}
-                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                                        >
-                                            {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-                                        </button>
-                                    </div>
+                                <h1 className="text-3xl font-bold mb-4">Check your email</h1>
+                                <p className="text-lg text-muted-foreground max-w-sm mb-8">
+                                    We've sent a verification link to <span className="text-foreground font-bold">{email}</span>.
+                                    Click it to confirm your account and start your journey.
+                                </p>
+                                <div className="flex flex-col gap-4 w-full max-w-xs px-6">
+                                    <Button size="lg" className="w-full font-bold shadow-xl" asChild>
+                                        <Link href="/login">Return to Login</Link>
+                                    </Button>
+                                    <p className="text-sm text-muted-foreground">
+                                        Haven't heard from us? <button onClick={handleSubmit} className="text-primary hover:underline font-medium">Resend link</button>
+                                    </p>
                                 </div>
                             </div>
-
-                            <hr className="border-border" />
-
-                            {/* Child Section */}
-                            <div className="space-y-4">
-                                <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-                                    <Baby className="size-4" /> Learner Profile
-                                </h3>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="childName">Child's Name</Label>
-                                        <Input
-                                            id="childName"
-                                            placeholder="e.g. Leo"
-                                            value={childName}
-                                            onChange={(e) => setChildName(e.target.value)}
-                                        />
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-4">
+                        ) : (
+                            <form onSubmit={handleSubmit} className="flex flex-col gap-8">
+                                {/* Parent Section */}
+                                <div className="space-y-4">
+                                    <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                                        <User className="size-4" /> Parent Details
+                                    </h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div className="space-y-2">
-                                            <Label htmlFor="childAge">Age</Label>
+                                            <Label htmlFor="fullName">Full Name</Label>
                                             <Input
-                                                id="childAge"
-                                                type="number"
-                                                min="3"
-                                                max="18"
-                                                placeholder="8"
-                                                value={childAge}
-                                                onChange={(e) => setChildAge(e.target.value)}
+                                                id="fullName"
+                                                placeholder="Jane Doe"
+                                                value={fullName}
+                                                onChange={(e) => setFullName(e.target.value)}
+                                                required
                                             />
                                         </div>
                                         <div className="space-y-2">
-                                            <Label htmlFor="childGrade">Grade</Label>
-                                            <Select value={childGrade} onValueChange={setChildGrade}>
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Select" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="prek">Pre-K</SelectItem>
-                                                    <SelectItem value="k">Kindergarten</SelectItem>
-                                                    <SelectItem value="1-3">1st - 3rd</SelectItem>
-                                                    <SelectItem value="4-6">4th - 6th</SelectItem>
-                                                    <SelectItem value="7-9">7th - 9th</SelectItem>
-                                                    <SelectItem value="10-12">10th - 12th</SelectItem>
-                                                </SelectContent>
-                                            </Select>
+                                            <Label htmlFor="email">Email Address</Label>
+                                            <Input
+                                                id="email"
+                                                type="email"
+                                                placeholder="jane@example.com"
+                                                value={email}
+                                                onChange={(e) => setEmail(e.target.value)}
+                                                required
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="password">Password</Label>
+                                        <div className="relative">
+                                            <Input
+                                                id="password"
+                                                type={showPassword ? "text" : "password"}
+                                                placeholder="Create a strong password"
+                                                value={password}
+                                                onChange={(e) => setPassword(e.target.value)}
+                                                required
+                                                minLength={6}
+                                                className="pr-10"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowPassword(!showPassword)}
+                                                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                                            >
+                                                {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
 
-                                {/* Interests Grid */}
-                                <div className="pt-2">
-                                    <Label className="mb-3 block">What sparks their curiosity?</Label>
-                                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                                        {interests.map((interest) => (
-                                            <button
-                                                key={interest.id}
-                                                type="button"
-                                                onClick={() => toggleInterest(interest.id)}
-                                                className={cn(
-                                                    "p-3 rounded-lg border flex flex-col items-center justify-center gap-1 transition-all",
-                                                    selectedInterests.includes(interest.id)
-                                                        ? "bg-primary/10 border-primary text-primary"
-                                                        : "border-border hover:border-primary/50 text-muted-foreground hover:text-foreground"
-                                                )}
-                                            >
-                                                <interest.icon className="size-5" />
-                                                <span className="text-xs font-semibold">{interest.label}</span>
-                                            </button>
-                                        ))}
+                                <hr className="border-border" />
+
+                                {/* Child Section */}
+                                <div className="space-y-4">
+                                    <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                                        <Baby className="size-4" /> Learner Profile
+                                    </h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="childName">Child's Name</Label>
+                                            <Input
+                                                id="childName"
+                                                placeholder="e.g. Leo"
+                                                value={childName}
+                                                onChange={(e) => setChildName(e.target.value)}
+                                            />
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="space-y-2">
+                                                <Label htmlFor="childAge">Age</Label>
+                                                <Input
+                                                    id="childAge"
+                                                    type="number"
+                                                    min="3"
+                                                    max="18"
+                                                    placeholder="8"
+                                                    value={childAge}
+                                                    onChange={(e) => setChildAge(e.target.value)}
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label htmlFor="childGrade">Grade</Label>
+                                                <Select value={childGrade} onValueChange={setChildGrade}>
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Select" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="prek">Pre-K</SelectItem>
+                                                        <SelectItem value="k">Kindergarten</SelectItem>
+                                                        <SelectItem value="1-3">1st - 3rd</SelectItem>
+                                                        <SelectItem value="4-6">4th - 6th</SelectItem>
+                                                        <SelectItem value="7-9">7th - 9th</SelectItem>
+                                                        <SelectItem value="10-12">10th - 12th</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Interests Grid */}
+                                    <div className="pt-2">
+                                        <Label className="mb-3 block">What sparks their curiosity?</Label>
+                                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                            {interests.map((interest) => (
+                                                <button
+                                                    key={interest.id}
+                                                    type="button"
+                                                    onClick={() => toggleInterest(interest.id)}
+                                                    className={cn(
+                                                        "p-3 rounded-lg border flex flex-col items-center justify-center gap-1 transition-all",
+                                                        selectedInterests.includes(interest.id)
+                                                            ? "bg-primary/10 border-primary text-primary"
+                                                            : "border-border hover:border-primary/50 text-muted-foreground hover:text-foreground"
+                                                    )}
+                                                >
+                                                    <interest.icon className="size-5" />
+                                                    <span className="text-xs font-semibold">{interest.label}</span>
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Goal Selector */}
+                                    <div className="space-y-2">
+                                        <Label>Primary Goal</Label>
+                                        <Select value={primaryGoal} onValueChange={setPrimaryGoal}>
+                                            <SelectTrigger className="w-full">
+                                                <Flag className="size-4 mr-2 text-muted-foreground" />
+                                                <SelectValue placeholder="What do you want to achieve?" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {goals.map((goal) => (
+                                                    <SelectItem key={goal.value} value={goal.value}>{goal.label}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
                                     </div>
                                 </div>
 
-                                {/* Goal Selector */}
-                                <div className="space-y-2">
-                                    <Label>Primary Goal</Label>
-                                    <Select value={primaryGoal} onValueChange={setPrimaryGoal}>
-                                        <SelectTrigger className="w-full">
-                                            <Flag className="size-4 mr-2 text-muted-foreground" />
-                                            <SelectValue placeholder="What do you want to achieve?" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {goals.map((goal) => (
-                                                <SelectItem key={goal.value} value={goal.value}>{goal.label}</SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
+                                {/* Submit */}
+                                <div className="pt-4 flex flex-col gap-4">
+                                    <Button type="submit" size="lg" className="w-full font-bold" disabled={loading}>
+                                        {loading ? (
+                                            <>
+                                                <Loader2 className="size-4 mr-2 animate-spin" />
+                                                Creating Account...
+                                            </>
+                                        ) : (
+                                            "Create Account"
+                                        )}
+                                    </Button>
+                                    <p className="text-xs text-center text-muted-foreground">
+                                        By creating an account, you agree to our <a className="underline hover:text-primary" href="#">Terms of Service</a> and <a className="underline hover:text-primary" href="#">Privacy Policy</a>.
+                                    </p>
                                 </div>
-                            </div>
-
-                            {/* Submit */}
-                            <div className="pt-4 flex flex-col gap-4">
-                                <Button type="submit" size="lg" className="w-full font-bold" disabled={loading}>
-                                    {loading ? (
-                                        <>
-                                            <Loader2 className="size-4 mr-2 animate-spin" />
-                                            Creating Account...
-                                        </>
-                                    ) : (
-                                        "Create Account"
-                                    )}
-                                </Button>
-                                <p className="text-xs text-center text-muted-foreground">
-                                    By creating an account, you agree to our <a className="underline hover:text-primary" href="#">Terms of Service</a> and <a className="underline hover:text-primary" href="#">Privacy Policy</a>.
-                                </p>
-                            </div>
-                        </form>
+                            </form>
+                        )}
                     </div>
                 </div>
             </div>

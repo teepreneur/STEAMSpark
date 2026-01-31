@@ -11,65 +11,87 @@ import { createClient } from "@/lib/supabase/client"
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, parseISO, isToday } from "date-fns"
 import { AvailabilityManager } from "./_components/availability-manager"
 
-interface BookingWithDetails {
+function formatTime(time: string): string {
+    const [hours] = time.split(':')
+    const h = parseInt(hours)
+    if (h === 0) return "12:00 AM"
+    if (h < 12) return `${h}:00 AM`
+    if (h === 12) return "12:00 PM"
+    return `${h - 12}:00 PM`
+}
+
+interface SessionWithDetails {
     id: string
-    gig_id: string
-    student_id: string
-    parent_id: string
-    status: string | null
-    session_date: string | null
-    created_at: string
-    gig: {
+    booking_id: string
+    session_date: string
+    session_time: string
+    session_number: number
+    status: string
+    booking: {
         id: string
-        title: string
-        subject: string | null
-        price: number
-        session_duration: number | null
-    } | null
-    student: {
-        id: string
-        name: string
-    } | null
+        gig_id: string
+        student_id: string
+        parent_id: string
+        gig: {
+            id: string
+            title: string
+            subject: string | null
+            price: number
+            session_duration: number | null
+        } | null
+        student: {
+            id: string
+            name: string
+        } | null
+    }
 }
 
 export default function TeacherCalendarPage() {
     const supabase = createClient()
     const [loading, setLoading] = useState(true)
-    const [bookings, setBookings] = useState<BookingWithDetails[]>([])
+    const [sessions, setSessions] = useState<SessionWithDetails[]>([])
     const [currentMonth, setCurrentMonth] = useState(new Date())
-    const [selectedBooking, setSelectedBooking] = useState<BookingWithDetails | null>(null)
+    const [selectedSession, setSelectedSession] = useState<SessionWithDetails | null>(null)
 
     useEffect(() => {
-        async function loadBookings() {
+        async function loadSessions() {
             setLoading(true)
             const { data: { user } } = await supabase.auth.getUser()
             if (!user) return
 
-            // Fetch bookings for teacher's gigs
+            // Fetch sessions for teacher's gigs
+            // We join sessions -> bookings -> gigs to filter by teacher_id
             const { data, error } = await supabase
-                .from('bookings')
+                .from('booking_sessions')
                 .select(`
                     id,
-                    gig_id,
-                    student_id,
-                    parent_id,
-                    status,
+                    booking_id,
                     session_date,
-                    created_at,
-                    gig:gigs!inner(id, title, subject, price, session_duration, teacher_id),
-                    student:students(id, name)
+                    session_time,
+                    session_number,
+                    status,
+                    booking:bookings!inner(
+                        id,
+                        gig_id,
+                        student_id,
+                        parent_id,
+                        gig:gigs!inner(id, title, subject, price, session_duration, teacher_id),
+                        student:students(id, name)
+                    )
                 `)
-                .eq('gig.teacher_id', user.id)
+                .eq('booking.gig.teacher_id', user.id)
 
             if (data) {
-                setBookings(data as any)
-                // Select the first upcoming booking by default
-                const upcoming = data.find((b: any) => b.session_date && new Date(b.session_date) >= new Date())
-                if (upcoming) setSelectedBooking(upcoming as any)
+                setSessions(data as any)
+                // Select the first upcoming session by default
+                const upcoming = data.find((s: any) => s.session_date && new Date(s.session_date) >= new Date())
+                if (upcoming) setSelectedSession(upcoming as any)
+            } else if (error) {
+                console.error("Error fetching sessions:", error)
             }
             setLoading(false)
         }
-        loadBookings()
+        loadSessions()
     }, [supabase])
 
     // Calendar helpers
@@ -95,26 +117,26 @@ export default function TeacherCalendarPage() {
 
     const allDays = [...previousMonthPadding, ...days, ...nextMonthPadding]
 
-    // Get bookings for a specific day
-    const getBookingsForDay = (day: Date) => {
-        return bookings.filter(b => {
-            if (!b.session_date) return false
-            return isSameDay(parseISO(b.session_date), day)
+    // Get sessions for a specific day
+    const getSessionsForDay = (day: Date) => {
+        return sessions.filter(s => {
+            if (!s.session_date) return false
+            return isSameDay(parseISO(s.session_date), day)
         })
     }
 
     // Calculate stats
-    const upcomingSessions = bookings.filter(b =>
-        b.session_date && new Date(b.session_date) >= new Date() &&
-        (b.status === 'confirmed' || b.status === 'pending')
+    const upcomingSessions = sessions.filter(s =>
+        s.session_date && new Date(s.session_date) >= new Date() &&
+        (s.status === 'scheduled' || s.status === 'pending')
     ).length
 
-    const totalHours = bookings
-        .filter(b => b.status === 'completed')
-        .reduce((acc, b) => acc + ((b.gig?.session_duration || 1)), 0)
+    const totalHours = sessions
+        .filter(s => s.status === 'completed')
+        .reduce((acc, s) => acc + ((s.booking.gig?.session_duration || 1)), 0)
 
-    const pendingRequests = bookings.filter(b =>
-        b.status === 'pending' || b.status === 'pending_payment'
+    const pendingRequests = sessions.filter(s =>
+        s.status === 'pending' || s.status === 'pending_payment'
     ).length
 
     // Subject color mapping
@@ -237,7 +259,7 @@ export default function TeacherCalendarPage() {
 
                         {/* Days Grid */}
                         {allDays.map((day, index) => {
-                            const dayBookings = getBookingsForDay(day)
+                            const daySessions = getSessionsForDay(day)
                             const isCurrentMonth = isSameMonth(day, currentMonth)
                             const dayIsToday = isToday(day)
 
@@ -248,7 +270,7 @@ export default function TeacherCalendarPage() {
                                         "p-1 sm:p-2 min-h-[60px] sm:min-h-[90px] border-b border-r border-border bg-card",
                                         !isCurrentMonth && "bg-muted/30",
                                         dayIsToday && "ring-2 ring-primary ring-inset z-10",
-                                        dayBookings.length > 0 && "hover:bg-blue-50/50 dark:hover:bg-blue-900/10 cursor-pointer transition-colors"
+                                        daySessions.length > 0 && "hover:bg-blue-50/50 dark:hover:bg-blue-900/10 cursor-pointer transition-colors"
                                     )}
                                 >
                                     <div className="flex items-center justify-between">
@@ -263,24 +285,24 @@ export default function TeacherCalendarPage() {
                                     </div>
 
                                     <div className="mt-1 flex flex-col gap-0.5 sm:gap-1">
-                                        {dayBookings.slice(0, 2).map((booking, bookingIndex) => (
+                                        {daySessions.slice(0, 2).map((session, sessionIndex) => (
                                             <div
-                                                key={booking.id}
-                                                onClick={() => setSelectedBooking(booking)}
+                                                key={session.id}
+                                                onClick={() => setSelectedSession(session)}
                                                 className={cn(
                                                     "px-1.5 sm:px-2 py-0.5 sm:py-1 text-[10px] sm:text-xs rounded font-medium border-l-2 truncate cursor-pointer",
-                                                    getSubjectColor(booking.gig?.subject || null),
-                                                    bookingIndex > 0 && "hidden sm:block"
+                                                    getSubjectColor(session.booking.gig?.subject || null),
+                                                    sessionIndex > 0 && "hidden sm:block"
                                                 )}
                                             >
-                                                <span className="hidden sm:inline">{booking.session_date && format(parseISO(booking.session_date), 'h:mm a')} • </span>
-                                                {booking.gig?.title?.slice(0, 10)}
+                                                <span className="hidden sm:inline">{session.session_time && formatTime(session.session_time)} • </span>
+                                                {session.booking.gig?.title?.slice(0, 10)}
                                             </div>
                                         ))}
-                                        {dayBookings.length > 1 && (
+                                        {daySessions.length > 1 && (
                                             <span className="text-[10px] sm:text-xs text-muted-foreground font-medium">
-                                                <span className="sm:hidden">+{dayBookings.length - 1}</span>
-                                                <span className="hidden sm:inline">{dayBookings.length > 2 ? `+${dayBookings.length - 2} more` : ''}</span>
+                                                <span className="sm:hidden">+{daySessions.length - 1}</span>
+                                                <span className="hidden sm:inline">{daySessions.length > 2 ? `+${daySessions.length - 2} more` : ''}</span>
                                             </span>
                                         )}
                                     </div>
@@ -292,34 +314,34 @@ export default function TeacherCalendarPage() {
             </div>
 
             {/* Right Panel: Session Detail Sidebar - Always overlay except on xl+ screens */}
-            {selectedBooking && (
+            {selectedSession && (
                 <>
                     {/* Overlay backdrop - hidden on xl+ */}
                     <div
                         className="fixed inset-0 bg-black/50 z-40 xl:hidden"
-                        onClick={() => setSelectedBooking(null)}
+                        onClick={() => setSelectedSession(null)}
                     />
                     <aside className="fixed inset-y-0 right-0 w-full max-w-md bg-card border-l border-border flex flex-col overflow-y-auto shadow-2xl z-50 xl:relative xl:inset-auto xl:w-[400px] xl:z-auto xl:shadow-sm xl:rounded-none animate-in slide-in-from-right xl:animate-none">
                         <div className="p-6 flex flex-col gap-6 h-full">
                             <div className="flex items-center justify-between pb-4 border-b border-border">
                                 <h2 className="text-xl font-bold text-foreground">Session Details</h2>
-                                <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground" onClick={() => setSelectedBooking(null)}>
+                                <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground" onClick={() => setSelectedSession(null)}>
                                     <X className="size-5" />
                                 </Button>
                             </div>
 
                             {/* Session Card */}
-                            <div className={cn("border rounded-xl p-5 flex flex-col gap-4", getSubjectColor(selectedBooking.gig?.subject || null).replace('border-l-2', ''))}>
+                            <div className={cn("border rounded-xl p-5 flex flex-col gap-4", getSubjectColor(selectedSession.booking.gig?.subject || null).replace('border-l-2', ''))}>
                                 <div className="flex items-start justify-between">
                                     <div className="flex flex-col">
                                         <span className="text-xs font-bold text-primary uppercase tracking-wide mb-1">
-                                            {selectedBooking.status === 'confirmed' ? 'Confirmed' : selectedBooking.status === 'pending' ? 'Pending' : selectedBooking.status}
+                                            {selectedSession.status === 'scheduled' ? 'Scheduled' : 'Completed'} (Session {selectedSession.session_number})
                                         </span>
-                                        <h3 className="text-lg font-bold text-foreground">{selectedBooking.gig?.title}</h3>
+                                        <h3 className="text-lg font-bold text-foreground">{selectedSession.booking.gig?.title}</h3>
                                         <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
                                             <Clock className="size-4" />
-                                            {selectedBooking.session_date
-                                                ? format(parseISO(selectedBooking.session_date), 'MMM d, yyyy • h:mm a')
+                                            {selectedSession.session_date
+                                                ? `${format(parseISO(selectedSession.session_date), 'MMM d, yyyy')} • ${formatTime(selectedSession.session_time)}`
                                                 : 'Date TBD'
                                             }
                                         </div>
@@ -342,10 +364,10 @@ export default function TeacherCalendarPage() {
                                     </div>
                                     <div className="flex flex-col">
                                         <span className="text-foreground font-bold text-base group-hover:text-primary transition-colors">
-                                            {selectedBooking.student?.name || 'Unknown Student'}
+                                            {selectedSession.booking.student?.name || 'Unknown Student'}
                                         </span>
                                         <span className="text-sm text-muted-foreground capitalize">
-                                            {selectedBooking.gig?.subject || 'General'} • GHS {selectedBooking.gig?.price || 0}
+                                            {selectedSession.booking.gig?.subject || 'General'} • GHS {selectedSession.booking.gig?.price || 0}
                                         </span>
                                     </div>
                                     <ChevronRight className="ml-auto text-muted-foreground group-hover:text-primary size-5" />
@@ -359,19 +381,19 @@ export default function TeacherCalendarPage() {
                                     <div className="space-y-2">
                                         <div className="flex justify-between">
                                             <span className="text-muted-foreground">Duration</span>
-                                            <span className="font-medium">{selectedBooking.gig?.session_duration || 1} hour(s)</span>
+                                            <span className="font-medium">{selectedSession.booking.gig?.session_duration || 1} hour(s)</span>
                                         </div>
                                         <div className="flex justify-between">
                                             <span className="text-muted-foreground">Price</span>
-                                            <span className="font-medium">GHS {selectedBooking.gig?.price || 0}</span>
+                                            <span className="font-medium">GHS {selectedSession.booking.gig?.price || 0}</span>
                                         </div>
                                         <div className="flex justify-between">
                                             <span className="text-muted-foreground">Status</span>
                                             <span className={cn("font-medium capitalize",
-                                                selectedBooking.status === 'confirmed' && "text-green-600",
-                                                selectedBooking.status === 'pending' && "text-yellow-600"
+                                                selectedSession.status === 'scheduled' && "text-green-600",
+                                                selectedSession.status === 'pending' && "text-yellow-600"
                                             )}>
-                                                {selectedBooking.status}
+                                                {selectedSession.status}
                                             </span>
                                         </div>
                                     </div>
