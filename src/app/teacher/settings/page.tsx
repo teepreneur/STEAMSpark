@@ -2,7 +2,8 @@
 
 import {
     Edit, Check, BadgeCheck, Info, AlertTriangle,
-    CloudUpload, Save, Bell, User, X, Plus, Loader2, Camera, MapPin
+    CloudUpload, Save, Bell, User, X, Plus, Loader2, Camera, MapPin,
+    FileText, UserCircle, CreditCard, Download, Trash2
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -31,6 +32,12 @@ export default function SettingsPage() {
     const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
     const [newSubject, setNewSubject] = useState("")
     const [isAddingSubject, setIsAddingSubject] = useState(false)
+
+    // Verification State
+    const [cvUrl, setCvUrl] = useState<string | null>(null)
+    const [idUrl, setIdUrl] = useState<string | null>(null)
+    const [photoUrl, setPhotoUrl] = useState<string | null>(null)
+    const [uploadingField, setUploadingField] = useState<string | null>(null)
 
     // Class mode and location
     const [classMode, setClassMode] = useState<'online' | 'in_person' | 'hybrid'>('online')
@@ -61,6 +68,9 @@ export default function SettingsPage() {
                     setClassMode((data as any).class_mode || 'online')
                     setCountry((data as any).country || "")
                     setCity((data as any).city || "")
+                    setCvUrl((data as any).cv_url || null)
+                    setIdUrl((data as any).id_url || null)
+                    setPhotoUrl((data as any).photo_url || null)
                 }
             }
             setLoading(false)
@@ -71,25 +81,33 @@ export default function SettingsPage() {
     // Calculate profile completion
     const calculateCompletion = () => {
         let completed = 0
-        const total = 5
-        if (fullName) completed++
-        if (bio && bio.length > 20) completed++
-        if (subjects.length > 0) completed++
-        if (hourlyRate) completed++
-        if (avatarUrl) completed++
-        return Math.round((completed / total) * 100)
+        const items = [
+            fullName,
+            bio && bio.length > 20,
+            subjects.length > 0,
+            hourlyRate,
+            avatarUrl,
+            cvUrl,
+            idUrl,
+            photoUrl
+        ]
+
+        items.forEach(item => { if (item) completed++ })
+        return Math.round((completed / items.length) * 100)
     }
 
-    const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: 'avatar' | 'cv' | 'id' | 'photo') => {
         const file = e.target.files?.[0]
         if (!file) return
 
-        setUploadingAvatar(true)
+        setUploadingField(field)
+        if (field === 'avatar') setUploadingAvatar(true)
+
         try {
             const formData = new FormData()
             formData.append('file', file)
             formData.append('bucket', 'gig-media')
-            formData.append('folder', 'avatars')
+            formData.append('folder', field === 'avatar' ? 'avatars' : 'verification')
 
             const response = await fetch('/api/upload', {
                 method: 'POST',
@@ -100,13 +118,17 @@ export default function SettingsPage() {
             if (data.error) {
                 alert(`Upload failed: ${data.error}`)
             } else {
-                setAvatarUrl(data.url)
+                if (field === 'avatar') setAvatarUrl(data.url)
+                if (field === 'cv') setCvUrl(data.url)
+                if (field === 'id') setIdUrl(data.url)
+                if (field === 'photo') setPhotoUrl(data.url)
             }
         } catch (err) {
             console.error('Upload error:', err)
-            alert('Failed to upload avatar')
+            alert(`Failed to upload ${field}`)
         } finally {
-            setUploadingAvatar(false)
+            setUploadingField(null)
+            if (field === 'avatar') setUploadingAvatar(false)
         }
     }
 
@@ -124,7 +146,10 @@ export default function SettingsPage() {
                 avatar_url: avatarUrl,
                 class_mode: classMode,
                 country: country || null,
-                city: city || null
+                city: city || null,
+                cv_url: cvUrl,
+                id_url: idUrl,
+                photo_url: photoUrl
             })
             .eq('id', profile.id)
 
@@ -188,7 +213,7 @@ export default function SettingsPage() {
                                 type="file"
                                 accept="image/*"
                                 className="hidden"
-                                onChange={handleAvatarUpload}
+                                onChange={(e) => handleFileUpload(e, 'avatar')}
                                 disabled={uploadingAvatar}
                             />
                         </label>
@@ -427,17 +452,123 @@ export default function SettingsPage() {
                                 <BadgeCheck className="text-primary size-5" />
                                 Verification
                             </h3>
-                            <Badge variant="outline" className="bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-200 dark:border-yellow-900/50 font-bold">PENDING</Badge>
+                            <Badge variant="outline" className={cn(
+                                "font-bold",
+                                profileCompletion === 100 ? "bg-green-100 text-green-800 border-green-200" : "bg-yellow-100 text-yellow-800 border-yellow-200"
+                            )}>
+                                {profileCompletion === 100 ? "COMPLETED" : "PENDING"}
+                            </Badge>
                         </div>
-                        <p className="text-sm text-muted-foreground mb-4">
-                            To ensure student safety, all STEAM Spark educators must complete a background check.
+                        <p className="text-sm text-muted-foreground mb-6">
+                            To ensure student safety, all STEAM Spark educators must complete a background check by providing the following documents.
                         </p>
-                        <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 flex flex-col items-center justify-center text-center hover:bg-muted/50 transition-colors cursor-pointer mb-6 group">
-                            <div className="bg-primary/10 p-3 rounded-full mb-3 group-hover:scale-110 transition-transform">
-                                <CloudUpload className="text-primary size-6" />
+
+                        <div className="space-y-6">
+                            {/* CV Upload */}
+                            <div className="space-y-3">
+                                <div className="flex items-center justify-between">
+                                    <Label className="flex items-center gap-2">
+                                        <FileText className="size-4 text-primary" />
+                                        Update CV (Curriculum Vitae)
+                                    </Label>
+                                    {cvUrl && (
+                                        <div className="flex gap-2">
+                                            <Button variant="ghost" size="sm" asChild className="h-8 text-primary">
+                                                <a href={cvUrl} target="_blank" rel="noopener noreferrer">
+                                                    <Download className="size-3.5 mr-1" /> Download
+                                                </a>
+                                            </Button>
+                                            <Button variant="ghost" size="sm" onClick={() => setCvUrl(null)} className="h-8 text-destructive">
+                                                <Trash2 className="size-3.5" />
+                                            </Button>
+                                        </div>
+                                    )}
+                                </div>
+                                {!cvUrl ? (
+                                    <div className="relative border-2 border-dashed border-muted-foreground/25 rounded-lg p-4 flex flex-col items-center justify-center text-center hover:bg-muted/50 transition-colors cursor-pointer group">
+                                        <input type="file" accept=".pdf,.doc,.docx" className="absolute inset-0 opacity-0 cursor-pointer" onChange={(e) => handleFileUpload(e, 'cv')} disabled={!!uploadingField} />
+                                        <div className="bg-primary/5 p-2 rounded-full mb-2">
+                                            {uploadingField === 'cv' ? <Loader2 className="animate-spin size-5 text-primary" /> : <CloudUpload className="text-primary size-5" />}
+                                        </div>
+                                        <p className="text-xs font-medium text-foreground">Click to upload CV</p>
+                                        <p className="text-[10px] text-muted-foreground mt-0.5">PDF or DOC (Max 5MB)</p>
+                                    </div>
+                                ) : (
+                                    <div className="bg-green-50 border border-green-100 rounded-lg p-3 flex items-center gap-3">
+                                        <div className="bg-green-100 p-2 rounded-lg">
+                                            <FileText className="size-4 text-green-600" />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-xs font-medium text-green-800 truncate">CV Uploaded Successfully</p>
+                                            <p className="text-[10px] text-green-600">Verified for profile completion</p>
+                                        </div>
+                                        <Check className="size-4 text-green-500" />
+                                    </div>
+                                )}
                             </div>
-                            <p className="text-sm font-medium text-foreground">Click to upload or drag & drop</p>
-                            <p className="text-xs text-muted-foreground mt-1">PDF, JPG, or PNG (Max 5MB)</p>
+
+                            {/* Government ID Upload */}
+                            <div className="space-y-3">
+                                <Label className="flex items-center gap-2">
+                                    <CreditCard className="size-4 text-primary" />
+                                    Identification
+                                </Label>
+                                {!idUrl ? (
+                                    <div className="relative border-2 border-dashed border-muted-foreground/25 rounded-lg p-4 flex flex-col items-center justify-center text-center hover:bg-muted/50 transition-colors cursor-pointer group">
+                                        <input type="file" accept="image/*,.pdf" className="absolute inset-0 opacity-0 cursor-pointer" onChange={(e) => handleFileUpload(e, 'id')} disabled={!!uploadingField} />
+                                        <div className="bg-primary/5 p-2 rounded-full mb-2">
+                                            {uploadingField === 'id' ? <Loader2 className="animate-spin size-5 text-primary" /> : <CloudUpload className="text-primary size-5" />}
+                                        </div>
+                                        <p className="text-xs font-medium text-foreground">Upload Gov. ID or Passport</p>
+                                        <p className="text-[10px] text-muted-foreground mt-0.5">Clear scan of bio page</p>
+                                    </div>
+                                ) : (
+                                    <div className="bg-green-50 border border-green-100 rounded-lg p-3 flex items-center gap-3">
+                                        <div className="bg-green-100 p-2 rounded-lg">
+                                            <CreditCard className="size-4 text-green-600" />
+                                        </div>
+                                        <div className="flex-1 min-w-0 flex items-center justify-between">
+                                            <p className="text-xs font-medium text-green-800">ID Uploaded</p>
+                                            <Button variant="ghost" size="sm" onClick={() => setIdUrl(null)} className="h-6 text-destructive px-1">
+                                                <Trash2 className="size-3" />
+                                            </Button>
+                                        </div>
+                                        <Check className="size-4 text-green-500" />
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Photo Upload */}
+                            <div className="space-y-3">
+                                <Label className="flex items-center gap-2">
+                                    <UserCircle className="size-4 text-primary" />
+                                    Recent Photo
+                                </Label>
+                                {!photoUrl ? (
+                                    <div className="relative border-2 border-dashed border-muted-foreground/25 rounded-lg p-4 flex flex-col items-center justify-center text-center hover:bg-muted/50 transition-colors cursor-pointer group">
+                                        <input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer" onChange={(e) => handleFileUpload(e, 'photo')} disabled={!!uploadingField} />
+                                        <div className="bg-primary/5 p-2 rounded-full mb-2">
+                                            {uploadingField === 'photo' ? <Loader2 className="animate-spin size-5 text-primary" /> : <CloudUpload className="text-primary size-5" />}
+                                        </div>
+                                        <p className="text-xs font-medium text-foreground">Upload Professional Photo</p>
+                                        <p className="text-[10px] text-muted-foreground mt-0.5">Clear headshot required</p>
+                                    </div>
+                                ) : (
+                                    <div className="bg-green-50 border border-green-100 rounded-lg p-3 flex items-center gap-3">
+                                        <div
+                                            className="h-10 w-10 rounded-full bg-cover bg-center border border-green-200"
+                                            style={{ backgroundImage: `url('${photoUrl}')` }}
+                                        />
+                                        <div className="flex-1 min-w-0 flex items-center justify-between">
+                                            <p className="text-xs font-medium text-green-800">Photo Verified</p>
+                                            <Button variant="ghost" size="sm" onClick={() => setPhotoUrl(null)} className="h-6 text-destructive px-1">
+                                                <Trash2 className="size-3" />
+                                            </Button>
+                                        </div>
+                                        <Check className="size-4 text-green-500" />
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </section>
 
