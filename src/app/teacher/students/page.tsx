@@ -107,19 +107,24 @@ function StudentsPageContent() {
                 // Count completed sessions for each booking
                 const enrichedStudents = await Promise.all(
                     bookingsData.map(async (booking: any) => {
-                        // Handle null student gracefully
-                        if (!booking.student) return null
-
                         const { count } = await supabase
                             .from('booking_sessions')
                             .select('*', { count: 'exact', head: true })
                             .eq('booking_id', booking.id)
                             .eq('status', 'completed')
 
+                        // Use placeholder if student data is missing
+                        const studentData = booking.student || {
+                            id: booking.id,
+                            name: 'Student (Data Pending)',
+                            age: null,
+                            grade: null
+                        }
+
                         return {
-                            id: booking.student.id,
+                            id: studentData.id,
                             booking_id: booking.id,
-                            student: booking.student,
+                            student: studentData,
                             parent: booking.parent,
                             gig: booking.gig,
                             status: booking.status,
@@ -130,8 +135,7 @@ function StudentsPageContent() {
                     })
                 )
 
-                // Filter out null entries and set students
-                setStudents(enrichedStudents.filter(s => s !== null) as EnrolledStudent[])
+                setStudents(enrichedStudents as EnrolledStudent[])
             }
             setLoading(false)
         }
