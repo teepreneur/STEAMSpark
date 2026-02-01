@@ -3,8 +3,9 @@
 import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
-import { Bell, Check, X, Inbox } from "lucide-react"
+import { Bell, Check, X, Inbox, AlertCircle } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
+import Link from "next/link"
 
 interface Booking {
     id: string
@@ -184,7 +185,11 @@ export function RecentInquiries() {
                     const gigTitle = (inquiry.gigs as any)?.title || "Course"
 
                     return (
-                        <div key={inquiry.id} className="p-4">
+                        <Link
+                            key={inquiry.id}
+                            href={`/teacher/students/${inquiry.id}`}
+                            className="p-4 hover:bg-muted/50 transition-colors cursor-pointer"
+                        >
                             <div className="flex items-start gap-3">
                                 <div className={`size-10 rounded-full shrink-0 flex items-center justify-center font-bold text-sm ${colors[index % colors.length]}`}>
                                     {getInitials(parentName)}
@@ -199,29 +204,18 @@ export function RecentInquiries() {
                                     <p className="text-sm text-muted-foreground">
                                         Booking <span className="font-medium text-primary">{gigTitle}</span> for {studentName}
                                     </p>
-                                    <div className="mt-3 flex gap-2">
-                                        <Button
-                                            size="sm"
-                                            className="flex-1 bg-green-600 hover:bg-green-700 h-8 text-xs font-bold gap-1"
-                                            onClick={() => handleAccept(inquiry.id)}
-                                        >
-                                            <Check size={14} /> Accept
-                                        </Button>
-                                        <Button
-                                            size="sm"
-                                            variant="secondary"
-                                            className="flex-1 h-8 text-xs font-bold gap-1"
-                                            onClick={() => handleDecline(inquiry.id)}
-                                        >
-                                            <X size={14} /> Decline
-                                        </Button>
+                                    <div className="mt-2 flex items-center gap-2">
+                                        <span className="text-xs font-bold text-orange-600 dark:text-orange-400 flex items-center gap-1">
+                                            <AlertCircle size={12} /> Pending your review
+                                        </span>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </Link>
                     )
                 })}
             </div>
         </section>
     )
 }
+

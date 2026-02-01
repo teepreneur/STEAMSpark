@@ -251,37 +251,120 @@ export default function StudentDetailPage({ params }: { params: Promise<{ bookin
                         </Badge>
                     </div>
 
-                    {/* Pending Actions */}
-                    {isPending && (
-                        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl p-6">
-                            <div className="flex items-start gap-3">
-                                <AlertCircle className="size-6 text-yellow-600 shrink-0" />
-                                <div className="flex-1">
-                                    <h3 className="font-bold text-yellow-800 dark:text-yellow-300 mb-1">Action Required</h3>
-                                    <p className="text-yellow-700 dark:text-yellow-400 text-sm mb-4">
-                                        {status === 'pending_payment'
-                                            ? "Waiting for parent to complete payment. You can accept or decline this booking request."
-                                            : "This booking request is pending your approval."}
-                                    </p>
-                                    <div className="flex gap-3">
-                                        <Button
-                                            onClick={() => setShowAcceptDialog(true)}
-                                            disabled={updating}
-                                            className="bg-green-600 hover:bg-green-700 font-bold gap-2"
-                                        >
-                                            <Check className="size-4" />
-                                            Accept Student
-                                        </Button>
-                                        <Button
-                                            variant="outline"
-                                            onClick={() => updateBookingStatus('cancelled')}
-                                            disabled={updating}
-                                            className="text-red-600 border-red-300 hover:bg-red-50 font-bold gap-2"
-                                        >
-                                            <X className="size-4" />
-                                            Decline
-                                        </Button>
+                    {/* Booking Request Summary - For Pending Bookings */}
+                    {status === 'pending' && (
+                        <div className="bg-gradient-to-br from-orange-50 to-yellow-50 dark:from-orange-950/30 dark:to-yellow-950/30 border-2 border-orange-200 dark:border-orange-800 rounded-2xl p-6 space-y-6">
+                            <div className="flex items-center gap-3 pb-4 border-b border-orange-200 dark:border-orange-800">
+                                <AlertCircle className="size-7 text-orange-600 shrink-0" />
+                                <div>
+                                    <h2 className="text-xl font-black text-orange-800 dark:text-orange-300">Booking Request</h2>
+                                    <p className="text-orange-700 dark:text-orange-400 text-sm">Review the details below before accepting or declining</p>
+                                </div>
+                            </div>
+
+                            {/* Summary Grid */}
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                <div className="bg-white dark:bg-card rounded-xl p-4 border">
+                                    <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Student</p>
+                                    <p className="font-bold text-lg">{student.name}</p>
+                                    <p className="text-sm text-muted-foreground">{student.grade || 'No grade'}{student.age && ` • Age ${student.age}`}</p>
+                                </div>
+                                <div className="bg-white dark:bg-card rounded-xl p-4 border">
+                                    <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Course</p>
+                                    <p className="font-bold text-lg">{gig.title}</p>
+                                    <p className="text-sm text-muted-foreground capitalize">{gig.subject}</p>
+                                </div>
+                                <div className="bg-white dark:bg-card rounded-xl p-4 border">
+                                    <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Your Earnings</p>
+                                    <p className="font-black text-2xl text-green-600">GHS {(gig.price * totalSessions).toFixed(0)}</p>
+                                    <p className="text-xs text-muted-foreground">{totalSessions} sessions × GHS {gig.price}/session</p>
+                                </div>
+                                <div className="bg-white dark:bg-card rounded-xl p-4 border">
+                                    <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Preferred Days</p>
+                                    <p className="font-bold">{studentData.preferred_days?.join(', ') || 'Not specified'}</p>
+                                </div>
+                                <div className="bg-white dark:bg-card rounded-xl p-4 border">
+                                    <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Preferred Time</p>
+                                    <p className="font-bold">{studentData.preferred_time ? formatTime(studentData.preferred_time) : 'Flexible'}</p>
+                                </div>
+                                <div className="bg-white dark:bg-card rounded-xl p-4 border">
+                                    <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Session Duration</p>
+                                    <p className="font-bold">{gig.session_duration || 1} hour(s)</p>
+                                </div>
+                            </div>
+
+                            {/* Location */}
+                            <div className="bg-white dark:bg-card rounded-xl p-4 border">
+                                <p className="text-xs text-muted-foreground uppercase font-bold mb-2 flex items-center gap-2">
+                                    <MapPin className="size-4" /> Session Location
+                                </p>
+                                {studentData.session_location_address ? (
+                                    <div>
+                                        <p className="font-bold">{studentData.session_location_address}</p>
+                                        <p className="text-sm text-muted-foreground mt-1">In-person sessions at this location</p>
                                     </div>
+                                ) : (
+                                    <p className="font-bold text-primary">Online Sessions (You'll provide meeting link)</p>
+                                )}
+                            </div>
+
+                            {/* Parent Info */}
+                            <div className="bg-white dark:bg-card rounded-xl p-4 border flex items-center gap-4">
+                                <div className="size-12 rounded-full bg-primary/10 flex items-center justify-center">
+                                    <User className="size-6 text-primary" />
+                                </div>
+                                <div className="flex-1">
+                                    <p className="text-xs text-muted-foreground uppercase font-bold">Parent/Guardian</p>
+                                    <p className="font-bold">{parent?.full_name || 'Parent'}</p>
+                                    <p className="text-sm text-muted-foreground">{parent?.email}</p>
+                                </div>
+                            </div>
+
+                            {/* Learning Goals */}
+                            {student.learning_goals && (
+                                <div className="bg-white dark:bg-card rounded-xl p-4 border">
+                                    <p className="text-xs text-muted-foreground uppercase font-bold mb-2 flex items-center gap-2">
+                                        <BookOpen className="size-4" /> Learning Goals
+                                    </p>
+                                    <p className="text-foreground">{student.learning_goals}</p>
+                                </div>
+                            )}
+
+                            {/* Action Buttons */}
+                            <div className="flex gap-4 pt-4 border-t border-orange-200 dark:border-orange-800">
+                                <Button
+                                    onClick={() => setShowAcceptDialog(true)}
+                                    disabled={updating}
+                                    size="lg"
+                                    className="flex-1 bg-green-600 hover:bg-green-700 font-bold gap-2 h-12 text-base"
+                                >
+                                    <Check className="size-5" />
+                                    Accept Booking
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    size="lg"
+                                    onClick={() => updateBookingStatus('cancelled')}
+                                    disabled={updating}
+                                    className="flex-1 text-red-600 border-red-300 hover:bg-red-50 font-bold gap-2 h-12 text-base"
+                                >
+                                    <X className="size-5" />
+                                    Decline
+                                </Button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Pending Payment Notice */}
+                    {status === 'pending_payment' && (
+                        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-6">
+                            <div className="flex items-start gap-3">
+                                <Clock className="size-6 text-blue-600 shrink-0" />
+                                <div>
+                                    <h3 className="font-bold text-blue-800 dark:text-blue-300 mb-1">Awaiting Payment</h3>
+                                    <p className="text-blue-700 dark:text-blue-400 text-sm">
+                                        You've accepted this booking. The parent has been notified to complete payment. Sessions will be confirmed once payment is received.
+                                    </p>
                                 </div>
                             </div>
                         </div>
