@@ -23,6 +23,12 @@ export interface Database {
                     subjects: string[] | null
                     hourly_rate: number | null
                     created_at: string
+                    class_mode: 'online' | 'in_person' | 'hybrid' | null
+                    country: string | null
+                    city: string | null
+                    cv_url: string | null
+                    id_url: string | null
+                    photo_url: string | null
                 }
                 Insert: {
                     id: string
@@ -34,6 +40,12 @@ export interface Database {
                     subjects?: string[] | null
                     hourly_rate?: number | null
                     created_at?: string
+                    class_mode?: 'online' | 'in_person' | 'hybrid' | null
+                    country?: string | null
+                    city?: string | null
+                    cv_url?: string | null
+                    id_url?: string | null
+                    photo_url?: string | null
                 }
                 Update: {
                     id?: string
@@ -45,6 +57,12 @@ export interface Database {
                     subjects?: string[] | null
                     hourly_rate?: number | null
                     created_at?: string
+                    class_mode?: 'online' | 'in_person' | 'hybrid' | null
+                    country?: string | null
+                    city?: string | null
+                    cv_url?: string | null
+                    id_url?: string | null
+                    photo_url?: string | null
                 }
             }
             students: {

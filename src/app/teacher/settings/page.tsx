@@ -154,10 +154,26 @@ export default function SettingsPage() {
             .eq('id', profile.id)
 
         if (error) {
-            console.error(error)
-            alert("Failed to save changes.")
+            console.error("Save Error:", error)
+            alert(`Failed to save changes: ${error.message || "Unknown error"}`)
         } else {
             alert("Profile saved successfully!")
+            // Refresh profile from DB to ensure state is clean
+            const { data } = await supabase.from('profiles').select('*').eq('id', profile.id).single()
+            if (data) {
+                setProfile(data)
+                setFullName(data.full_name || "")
+                setBio(data.bio || "")
+                setSubjects(data.subjects || [])
+                setHourlyRate(data.hourly_rate?.toString() || "")
+                setAvatarUrl(data.avatar_url || null)
+                setClassMode((data as any).class_mode || 'online')
+                setCountry((data as any).country || "")
+                setCity((data as any).city || "")
+                setCvUrl((data as any).cv_url || null)
+                setIdUrl((data as any).id_url || null)
+                setPhotoUrl((data as any).photo_url || null)
+            }
         }
         setSaving(false)
     }
