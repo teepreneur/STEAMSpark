@@ -14,6 +14,19 @@ export default async function TeacherDashboard() {
 
     if (!user) return null
 
+    // Fetch profile for Trust Score calculation
+    const { data: profile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single()
+
+    // Fetch average rating from reviews
+    const { data: reviewData } = await supabase
+        .from('reviews')
+        .select('rating')
+        .eq('teacher_id', user.id)
+
     // Fetch bookings for stats (legacy query for earnings/students count)
     const { data: bookings } = await supabase
         .from('bookings')
@@ -61,6 +74,36 @@ export default async function TeacherDashboard() {
     const pendingEnrollments = bookings?.filter(b => b.status === 'pending' || b.status === 'pending_payment').length || 0
     const completedSessions = bookings?.filter(b => b.status === 'completed').length || 0
 
+    // HYBRID RATING CALCULATION
+    // 1. Trust Score (Max 50 points)
+    let trustScore = 0
+    if (profile) {
+        // Profile Basics (20 pts, 4 each)
+        if (profile.full_name) trustScore += 4
+        if (profile.bio && profile.bio.length > 20) trustScore += 4
+        if (profile.subjects && profile.subjects.length > 0) trustScore += 4
+        if (profile.hourly_rate) trustScore += 4
+        if (profile.avatar_url) trustScore += 4
+
+        // Verification (30 pts, 10 each)
+        if (profile.cv_url) trustScore += 10
+        if (profile.id_url) trustScore += 10
+        if (profile.photo_url) trustScore += 10
+    }
+
+    // 2. Client Rating (Max 50 points)
+    let clientRatingPoints = 0
+    if (reviewData && reviewData.length > 0) {
+        const avgRating = reviewData.reduce((acc, curr) => acc + curr.rating, 0) / reviewData.length
+        clientRatingPoints = (avgRating / 5) * 50
+    } else {
+        // Baseline for new teachers (4.0 stars = 40 points)
+        clientRatingPoints = 40
+    }
+
+    const finalRating = (trustScore + clientRatingPoints) / 20
+    const displayRating = Math.max(0, Math.min(5, finalRating)) // Clamp between 0 and 5
+
     const formattedSessions = upcomingSessions.slice(0, 3).map((s: any) => ({
         id: s.id,
         title: s.booking?.gig?.title || "Unknown Class",
@@ -102,8 +145,9 @@ export default async function TeacherDashboard() {
                 earnings={earnings}
                 activeStudents={activeStudents}
                 pendingEnrollments={pendingEnrollments}
-                rating={4.9}
+                rating={displayRating}
                 completedSessions={completedSessions}
+                hasReviews={!!(reviewData && reviewData.length > 0)}
             />
 
             {/* Main Grid */}

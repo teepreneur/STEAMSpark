@@ -310,6 +310,38 @@ export interface Database {
                     created_at?: string
                 }
             }
+            reviews: {
+                Row: {
+                    id: string
+                    teacher_id: string
+                    parent_id: string
+                    booking_id: string | null
+                    rating: number
+                    content: string | null
+                    created_at: string
+                    updated_at: string
+                }
+                Insert: {
+                    id?: string
+                    teacher_id: string
+                    parent_id: string
+                    booking_id?: string | null
+                    rating: number
+                    content?: string | null
+                    created_at?: string
+                    updated_at?: string
+                }
+                Update: {
+                    id?: string
+                    teacher_id?: string
+                    parent_id?: string
+                    booking_id?: string | null
+                    rating?: number
+                    content?: string | null
+                    created_at?: string
+                    updated_at?: string
+                }
+            }
         }
     }
 }

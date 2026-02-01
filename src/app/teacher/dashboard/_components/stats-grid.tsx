@@ -8,9 +8,10 @@ interface StatsProps {
     pendingEnrollments: number
     rating: number
     completedSessions: number
+    hasReviews?: boolean
 }
 
-export function StatsGrid({ earnings, activeStudents, pendingEnrollments, rating, completedSessions }: StatsProps) {
+export function StatsGrid({ earnings, activeStudents, pendingEnrollments, rating, completedSessions, hasReviews }: StatsProps) {
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Total Earnings */}
@@ -63,7 +64,9 @@ export function StatsGrid({ earnings, activeStudents, pendingEnrollments, rating
                         {rating > 0 ? rating.toFixed(1) : "New"}
                         {rating > 0 && <span className="text-sm font-normal text-muted-foreground ml-1">/ 5.0</span>}
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">From reviews</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                        {hasReviews ? "From client reviews" : "Platform trust score"}
+                    </p>
                 </CardContent>
             </Card>
 
