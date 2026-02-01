@@ -52,6 +52,20 @@ export default function StudentsPage() {
             const { data: { user } } = await supabase.auth.getUser()
             if (!user) return
 
+            // First, get all gig IDs for this teacher
+            const { data: teacherGigs } = await supabase
+                .from('gigs')
+                .select('id')
+                .eq('teacher_id', user.id)
+
+            if (!teacherGigs || teacherGigs.length === 0) {
+                setStudents([])
+                setLoading(false)
+                return
+            }
+
+            const gigIds = teacherGigs.map(g => g.id)
+
             // Fetch bookings for teacher's gigs with student and parent info
             const { data: bookingsData, error } = await supabase
                 .from('bookings')
@@ -60,17 +74,26 @@ export default function StudentsPage() {
                     status,
                     created_at,
                     total_sessions,
-                    student:students!inner(id, name, age, grade),
+                    student:students(id, name, age, grade),
                     parent:profiles!bookings_parent_id_fkey(id, full_name, email),
-                    gig:gigs!inner(id, title, subject, total_sessions, teacher_id)
+                    gig:gigs(id, title, subject, total_sessions, teacher_id)
                 `)
-                .eq('gig.teacher_id', user.id)
+                .in('gig_id', gigIds)
                 .in('status', ['confirmed', 'pending', 'pending_payment', 'completed'])
+
+            if (error) {
+                console.error('Error fetching students:', error)
+                setLoading(false)
+                return
+            }
 
             if (bookingsData) {
                 // Count completed sessions for each booking
                 const enrichedStudents = await Promise.all(
                     bookingsData.map(async (booking: any) => {
+                        // Handle null student gracefully
+                        if (!booking.student) return null
+
                         const { count } = await supabase
                             .from('booking_sessions')
                             .select('*', { count: 'exact', head: true })
@@ -91,7 +114,8 @@ export default function StudentsPage() {
                     })
                 )
 
-                setStudents(enrichedStudents)
+                // Filter out null entries and set students
+                setStudents(enrichedStudents.filter(s => s !== null) as EnrolledStudent[])
             }
             setLoading(false)
         }
@@ -261,10 +285,14 @@ export default function StudentsPage() {
                                     <Badge variant="outline" className={cn(
                                         "font-bold rounded-lg",
                                         enrolledStudent.status === 'confirmed' ? "bg-green-100 text-green-700 border-transparent dark:bg-green-900/30 dark:text-green-400" :
-                                            isPending ? "bg-red-100 text-red-700 border-transparent dark:bg-red-900/30 dark:text-red-400" :
-                                                enrolledStudent.status === 'completed' ? "bg-blue-100 text-blue-700 border-transparent dark:bg-blue-900/30 dark:text-blue-400" : ""
+                                            enrolledStudent.status === 'pending' ? "bg-red-100 text-red-700 border-transparent dark:bg-red-900/30 dark:text-red-400" :
+                                                enrolledStudent.status === 'pending_payment' ? "bg-yellow-100 text-yellow-700 border-transparent dark:bg-yellow-900/30 dark:text-yellow-400" :
+                                                    enrolledStudent.status === 'completed' ? "bg-blue-100 text-blue-700 border-transparent dark:bg-blue-900/30 dark:text-blue-400" : ""
                                     )}>
-                                        {isPending ? 'Pending Approval' : enrolledStudent.status === 'confirmed' ? 'Enrolled' : enrolledStudent.status}
+                                        {enrolledStudent.status === 'pending' ? 'Pending Approval' :
+                                            enrolledStudent.status === 'pending_payment' ? 'Awaiting Payment' :
+                                                enrolledStudent.status === 'confirmed' ? 'Enrolled' :
+                                                    enrolledStudent.status}
                                     </Badge>
                                 </div>
 

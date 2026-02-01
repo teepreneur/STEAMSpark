@@ -148,19 +148,40 @@ export default function StudentDetailPage({ params }: { params: Promise<{ bookin
                 .eq('booking_id', studentData.booking_id)
         }
 
-        // Create notification for parent when booking is accepted
-        if (newStatus === 'confirmed' && studentData.parent?.id) {
-            await supabase.from('notifications').insert({
-                user_id: studentData.parent.id,
-                type: 'booking_accepted',
-                title: 'Booking Accepted!',
-                message: `Your booking for "${studentData.gig.title}" has been accepted. Complete payment to confirm your sessions.`,
-                link: `/parent/booking/${studentData.booking_id}/payment`,
-                read: false
-            })
-        }
-
         if (!error) {
+            // Create in-app notification for parent when booking is accepted
+            if (newStatus === 'pending_payment' && studentData.parent?.id) {
+                await supabase.from('notifications').insert({
+                    user_id: studentData.parent.id,
+                    type: 'booking_accepted',
+                    title: 'Booking Accepted!',
+                    message: `Your booking for "${studentData.gig.title}" has been accepted. Complete payment to confirm your sessions.`,
+                    link: `/parent/booking/${studentData.booking_id}/payment`,
+                    read: false
+                })
+
+                // Call email notification API
+                try {
+                    const { data: { user } } = await supabase.auth.getUser()
+                    const teacherName = user?.user_metadata?.full_name || "Your Teacher"
+
+                    await fetch('/api/notifications/booking-accepted', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            parentEmail: studentData.parent.email,
+                            parentName: studentData.parent.full_name,
+                            studentName: studentData.student.name,
+                            gigTitle: studentData.gig.title,
+                            teacherName: teacherName,
+                            bookingId: studentData.booking_id
+                        })
+                    })
+                } catch (notifyError) {
+                    console.error('Failed to send email notification:', notifyError)
+                }
+            }
+
             setStudentData({ ...studentData, status: newStatus })
             setShowAcceptDialog(false)
             setMeetingLink('')
@@ -281,7 +302,7 @@ export default function StudentDetailPage({ params }: { params: Promise<{ bookin
                             />
                             <div className="flex gap-3">
                                 <Button
-                                    onClick={() => updateBookingStatus('confirmed')}
+                                    onClick={() => updateBookingStatus('pending_payment')}
                                     disabled={updating}
                                     className="bg-green-600 hover:bg-green-700 font-bold gap-2"
                                 >

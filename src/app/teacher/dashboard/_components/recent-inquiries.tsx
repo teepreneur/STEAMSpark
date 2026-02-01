@@ -17,7 +17,9 @@ interface Booking {
         name: string
     }
     profiles: {
+        id: string
         full_name: string
+        email: string
     }
 }
 
@@ -38,12 +40,13 @@ export function RecentInquiries() {
                     id,
                     created_at,
                     status,
+                    parent_id,
                     gigs!inner (title, teacher_id),
                     students (name),
-                    profiles:parent_id (full_name)
+                    profiles:parent_id (id, full_name, email)
                 `)
                 .eq('gigs.teacher_id', user.id)
-                .eq('status', 'pending_payment')
+                .eq('status', 'pending')
                 .order('created_at', { ascending: false })
                 .limit(5)
 
@@ -57,12 +60,50 @@ export function RecentInquiries() {
     }, [supabase])
 
     const handleAccept = async (id: string) => {
+        // Find the inquiry to get parent_id and gig title
+        const inquiry = inquiries.find(i => i.id === id)
+        if (!inquiry) return
+
+        const { data: { user } } = await supabase.auth.getUser()
+        const teacherName = user?.user_metadata?.full_name || "Your Teacher"
+
         const { error } = await supabase
             .from('bookings')
-            .update({ status: 'confirmed' })
+            .update({ status: 'pending_payment' })
             .eq('id', id)
 
         if (!error) {
+            // 1. Create in-app notification
+            const parentId = inquiry.profiles?.id || (inquiry as any).parent_id
+            if (parentId) {
+                await supabase.from('notifications').insert({
+                    user_id: parentId,
+                    type: 'booking_accepted',
+                    title: 'Booking Accepted!',
+                    message: `Your booking for "${inquiry.gigs.title}" has been accepted. Complete payment to confirm sessions.`,
+                    link: `/parent/booking/${id}/payment`,
+                    read: false
+                })
+            }
+
+            // 2. Call email notification API
+            try {
+                await fetch('/api/notifications/booking-accepted', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        parentEmail: inquiry.profiles?.email,
+                        parentName: inquiry.profiles?.full_name,
+                        studentName: inquiry.students?.name,
+                        gigTitle: inquiry.gigs.title,
+                        teacherName: teacherName,
+                        bookingId: id
+                    })
+                })
+            } catch (notifyError) {
+                console.error('Failed to send email notification:', notifyError)
+            }
+
             setInquiries(inquiries.filter(i => i.id !== id))
         }
     }
