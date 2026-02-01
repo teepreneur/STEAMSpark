@@ -144,59 +144,73 @@ export default function StudentDetailPage({ params }: { params: Promise<{ bookin
         if (!studentData) return
         setUpdating(true)
 
+        // Update the booking status
         const { error } = await supabase
             .from('bookings')
             .update({ status: newStatus })
             .eq('id', studentData.booking_id)
 
-        // If accepting and there's a meeting link, update all sessions
-        if (newStatus === 'confirmed' && meetingLink.trim()) {
+        if (error) {
+            console.error('Booking update error:', error)
+            alert(`Failed to update status: ${error.message}`)
+            setUpdating(false)
+            return
+        }
+
+        // Try to save meeting link to booking (column may not exist yet)
+        if (meetingLink.trim()) {
+            try {
+                await supabase
+                    .from('bookings')
+                    .update({ meeting_link: meetingLink.trim() })
+                    .eq('id', studentData.booking_id)
+            } catch (e) {
+                console.log('Meeting link column may not exist yet:', e)
+            }
+
+            // Update all sessions with the meeting link
             await supabase
                 .from('booking_sessions')
                 .update({ meeting_link: meetingLink.trim() })
                 .eq('booking_id', studentData.booking_id)
         }
 
-        if (!error) {
-            // Create in-app notification for parent when booking is accepted
-            if (newStatus === 'pending_payment' && studentData.parent?.id) {
-                await supabase.from('notifications').insert({
-                    user_id: studentData.parent.id,
-                    type: 'booking_accepted',
-                    title: 'Booking Accepted!',
-                    message: `Your booking for "${studentData.gig.title}" has been accepted. Complete payment to confirm your sessions.`,
-                    link: `/parent/booking/${studentData.booking_id}/payment`,
-                    read: false
-                })
+        // Create in-app notification for parent when booking is accepted
+        if (newStatus === 'pending_payment' && studentData.parent?.id) {
+            await supabase.from('notifications').insert({
+                user_id: studentData.parent.id,
+                type: 'booking_accepted',
+                title: 'Booking Accepted!',
+                message: `Your booking for "${studentData.gig.title}" has been accepted. Complete payment to confirm your sessions.`,
+                link: `/parent/booking/${studentData.booking_id}/payment`,
+                read: false
+            })
 
-                // Call email notification API
-                try {
-                    const { data: { user } } = await supabase.auth.getUser()
-                    const teacherName = user?.user_metadata?.full_name || "Your Teacher"
+            // Call email notification API
+            try {
+                const { data: { user } } = await supabase.auth.getUser()
+                const teacherName = user?.user_metadata?.full_name || "Your Teacher"
 
-                    await fetch('/api/notifications/booking-accepted', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            parentEmail: studentData.parent.email,
-                            parentName: studentData.parent.full_name,
-                            studentName: studentData.student.name,
-                            gigTitle: studentData.gig.title,
-                            teacherName: teacherName,
-                            bookingId: studentData.booking_id
-                        })
+                await fetch('/api/notifications/booking-accepted', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        parentEmail: studentData.parent.email,
+                        parentName: studentData.parent.full_name,
+                        studentName: studentData.student.name,
+                        gigTitle: studentData.gig.title,
+                        teacherName: teacherName,
+                        bookingId: studentData.booking_id
                     })
-                } catch (notifyError) {
-                    console.error('Failed to send email notification:', notifyError)
-                }
+                })
+            } catch (notifyError) {
+                console.error('Failed to send email notification:', notifyError)
             }
-
-            setStudentData({ ...studentData, status: newStatus })
-            setShowAcceptDialog(false)
-            setMeetingLink('')
-        } else {
-            alert("Failed to update status")
         }
+
+        setStudentData({ ...studentData, status: newStatus })
+        setShowAcceptDialog(false)
+        setMeetingLink('')
         setUpdating(false)
     }
 
