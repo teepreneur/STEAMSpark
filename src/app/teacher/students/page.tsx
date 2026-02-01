@@ -1,6 +1,7 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, Suspense } from "react"
+import { useSearchParams } from "next/navigation"
 import {
     Users, AlertCircle, TrendingUp, Search,
     Loader2, User, BookOpen, Calendar, Mail, Clock
@@ -40,11 +41,26 @@ interface EnrolledStudent {
 }
 
 export default function StudentsPage() {
+    return (
+        <Suspense fallback={
+            <div className="flex items-center justify-center min-h-[60vh]">
+                <Loader2 className="size-8 animate-spin text-primary" />
+            </div>
+        }>
+            <StudentsPageContent />
+        </Suspense>
+    )
+}
+
+function StudentsPageContent() {
     const supabase = createClient()
+    const searchParams = useSearchParams()
+    const initialFilter = searchParams.get('filter') || 'all'
+
     const [loading, setLoading] = useState(true)
     const [students, setStudents] = useState<EnrolledStudent[]>([])
     const [searchQuery, setSearchQuery] = useState("")
-    const [filter, setFilter] = useState<string>("all")
+    const [filter, setFilter] = useState<string>(initialFilter)
 
     useEffect(() => {
         async function loadStudents() {
