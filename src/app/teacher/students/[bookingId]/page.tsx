@@ -90,7 +90,7 @@ export default function StudentDetailPage({ params }: { params: Promise<{ bookin
                     session_location_address,
                     session_location_lat,
                     session_location_lng,
-                    student:students!inner(id, name, age, grade, learning_goals),
+                    student:students(id, name, age, grade, learning_goals),
                     parent:profiles!bookings_parent_id_fkey(id, full_name, email),
                     gig:gigs!inner(id, title, subject, price, session_duration, total_sessions, class_type)
                 `)
@@ -110,6 +110,15 @@ export default function StudentDetailPage({ params }: { params: Promise<{ bookin
                 .eq('booking_id', bookingId)
                 .order('session_number', { ascending: true })
 
+            // Handle missing student data with placeholder
+            const studentData = booking.student || {
+                id: booking.id,
+                name: 'Student (Pending)',
+                age: null,
+                grade: null,
+                learning_goals: null
+            }
+
             setStudentData({
                 booking_id: booking.id,
                 status: booking.status,
@@ -117,7 +126,7 @@ export default function StudentDetailPage({ params }: { params: Promise<{ bookin
                 preferred_days: booking.preferred_days,
                 preferred_time: booking.preferred_time,
                 total_sessions: booking.total_sessions,
-                student: booking.student as any,
+                student: studentData as any,
                 parent: booking.parent as any,
                 gig: booking.gig as any,
                 sessions: sessions || [],
