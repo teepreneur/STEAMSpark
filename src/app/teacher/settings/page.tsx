@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
 import { useEffect, useState } from "react"
 import { Tables } from "@/lib/types/supabase"
+import Link from "next/link"
 
 export default function SettingsPage() {
     const supabase = createClient()
@@ -250,7 +251,9 @@ export default function SettingsPage() {
                                     <span className="text-sm">STEAM Spark Educator</span>
                                 </div>
                             </div>
-                            <Button variant="outline">Public View</Button>
+                            <Button variant="outline" asChild>
+                                <Link href={`/tutor/${profile?.id}`} target="_blank">Public View</Link>
+                            </Button>
                         </div>
 
                         {/* Progress Bar */}
