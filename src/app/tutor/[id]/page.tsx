@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 import { Tables } from "@/lib/types/supabase"
+import { ShareButton } from "@/components/share-button"
 
 interface ProfilePageProps {
     params: Promise<{ id: string }>
@@ -71,7 +72,12 @@ export default async function TutorProfilePage({ params }: ProfilePageProps) {
                         <ArrowLeft className="size-4" /> Back to Tutors
                     </Link>
                     <div className="flex items-center gap-4">
-                        <Button variant="outline" size="sm" className="hidden sm:flex">Share Profile</Button>
+                        <ShareButton
+                            title={`${teacher.full_name} - STEAM Spark Educator`}
+                            text={`Check out ${teacher.full_name}'s teaching profile on STEAM Spark. Expert in ${teacher.subjects?.join(', ')}.`}
+                            url={`/tutor/${teacher.id}`}
+                            className="hidden sm:flex"
+                        />
                         <Button size="sm" className="font-bold">Contact Teacher</Button>
                     </div>
                 </div>
@@ -224,10 +230,19 @@ export default async function TutorProfilePage({ params }: ProfilePageProps) {
                                             </div>
 
                                             {/* Action Bar */}
-                                            <div className="px-4 pb-4 mt-auto">
-                                                <div className="w-full py-2 bg-primary/10 text-primary rounded-xl text-center text-xs font-black uppercase tracking-widest group-hover:bg-primary group-hover:text-white transition-colors">
-                                                    View & Book
-                                                </div>
+                                            <div className="px-4 pb-4 mt-auto flex items-center gap-2">
+                                                <Button variant="secondary" size="sm" className="flex-1 py-1.5 bg-primary/10 text-primary rounded-xl text-xs font-black uppercase tracking-widest group-hover:bg-primary group-hover:text-white transition-colors" asChild>
+                                                    <Link href={`/parent/book/${gig.id}`}>View & Book</Link>
+                                                </Button>
+                                                <ShareButton
+                                                    title={gig.title}
+                                                    text={`Sign up for this course: ${gig.title} on STEAM Spark!`}
+                                                    url={`/parent/book/${gig.id}`}
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    iconOnly
+                                                    className="rounded-xl hover:bg-primary/10 hover:text-primary transition-colors"
+                                                />
                                             </div>
                                         </Link>
                                     ))

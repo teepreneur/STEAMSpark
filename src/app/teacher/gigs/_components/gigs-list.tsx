@@ -2,8 +2,9 @@
 
 import {
     Ticket, DollarSign, Eye, Star, Search,
-    Edit, Trash2, Power, Loader2
+    Edit, Trash2, Power, Loader2, Share2
 } from "lucide-react"
+import { ShareButton } from "@/components/share-button"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -204,6 +205,16 @@ export function GigsList({ initialGigs }: GigsListProps) {
                                         >
                                             {loadingId === gig.id ? <Loader2 className="size-4 animate-spin" /> : <Power className="size-4" />}
                                         </Button>
+                                        {/* Share */}
+                                        <ShareButton
+                                            title={gig.title}
+                                            text={`Check out my course on STEAM Spark: ${gig.title}!`}
+                                            url={`/parent/book/${gig.id}`}
+                                            variant="secondary"
+                                            size="icon"
+                                            iconOnly
+                                            className="rounded-full size-8 hover:bg-primary/10 hover:text-primary transition-colors"
+                                        />
                                         {/* Edit */}
                                         <Button size="icon" variant="secondary" className="rounded-full size-8 hover:bg-primary hover:text-white transition-colors" asChild>
                                             <Link href={`/teacher/gigs/${gig.id}/edit`}>
