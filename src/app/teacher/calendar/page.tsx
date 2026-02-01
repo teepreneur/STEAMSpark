@@ -8,7 +8,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, parseISO, isToday } from "date-fns"
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, parseISO, isToday, startOfWeek, endOfWeek, addWeeks, subWeeks, addDays, subDays } from "date-fns"
 import { AvailabilityManager } from "./_components/availability-manager"
 
 function formatTime(time: string): string {
@@ -50,7 +50,8 @@ export default function TeacherCalendarPage() {
     const supabase = createClient()
     const [loading, setLoading] = useState(true)
     const [sessions, setSessions] = useState<SessionWithDetails[]>([])
-    const [currentMonth, setCurrentMonth] = useState(new Date())
+    const [view, setView] = useState<'month' | 'week' | 'day'>('month')
+    const [currentDate, setCurrentDate] = useState(new Date())
     const [selectedSession, setSelectedSession] = useState<SessionWithDetails | null>(null)
 
     useEffect(() => {
@@ -95,27 +96,66 @@ export default function TeacherCalendarPage() {
     }, [supabase])
 
     // Calendar helpers
-    const monthStart = startOfMonth(currentMonth)
-    const monthEnd = endOfMonth(currentMonth)
-    const days = eachDayOfInterval({ start: monthStart, end: monthEnd })
+    // Calendar helpers
+    const getDaysForView = () => {
+        if (view === 'month') {
+            const monthStart = startOfMonth(currentDate)
+            const monthEnd = endOfMonth(currentDate)
+            const days = eachDayOfInterval({ start: monthStart, end: monthEnd })
+            const startDayOfWeek = monthStart.getDay()
+            const endDayOfWeek = monthEnd.getDay()
 
-    // Pad with days from previous/next month to fill grid
-    const startDayOfWeek = monthStart.getDay()
-    const endDayOfWeek = monthEnd.getDay()
+            const previousMonthPadding = Array.from({ length: startDayOfWeek }, (_, i) => {
+                const d = new Date(monthStart)
+                d.setDate(d.getDate() - (startDayOfWeek - i))
+                return d
+            })
 
-    const previousMonthPadding = Array.from({ length: startDayOfWeek }, (_, i) => {
-        const d = new Date(monthStart)
-        d.setDate(d.getDate() - (startDayOfWeek - i))
-        return d
-    })
+            const nextMonthPadding = Array.from({ length: 6 - endDayOfWeek }, (_, i) => {
+                const d = new Date(monthEnd)
+                d.setDate(d.getDate() + i + 1)
+                return d
+            })
 
-    const nextMonthPadding = Array.from({ length: 6 - endDayOfWeek }, (_, i) => {
-        const d = new Date(monthEnd)
-        d.setDate(d.getDate() + i + 1)
-        return d
-    })
+            return [...previousMonthPadding, ...days, ...nextMonthPadding]
+        } else if (view === 'week') {
+            const weekStart = startOfWeek(currentDate)
+            const weekEnd = endOfWeek(currentDate)
+            return eachDayOfInterval({ start: weekStart, end: weekEnd })
+        } else {
+            return [currentDate]
+        }
+    }
 
-    const allDays = [...previousMonthPadding, ...days, ...nextMonthPadding]
+    const allDays = getDaysForView()
+
+    const handlePrevious = () => {
+        if (view === 'month') setCurrentDate(subMonths(currentDate, 1))
+        else if (view === 'week') setCurrentDate(subWeeks(currentDate, 1))
+        else setCurrentDate(subDays(currentDate, 1))
+    }
+
+    const handleNext = () => {
+        if (view === 'month') setCurrentDate(addMonths(currentDate, 1))
+        else if (view === 'week') setCurrentDate(addWeeks(currentDate, 1))
+        else setCurrentDate(addDays(currentDate, 1))
+    }
+
+    const getHeaderTitle = () => {
+        if (view === 'month') return format(currentDate, 'MMMM yyyy')
+        if (view === 'week') {
+            const start = startOfWeek(currentDate)
+            const end = endOfWeek(currentDate)
+            if (start.getMonth() !== end.getMonth()) {
+                if (start.getFullYear() !== end.getFullYear()) {
+                    return `${format(start, 'MMM d, yyyy')} - ${format(end, 'MMM d, yyyy')}`
+                }
+                return `${format(start, 'MMM d')} - ${format(end, 'MMM d, yyyy')}`
+            }
+            return `${format(start, 'MMMM d')} - ${format(end, 'd, yyyy')}`
+        }
+        return format(currentDate, 'MMMM d, yyyy')
+    }
 
     // Get sessions for a specific day
     const getSessionsForDay = (day: Date) => {
@@ -225,16 +265,40 @@ export default function TeacherCalendarPage() {
                         {/* Top Row: View Tabs + Navigation */}
                         <div className="flex flex-wrap items-center justify-between gap-4">
                             <div className="flex items-center gap-1 bg-muted p-1 rounded-lg">
-                                <button className="px-3 py-1.5 text-sm font-medium rounded-md shadow-sm bg-background text-foreground transition-all">Month</button>
-                                <button className="px-3 py-1.5 text-sm font-medium rounded-md text-muted-foreground hover:text-foreground transition-all">Week</button>
-                                <button className="px-3 py-1.5 text-sm font-medium rounded-md text-muted-foreground hover:text-foreground transition-all">Day</button>
+                                <button
+                                    onClick={() => setView('month')}
+                                    className={cn(
+                                        "px-3 py-1.5 text-sm font-medium rounded-md transition-all",
+                                        view === 'month' ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                                    )}
+                                >
+                                    Month
+                                </button>
+                                <button
+                                    onClick={() => setView('week')}
+                                    className={cn(
+                                        "px-3 py-1.5 text-sm font-medium rounded-md transition-all",
+                                        view === 'week' ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                                    )}
+                                >
+                                    Week
+                                </button>
+                                <button
+                                    onClick={() => setView('day')}
+                                    className={cn(
+                                        "px-3 py-1.5 text-sm font-medium rounded-md transition-all",
+                                        view === 'day' ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                                    )}
+                                >
+                                    Day
+                                </button>
                             </div>
                             <div className="flex items-center gap-2">
-                                <Button variant="ghost" size="icon" className="rounded-full size-8" onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}>
+                                <Button variant="ghost" size="icon" className="rounded-full size-8" onClick={handlePrevious}>
                                     <ChevronLeft className="size-4" />
                                 </Button>
-                                <h2 className="text-base sm:text-lg font-bold text-foreground min-w-[140px] sm:min-w-[160px] text-center">{format(currentMonth, 'MMMM yyyy')}</h2>
-                                <Button variant="ghost" size="icon" className="rounded-full size-8" onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}>
+                                <h2 className="text-base sm:text-lg font-bold text-foreground min-w-[140px] sm:min-w-[160px] text-center">{getHeaderTitle()}</h2>
+                                <Button variant="ghost" size="icon" className="rounded-full size-8" onClick={handleNext}>
                                     <ChevronRight className="size-4" />
                                 </Button>
                             </div>
@@ -246,21 +310,26 @@ export default function TeacherCalendarPage() {
                     </div>
 
                     {/* Calendar Grid */}
-                    <div className="flex-1 grid grid-cols-7 grid-rows-[auto_1fr] h-full overflow-hidden min-h-0 bg-background">
+                    <div className={cn(
+                        "flex-1 grid grid-rows-[auto_1fr] h-full overflow-hidden min-h-0 bg-background",
+                        view === 'day' ? "grid-cols-1" : "grid-cols-7"
+                    )}>
                         {/* Day Headers */}
-                        <div className="contents text-[10px] sm:text-xs font-semibold uppercase tracking-wide text-muted-foreground bg-muted/30">
-                            {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, i) => (
-                                <div key={i} className="py-2 sm:py-3 text-center border-b border-r border-border last:border-r-0">
-                                    <span className="sm:hidden">{day}</span>
-                                    <span className="hidden sm:inline">{['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][i]}</span>
-                                </div>
-                            ))}
-                        </div>
+                        {view !== 'day' && (
+                            <div className="contents text-[10px] sm:text-xs font-semibold uppercase tracking-wide text-muted-foreground bg-muted/30">
+                                {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, i) => (
+                                    <div key={i} className="py-2 sm:py-3 text-center border-b border-r border-border last:border-r-0">
+                                        <span className="sm:hidden">{day}</span>
+                                        <span className="hidden sm:inline">{['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][i]}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
 
                         {/* Days Grid */}
                         {allDays.map((day, index) => {
                             const daySessions = getSessionsForDay(day)
-                            const isCurrentMonth = isSameMonth(day, currentMonth)
+                            const isCurrentMonth = isSameMonth(day, currentDate)
                             const dayIsToday = isToday(day)
 
                             return (
