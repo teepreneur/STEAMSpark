@@ -51,12 +51,12 @@ export function StatsGrid({ earnings, activeStudents, pendingEnrollments, rating
                 </Card>
             </Link>
 
-            {/* Average Rating */}
+            {/* Trust Score */}
             <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium text-muted-foreground">Average Rating</CardTitle>
-                    <div className="size-8 rounded-lg flex items-center justify-center text-amber-500">
-                        <Star size={18} className="text-amber-500" />
+                    <CardTitle className="text-sm font-medium text-muted-foreground">Trust Score</CardTitle>
+                    <div className="size-8 rounded-lg flex items-center justify-center text-primary">
+                        <Star size={18} className="text-primary" />
                     </div>
                 </CardHeader>
                 <CardContent>
@@ -65,7 +65,7 @@ export function StatsGrid({ earnings, activeStudents, pendingEnrollments, rating
                         {rating > 0 && <span className="text-sm font-normal text-muted-foreground ml-1">/ 5.0</span>}
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">
-                        {hasReviews ? "From client reviews" : "Platform trust score"}
+                        Platform trust score
                     </p>
                 </CardContent>
             </Card>

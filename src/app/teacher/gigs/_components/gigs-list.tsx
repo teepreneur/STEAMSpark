@@ -117,8 +117,8 @@ export function GigsList({ initialGigs }: GigsListProps) {
                 </div>
                 <div className="flex flex-col gap-1 p-5 rounded-xl border border-border bg-card shadow-sm">
                     <div className="flex items-center gap-2 text-muted-foreground">
-                        <Star className="size-5 text-purple-500" />
-                        <p className="text-sm font-medium">Avg. Rating</p>
+                        <Star className="size-5 text-amber-500" />
+                        <p className="text-sm font-medium">Review Rating</p>
                     </div>
                     <p className="text-2xl font-bold text-foreground">{averageRating !== null ? averageRating.toFixed(1) : '—'}</p>
                 </div>

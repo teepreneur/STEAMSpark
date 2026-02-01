@@ -61,7 +61,13 @@ export default async function TutorProfilePage({ params }: ProfilePageProps) {
         : 40 // Baseline 4.0
 
     const finalRating = (trustScore + clientRatingPoints) / 20
-    const displayRating = Math.max(0, Math.min(5, finalRating)).toFixed(1)
+    const displayTrustScore = Math.max(0, Math.min(5, finalRating)).toFixed(1)
+
+    // Simple review average (for Review Rating display)
+    const reviewCount = reviewData?.length || 0
+    const reviewAverage = reviewCount > 0
+        ? (reviewData!.reduce((acc, curr) => acc + curr.rating, 0) / reviewCount).toFixed(1)
+        : null
 
     return (
         <div className="min-h-screen bg-background">
@@ -114,14 +120,22 @@ export default async function TutorProfilePage({ params }: ProfilePageProps) {
                                     <p className="text-muted-foreground font-medium">STEAM Spark Educator</p>
                                 </div>
 
-                                {/* Rating & Activity */}
+                                {/* Ratings & Activity */}
                                 <div className="flex items-center gap-4 py-4 border-y border-border/50">
                                     <div className="flex flex-col">
                                         <div className="flex items-center gap-1.5">
-                                            <Star className="size-4 fill-amber-400 text-amber-400" />
-                                            <span className="font-bold text-lg">{displayRating}</span>
+                                            <BadgeCheck className="size-4 text-primary" />
+                                            <span className="font-bold text-lg">{displayTrustScore}</span>
                                         </div>
                                         <span className="text-[10px] text-muted-foreground uppercase font-black tracking-wider">Trust Score</span>
+                                    </div>
+                                    <div className="w-px h-8 bg-border"></div>
+                                    <div className="flex flex-col">
+                                        <div className="flex items-center gap-1.5">
+                                            <Star className="size-4 fill-amber-400 text-amber-400" />
+                                            <span className="font-bold text-lg">{reviewAverage || '—'}</span>
+                                        </div>
+                                        <span className="text-[10px] text-muted-foreground uppercase font-black tracking-wider">{reviewCount > 0 ? `${reviewCount} Review${reviewCount > 1 ? 's' : ''}` : 'No Reviews'}</span>
                                     </div>
                                     <div className="w-px h-8 bg-border"></div>
                                     <div className="flex flex-col">
