@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Tables } from "@/lib/types/supabase"
@@ -25,6 +25,25 @@ export function GigsList({ initialGigs }: GigsListProps) {
     const router = useRouter()
     const [gigs, setGigs] = useState(initialGigs)
     const [loadingId, setLoadingId] = useState<string | null>(null)
+    const [averageRating, setAverageRating] = useState<number | null>(null)
+
+    useEffect(() => {
+        async function loadAverageRating() {
+            const { data: { user } } = await supabase.auth.getUser()
+            if (!user) return
+
+            const { data: reviews } = await supabase
+                .from('reviews')
+                .select('rating')
+                .eq('teacher_id', user.id)
+
+            if (reviews && reviews.length > 0) {
+                const avg = reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length
+                setAverageRating(Math.round(avg * 10) / 10)
+            }
+        }
+        loadAverageRating()
+    }, [supabase])
 
     async function handleDelete(id: string) {
         if (!confirm("Are you sure you want to delete this gig? This cannot be undone.")) return
@@ -101,7 +120,7 @@ export function GigsList({ initialGigs }: GigsListProps) {
                         <Star className="size-5 text-purple-500" />
                         <p className="text-sm font-medium">Avg. Rating</p>
                     </div>
-                    <p className="text-2xl font-bold text-foreground">4.9</p>
+                    <p className="text-2xl font-bold text-foreground">{averageRating !== null ? averageRating.toFixed(1) : '—'}</p>
                 </div>
             </div>
 
