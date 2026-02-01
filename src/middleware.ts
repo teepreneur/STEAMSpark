@@ -4,16 +4,108 @@ import { NextResponse, type NextRequest } from 'next/server'
 // Define the main marketing domain and app subdomain
 const MARKETING_DOMAINS = ['steamsparkgh.com', 'www.steamsparkgh.com']
 const APP_SUBDOMAIN = 'app.steamsparkgh.com'
+const ADMIN_SUBDOMAIN = 'admin.steamsparkgh.com'
 
 export async function middleware(request: NextRequest) {
     const hostname = request.headers.get('host') || ''
     const pathname = request.nextUrl.pathname
 
+    // Check if this is the admin subdomain
+    const isAdminDomain = hostname === ADMIN_SUBDOMAIN || hostname.startsWith('admin.')
+
     // Check if this is the marketing domain (not the app subdomain)
     const isMarketingDomain = MARKETING_DOMAINS.some(domain =>
         hostname === domain || hostname.endsWith(`.${domain}`)
-    ) && !hostname.startsWith('app.')
+    ) && !hostname.startsWith('app.') && !hostname.startsWith('admin.')
 
+    // ========== ADMIN SUBDOMAIN HANDLING ==========
+    if (isAdminDomain) {
+        // For admin, create supabase client first
+        let response = NextResponse.next({
+            request: { headers: request.headers },
+        })
+
+        const supabase = createServerClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+            {
+                cookies: {
+                    getAll() {
+                        return request.cookies.getAll()
+                    },
+                    setAll(cookiesToSet) {
+                        cookiesToSet.forEach(({ name, value }) => {
+                            request.cookies.set(name, value)
+                        })
+                        response = NextResponse.next({ request })
+                        cookiesToSet.forEach(({ name, value, options }) =>
+                            response.cookies.set(name, value, options)
+                        )
+                    },
+                },
+            }
+        )
+
+        const { data: { user } } = await supabase.auth.getUser()
+
+        // Allow access to login page without auth
+        if (pathname === '/login' || pathname.startsWith('/_next') || pathname.startsWith('/api')) {
+            // If logged in admin tries to access login, redirect to admin dashboard
+            if (user && pathname === '/login') {
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('role')
+                    .eq('id', user.id)
+                    .single()
+
+                if (profile?.role === 'admin') {
+                    const url = request.nextUrl.clone()
+                    url.pathname = '/admin/dashboard'
+                    return NextResponse.rewrite(url)
+                }
+            }
+            return response
+        }
+
+        // If not logged in, redirect to login
+        if (!user) {
+            const url = request.nextUrl.clone()
+            url.pathname = '/login'
+            return NextResponse.rewrite(url)
+        }
+
+        // Check if user is admin
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', user.id)
+            .single()
+
+        if (profile?.role !== 'admin') {
+            // Not an admin - show unauthorized page or redirect
+            const url = request.nextUrl.clone()
+            url.pathname = '/admin/unauthorized'
+            return NextResponse.rewrite(url)
+        }
+
+        // Rewrite to /admin routes
+        if (pathname === '/') {
+            const url = request.nextUrl.clone()
+            url.pathname = '/admin/dashboard'
+            return NextResponse.rewrite(url)
+        }
+
+        // Rewrite all paths to /admin/*
+        if (!pathname.startsWith('/admin')) {
+            const url = request.nextUrl.clone()
+            url.pathname = `/admin${pathname}`
+            return NextResponse.rewrite(url)
+        }
+
+        return response
+    }
+
+    // ========== MARKETING DOMAIN HANDLING ==========
     // If on marketing domain, only serve the marketing page
     if (isMarketingDomain) {
         // Serve the marketing page for root path
@@ -39,6 +131,7 @@ export async function middleware(request: NextRequest) {
         return NextResponse.next()
     }
 
+    // ========== APP SUBDOMAIN / LOCALHOST HANDLING ==========
     // For app subdomain and localhost, continue with normal app logic
     let response = NextResponse.next({
         request: {
@@ -90,6 +183,14 @@ export async function middleware(request: NextRequest) {
             .single()
 
         const userRole = profile?.role
+
+        // Admins on app subdomain - redirect to admin subdomain
+        if (userRole === 'admin' && !pathname.startsWith('/login')) {
+            const url = new URL(request.url)
+            url.host = ADMIN_SUBDOMAIN
+            url.pathname = '/dashboard'
+            return NextResponse.redirect(url)
+        }
 
         // Teachers cannot access parent routes
         if (pathname.startsWith('/parent') && userRole === 'teacher') {
