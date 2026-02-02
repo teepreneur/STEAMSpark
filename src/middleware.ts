@@ -48,10 +48,10 @@ export async function middleware(request: NextRequest) {
 
         const { data: { user } } = await supabase.auth.getUser()
 
-        // Allow access to login page without auth
-        if (pathname === '/login' || pathname.startsWith('/_next') || pathname.startsWith('/api')) {
+        // Allow access to admin login page without auth
+        if (pathname === '/admin/login' || pathname.startsWith('/_next') || pathname.startsWith('/api')) {
             // If logged in admin tries to access login, redirect to admin dashboard
-            if (user && pathname === '/login') {
+            if (user && pathname === '/admin/login') {
                 const { data: profile } = await supabase
                     .from('profiles')
                     .select('role')
@@ -67,10 +67,10 @@ export async function middleware(request: NextRequest) {
             return response
         }
 
-        // If not logged in, redirect to login
+        // If not logged in, redirect to admin login
         if (!user) {
             const url = request.nextUrl.clone()
-            url.pathname = '/login'
+            url.pathname = '/admin/login'
             return NextResponse.rewrite(url)
         }
 
