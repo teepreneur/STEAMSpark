@@ -67,8 +67,9 @@ export default function AdminLoginPage() {
             return
         }
 
-        // Redirect to admin dashboard using window.location for reliable redirect
-        window.location.href = '/admin/dashboard'
+        // Redirect to dashboard - use /dashboard for admin subdomain, /admin/dashboard for localhost
+        const isAdminSubdomain = typeof window !== 'undefined' && window.location.hostname.includes('admin.')
+        window.location.href = isAdminSubdomain ? '/dashboard' : '/admin/dashboard'
     }
 
     return (

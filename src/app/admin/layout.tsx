@@ -31,8 +31,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     const [sidebarOpen, setSidebarOpen] = useState(true)
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
+
     // Skip layout for login and unauthorized pages
+    // Check both /admin/login (localhost) and /login (admin subdomain)
     const isAuthPage = pathname === '/admin/login' || pathname === '/admin/unauthorized'
+        || pathname === '/login' || pathname === '/unauthorized'
 
     useEffect(() => {
         // Don't check auth for login/unauthorized pages
