@@ -121,6 +121,71 @@ export function SupportWidget() {
         initChat()
     }, [isOpen]) // Re-init if opened/closed to refresh status? Actually better on mount, but status check maybe on open.
 
+    const pathname = typeof window !== 'undefined' ? window.location.pathname : ''
+
+    // Presence State
+    const [presenceState, setPresenceState] = useState<{
+        ip: string
+        userAgent: string
+        currentPage: string
+    }>({ ip: '', userAgent: '', currentPage: '' })
+
+    // Fetch IP and Track Presence
+    useEffect(() => {
+        async function trackPresence() {
+            // 1. Get IP
+            try {
+                const res = await fetch('/api/get-ip')
+                const data = await res.json()
+                const newState = {
+                    ip: data.ip,
+                    userAgent: navigator.userAgent,
+                    currentPage: window.location.pathname
+                }
+                setPresenceState(newState)
+
+                // 2. Join Presence Channel
+                const { data: { user } } = await supabase.auth.getUser()
+                const channel = supabase.channel('support_presence')
+
+                channel
+                    .on('presence', { event: 'sync' }, () => {
+                        // console.log('Presence synced', channel.presenceState())
+                    })
+                    .subscribe(async (status) => {
+                        if (status === 'SUBSCRIBED') {
+                            await channel.track({
+                                user_id: user?.id || 'anon',
+                                user_email: user?.email || 'Anonymous',
+                                online_at: new Date().toISOString(),
+                                ...newState
+                            })
+                        }
+                    })
+
+                return () => { supabase.removeChannel(channel) }
+            } catch (err) {
+                console.error("Presence error:", err)
+            }
+        }
+        trackPresence()
+    }, [])
+
+    // Update Presence on Path Change
+    useEffect(() => {
+        if (!presenceState.ip) return
+
+        const updateChannel = async () => {
+            const channel = supabase.channel('support_presence')
+            await channel.track({
+                ...presenceState,
+                currentPage: window.location.pathname,
+                updated_at: new Date().toISOString()
+            })
+        }
+        updateChannel()
+    }, [pathname, presenceState.ip]) // Dependency on pathname is key
+
     async function handleSendMessage(e: React.FormEvent) {
         e.preventDefault()
         if (!input.trim() || !chatId || !userId) return

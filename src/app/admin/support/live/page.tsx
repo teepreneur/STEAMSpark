@@ -201,10 +201,28 @@ export default function AdminLiveSupportPage() {
 
     const selectedChat = chats.find(c => c.id === selectedChatId)
 
+    const [onlineUsers, setOnlineUsers] = useState<any[]>([])
+
+    // Subscribe to Presence
+    useEffect(() => {
+        const channel = supabase.channel('support_presence')
+
+        channel
+            .on('presence', { event: 'sync' }, () => {
+                const state = channel.presenceState()
+                const users = Object.values(state).flat()
+                setOnlineUsers(users)
+            })
+            .subscribe()
+
+        return () => { supabase.removeChannel(channel) }
+    }, [])
+
     return (
         <div className="flex h-[calc(100vh-100px)] gap-6">
-            {/* Sidebar List */}
+            {/* Sidebar List (Chats) */}
             <div className="w-80 flex flex-col bg-white dark:bg-slate-900 rounded-xl border overflow-hidden">
+                {/* ... (Existing Sidebar Content) ... */}
                 <div className="p-4 border-b space-y-4">
                     <div className="flex items-center justify-between">
                         <h2 className="font-semibold">Live Chats</h2>
@@ -214,10 +232,6 @@ export default function AdminLiveSupportPage() {
                             </span>
                             <Switch checked={isOnline} onCheckedChange={toggleStatus} />
                         </div>
-                    </div>
-                    <div className="relative">
-                        <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
-                        <Input placeholder="Search users..." className="pl-9" />
                     </div>
                 </div>
 
@@ -249,7 +263,7 @@ export default function AdminLiveSupportPage() {
                                             </span>
                                         </div>
                                         <p className="text-xs text-muted-foreground truncate">
-                                            Click to view conversation
+                                            Click to view
                                         </p>
                                     </div>
                                 </button>
@@ -268,7 +282,7 @@ export default function AdminLiveSupportPage() {
                     </div>
                 ) : (
                     <>
-                        {/* Chat Header */}
+                        {/* ... (Existing Chat UI) ... */}
                         <div className="p-4 border-b flex items-center justify-between">
                             <div className="flex items-center gap-3">
                                 <Avatar>
@@ -282,7 +296,6 @@ export default function AdminLiveSupportPage() {
                             </div>
                         </div>
 
-                        {/* Messages */}
                         <div
                             ref={scrollRef}
                             className="flex-1 overflow-y-auto p-4 space-y-4"
@@ -324,7 +337,6 @@ export default function AdminLiveSupportPage() {
                             })}
                         </div>
 
-                        {/* Input */}
                         <div className="p-4 border-t">
                             <form onSubmit={handleSendMessage} className="flex gap-2">
                                 <Input
@@ -341,6 +353,39 @@ export default function AdminLiveSupportPage() {
                         </div>
                     </>
                 )}
+            </div>
+
+            {/* Online Users Panel (New) */}
+            <div className="w-72 bg-white dark:bg-slate-900 rounded-xl border flex flex-col overflow-hidden">
+                <div className="p-4 border-b bg-slate-50 dark:bg-slate-800/50">
+                    <h3 className="font-semibold text-sm">Online Visitors ({onlineUsers.length})</h3>
+                </div>
+                <ScrollArea className="flex-1">
+                    <div className="divide-y">
+                        {onlineUsers.length === 0 ? (
+                            <div className="p-8 text-center text-muted-foreground text-xs">
+                                No visitors currently online
+                            </div>
+                        ) : (
+                            onlineUsers.map((user: any, idx) => (
+                                <div key={idx} className="p-3 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                                    <div className="flex items-center justify-between mb-1">
+                                        <span className="font-medium text-xs truncate max-w-[120px]">{user.user_email}</span>
+                                        <span className="size-2 bg-green-500 rounded-full animate-pulse" />
+                                    </div>
+                                    <div className="space-y-0.5">
+                                        <p className="text-[10px] text-muted-foreground flex items-center gap-1">
+                                            <span className="font-mono">{user.ip}</span>
+                                        </p>
+                                        <p className="text-[10px] text-primary truncate" title={user.currentPage}>
+                                            {user.currentPage}
+                                        </p>
+                                    </div>
+                                </div>
+                            ))
+                        )}
+                    </div>
+                </ScrollArea>
             </div>
         </div>
     )
