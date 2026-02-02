@@ -27,9 +27,15 @@ export async function middleware(request: NextRequest) {
 
         // For login page, skip expensive auth checks
         // On admin subdomain, /login becomes the login page (not /admin/login)
-        // Also skip for root / which shows login
-        if (pathname === '/login' || pathname === '/admin/login' || pathname === '/') {
+        if (pathname === '/login' || pathname === '/admin/login') {
             return NextResponse.next({ request })
+        }
+
+        // For root /, rewrite to login page (this ensures correct layout renders)
+        if (pathname === '/') {
+            const url = request.nextUrl.clone()
+            url.pathname = '/admin/login'
+            return NextResponse.rewrite(url)
         }
 
         // For all other admin routes, check auth
