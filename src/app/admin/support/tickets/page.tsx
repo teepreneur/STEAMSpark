@@ -11,6 +11,7 @@ import {
 } from "lucide-react"
 import { format, parseISO } from "date-fns"
 import Link from "next/link"
+import { getAdminHref } from "@/lib/admin-paths"
 
 interface Ticket {
     id: string
@@ -90,11 +91,19 @@ function TicketsContent() {
 
     return (
         <div className="space-y-6">
-            <div>
-                <h1 className="text-2xl font-bold">Support Tickets</h1>
-                <p className="text-muted-foreground">
-                    {tickets.length} tickets {statusFilter ? `(${statusFilter})` : ''}
-                </p>
+            <div className="flex items-center justify-between">
+                <div>
+                    <h1 className="text-2xl font-bold">Support Tickets</h1>
+                    <p className="text-muted-foreground">
+                        {tickets.length} tickets {statusFilter ? `(${statusFilter})` : ''}
+                    </p>
+                </div>
+                <Button asChild>
+                    <Link href={getAdminHref("/admin/support/tickets/new")}>
+                        <LifeBuoy className="size-4 mr-2" />
+                        Create Ticket
+                    </Link>
+                </Button>
             </div>
 
             <div className="bg-white dark:bg-slate-900 rounded-xl border">
