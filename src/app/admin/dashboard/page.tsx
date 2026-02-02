@@ -165,123 +165,121 @@ export default function AdminDashboardPage() {
             }
         }
         loadDashboard()
-    }
-        loadDashboard()
     }, []) // Empty dependency array to run once on mount
 
-if (loading) {
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center min-h-[60vh]">
+                <Loader2 className="size-8 animate-spin text-primary" />
+            </div>
+        )
+    }
+
+    const statCards = [
+        { label: "Total Teachers", value: stats.totalTeachers, icon: GraduationCap, color: "bg-blue-500", href: getHref("/users/teachers") },
+        { label: "Total Parents", value: stats.totalParents, icon: Users, color: "bg-green-500", href: getHref("/users/parents") },
+        { label: "Pending Verifications", value: stats.pendingVerifications, icon: Clock, color: "bg-orange-500", href: getHref("/users/teachers?filter=unverified") },
+        { label: "Active Bookings", value: stats.activeBookings, icon: BookOpen, color: "bg-purple-500", href: getHref("/bookings") },
+        { label: "Total Revenue", value: `GHS ${stats.totalRevenue.toLocaleString()}`, icon: DollarSign, color: "bg-emerald-500", href: getHref("/finance") },
+        { label: "Open Tickets", value: stats.pendingTickets, icon: AlertCircle, color: "bg-red-500", href: getHref("/support/tickets") },
+    ]
+
     return (
-        <div className="flex items-center justify-center min-h-[60vh]">
-            <Loader2 className="size-8 animate-spin text-primary" />
-        </div>
-    )
-}
+        <div className="space-y-8">
+            {/* Header */}
+            <div>
+                <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+                <p className="text-muted-foreground">
+                    Overview of platform activity and key metrics
+                </p>
+            </div>
 
-const statCards = [
-    { label: "Total Teachers", value: stats.totalTeachers, icon: GraduationCap, color: "bg-blue-500", href: getHref("/users/teachers") },
-    { label: "Total Parents", value: stats.totalParents, icon: Users, color: "bg-green-500", href: getHref("/users/parents") },
-    { label: "Pending Verifications", value: stats.pendingVerifications, icon: Clock, color: "bg-orange-500", href: getHref("/users/teachers?filter=unverified") },
-    { label: "Active Bookings", value: stats.activeBookings, icon: BookOpen, color: "bg-purple-500", href: getHref("/bookings") },
-    { label: "Total Revenue", value: `GHS ${stats.totalRevenue.toLocaleString()}`, icon: DollarSign, color: "bg-emerald-500", href: getHref("/finance") },
-    { label: "Open Tickets", value: stats.pendingTickets, icon: AlertCircle, color: "bg-red-500", href: getHref("/support/tickets") },
-]
-
-return (
-    <div className="space-y-8">
-        {/* Header */}
-        <div>
-            <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-            <p className="text-muted-foreground">
-                Overview of platform activity and key metrics
-            </p>
-        </div>
-
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {statCards.map((card) => (
-                <Link
-                    key={card.label}
-                    href={card.href}
-                    className="bg-white dark:bg-slate-900 rounded-xl border p-6 hover:shadow-lg transition-all group"
-                >
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm text-muted-foreground">{card.label}</p>
-                            <p className="text-2xl font-bold mt-1">{card.value}</p>
+            {/* Stats Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {statCards.map((card) => (
+                    <Link
+                        key={card.label}
+                        href={card.href}
+                        className="bg-white dark:bg-slate-900 rounded-xl border p-6 hover:shadow-lg transition-all group"
+                    >
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-sm text-muted-foreground">{card.label}</p>
+                                <p className="text-2xl font-bold mt-1">{card.value}</p>
+                            </div>
+                            <div className={cn("size-12 rounded-xl flex items-center justify-center", card.color)}>
+                                <card.icon className="size-6 text-white" />
+                            </div>
                         </div>
-                        <div className={cn("size-12 rounded-xl flex items-center justify-center", card.color)}>
-                            <card.icon className="size-6 text-white" />
+                        <div className="mt-4 flex items-center text-sm text-primary">
+                            View details
+                            <ArrowRight className="size-4 ml-1 group-hover:translate-x-1 transition-transform" />
                         </div>
-                    </div>
-                    <div className="mt-4 flex items-center text-sm text-primary">
-                        View details
-                        <ArrowRight className="size-4 ml-1 group-hover:translate-x-1 transition-transform" />
-                    </div>
-                </Link>
-            ))}
-        </div>
+                    </Link>
+                ))}
+            </div>
 
-        {/* Quick Actions & Recent Activity */}
-        <div className="grid lg:grid-cols-2 gap-6">
-            {/* Quick Actions */}
-            <div className="bg-white dark:bg-slate-900 rounded-xl border p-6">
-                <h2 className="font-bold text-lg mb-4">Quick Actions</h2>
-                <div className="space-y-3">
-                    <Button asChild className="w-full justify-start gap-3" variant="outline">
-                        <Link href={getHref("/users/teachers?filter=unverified")}>
-                            <Clock className="size-4" />
-                            Review Pending Verifications ({stats.pendingVerifications})
-                        </Link>
-                    </Button>
-                    <Button asChild className="w-full justify-start gap-3" variant="outline">
-                        <Link href={getHref("/bookings?status=pending")}>
-                            <BookOpen className="size-4" />
-                            View Pending Bookings
-                        </Link>
-                    </Button>
-                    <Button asChild className="w-full justify-start gap-3" variant="outline">
-                        <Link href={getHref("/support/tickets?status=open")}>
-                            <AlertCircle className="size-4" />
-                            Handle Open Tickets ({stats.pendingTickets})
-                        </Link>
-                    </Button>
+            {/* Quick Actions & Recent Activity */}
+            <div className="grid lg:grid-cols-2 gap-6">
+                {/* Quick Actions */}
+                <div className="bg-white dark:bg-slate-900 rounded-xl border p-6">
+                    <h2 className="font-bold text-lg mb-4">Quick Actions</h2>
+                    <div className="space-y-3">
+                        <Button asChild className="w-full justify-start gap-3" variant="outline">
+                            <Link href={getHref("/users/teachers?filter=unverified")}>
+                                <Clock className="size-4" />
+                                Review Pending Verifications ({stats.pendingVerifications})
+                            </Link>
+                        </Button>
+                        <Button asChild className="w-full justify-start gap-3" variant="outline">
+                            <Link href={getHref("/bookings?status=pending")}>
+                                <BookOpen className="size-4" />
+                                View Pending Bookings
+                            </Link>
+                        </Button>
+                        <Button asChild className="w-full justify-start gap-3" variant="outline">
+                            <Link href={getHref("/support/tickets?status=open")}>
+                                <AlertCircle className="size-4" />
+                                Handle Open Tickets ({stats.pendingTickets})
+                            </Link>
+                        </Button>
+                    </div>
+                </div>
+
+                {/* Recent Activity */}
+                <div className="bg-white dark:bg-slate-900 rounded-xl border p-6">
+                    <h2 className="font-bold text-lg mb-4">Recent Activity</h2>
+                    {recentActivity.length === 0 ? (
+                        <p className="text-muted-foreground text-sm">No recent activity</p>
+                    ) : (
+                        <div className="space-y-3">
+                            {recentActivity.map((activity) => (
+                                <div key={activity.id} className="flex items-start gap-3 py-2 border-b last:border-0">
+                                    <div className={cn(
+                                        "size-8 rounded-full flex items-center justify-center",
+                                        activity.type === 'signup' && "bg-green-100 text-green-600",
+                                        activity.type === 'booking' && "bg-blue-100 text-blue-600",
+                                        activity.type === 'payment' && "bg-emerald-100 text-emerald-600",
+                                        activity.type === 'ticket' && "bg-red-100 text-red-600"
+                                    )}>
+                                        {activity.type === 'signup' && <Users className="size-4" />}
+                                        {activity.type === 'booking' && <BookOpen className="size-4" />}
+                                        {activity.type === 'payment' && <DollarSign className="size-4" />}
+                                        {activity.type === 'ticket' && <AlertCircle className="size-4" />}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-medium">{activity.title}</p>
+                                        <p className="text-xs text-muted-foreground truncate">{activity.description}</p>
+                                    </div>
+                                    <span className="text-xs text-muted-foreground whitespace-nowrap">
+                                        {format(parseISO(activity.created_at), 'MMM d')}
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </div>
-
-            {/* Recent Activity */}
-            <div className="bg-white dark:bg-slate-900 rounded-xl border p-6">
-                <h2 className="font-bold text-lg mb-4">Recent Activity</h2>
-                {recentActivity.length === 0 ? (
-                    <p className="text-muted-foreground text-sm">No recent activity</p>
-                ) : (
-                    <div className="space-y-3">
-                        {recentActivity.map((activity) => (
-                            <div key={activity.id} className="flex items-start gap-3 py-2 border-b last:border-0">
-                                <div className={cn(
-                                    "size-8 rounded-full flex items-center justify-center",
-                                    activity.type === 'signup' && "bg-green-100 text-green-600",
-                                    activity.type === 'booking' && "bg-blue-100 text-blue-600",
-                                    activity.type === 'payment' && "bg-emerald-100 text-emerald-600",
-                                    activity.type === 'ticket' && "bg-red-100 text-red-600"
-                                )}>
-                                    {activity.type === 'signup' && <Users className="size-4" />}
-                                    {activity.type === 'booking' && <BookOpen className="size-4" />}
-                                    {activity.type === 'payment' && <DollarSign className="size-4" />}
-                                    {activity.type === 'ticket' && <AlertCircle className="size-4" />}
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-medium">{activity.title}</p>
-                                    <p className="text-xs text-muted-foreground truncate">{activity.description}</p>
-                                </div>
-                                <span className="text-xs text-muted-foreground whitespace-nowrap">
-                                    {format(parseISO(activity.created_at), 'MMM d')}
-                                </span>
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </div>
         </div>
-    </div>
-)
+    )
 }

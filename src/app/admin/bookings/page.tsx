@@ -20,23 +20,10 @@ interface Booking {
     status: string | null
     created_at: string
     total_sessions: number | null
-    gig: {
-        id: string
-        title: string
-        price: number
-    } | null
-    parent: {
-        id: string
-        full_name: string | null
-        email: string | null
-    } | null
-    teacher: {
-        id: string
-        full_name: string | null
-    } | null
-    student: {
-        name: string
-    } | null
+    gig: any
+    parent: any
+    teacher: any
+    student: any
 }
 
 export default function BookingsPage() {

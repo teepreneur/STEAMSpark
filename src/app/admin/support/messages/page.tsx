@@ -13,9 +13,7 @@ interface Message {
     recipient_id: string
     content: string
     created_at: string
-    sender?: {
-        full_name: string | null
-    }
+    sender?: any
 }
 
 export default function MessagesPage() {

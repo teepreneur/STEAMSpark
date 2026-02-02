@@ -19,10 +19,7 @@ interface Ticket {
     priority: string | null
     created_at: string
     created_by: string
-    user?: {
-        full_name: string | null
-        email: string | null
-    }
+    user?: any
 }
 
 export default function TicketsPage() {
