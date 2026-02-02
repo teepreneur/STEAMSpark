@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils"
 import {
     LayoutDashboard, Users, GraduationCap, BookOpen,
     CreditCard, MessageSquare, LifeBuoy, Settings,
-    LogOut, ChevronLeft, Menu, Shield, Bell
+    LogOut, ChevronLeft, Menu, Shield, Bell, Headphones
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
@@ -19,6 +19,7 @@ const baseNavigation = [
     { name: "Parents", basePath: "/users/parents", icon: Users },
     { name: "Bookings", basePath: "/bookings", icon: BookOpen },
     { name: "Finance", basePath: "/finance", icon: CreditCard },
+    { name: "Live Support", basePath: "/support/live", icon: Headphones },
     { name: "Support Tickets", basePath: "/support/tickets", icon: LifeBuoy },
     { name: "Messages", basePath: "/support/messages", icon: MessageSquare },
     { name: "Settings", basePath: "/settings", icon: Settings },
