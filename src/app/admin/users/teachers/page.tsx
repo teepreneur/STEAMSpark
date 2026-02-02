@@ -13,7 +13,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { format, parseISO } from "date-fns"
-import { useAdminPaths } from "@/lib/admin-paths"
+import { getAdminHref } from "@/lib/admin-paths"
 
 interface Teacher {
     id: string
@@ -45,7 +45,6 @@ function TeachersContent() {
     const supabase = createClient()
     const searchParams = useSearchParams()
     const filterParam = searchParams.get('filter')
-    const { getPath } = useAdminPaths()
 
     const [loading, setLoading] = useState(true)
     const [teachers, setTeachers] = useState<Teacher[]>([])
@@ -238,7 +237,7 @@ function TeachersContent() {
                                         </td>
                                         <td className="py-3 px-4">
                                             <Button asChild size="sm" variant="ghost">
-                                                <Link href={getPath(`/admin/users/teachers/${teacher.id}`)}>
+                                                <Link href={getAdminHref(`/admin/users/teachers/${teacher.id}`)}>
                                                     <Eye className="size-4 mr-1" />
                                                     View
                                                 </Link>

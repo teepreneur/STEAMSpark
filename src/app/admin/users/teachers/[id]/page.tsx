@@ -15,7 +15,7 @@ import {
 import Link from "next/link"
 import { format, parseISO } from "date-fns"
 import { useRouter } from "next/navigation"
-import { useAdminPaths } from "@/lib/admin-paths"
+import { getAdminHref } from "@/lib/admin-paths"
 
 interface TeacherDetails {
     id: string
@@ -46,7 +46,6 @@ export default function TeacherDetailPage({ params }: { params: Promise<{ id: st
     const { id } = use(params)
     const supabase = createClient()
     const router = useRouter()
-    const { getPath } = useAdminPaths()
 
     const [loading, setLoading] = useState(true)
     const [updating, setUpdating] = useState(false)
@@ -70,7 +69,7 @@ export default function TeacherDetailPage({ params }: { params: Promise<{ id: st
 
             if (error || !teacherData) {
                 console.error('Error loading teacher:', error)
-                router.push(getPath('/admin/users/teachers'))
+                router.push(getAdminHref('/admin/users/teachers'))
                 return
             }
 
@@ -211,7 +210,7 @@ export default function TeacherDetailPage({ params }: { params: Promise<{ id: st
         <div className="space-y-6">
             {/* Back link */}
             <Link
-                href={getPath("/admin/users/teachers")}
+                href={getAdminHref("/admin/users/teachers")}
                 className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground"
             >
                 <ArrowLeft className="size-4" />

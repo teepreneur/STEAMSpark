@@ -14,7 +14,7 @@ import {
 import Link from "next/link"
 import { format, parseISO } from "date-fns"
 import { useRouter } from "next/navigation"
-import { useAdminPaths } from "@/lib/admin-paths"
+import { getAdminHref } from "@/lib/admin-paths"
 
 interface BookingDetails {
     id: string
@@ -55,7 +55,6 @@ export default function BookingDetailPage({ params }: { params: Promise<{ id: st
     const { id } = use(params)
     const supabase = createClient()
     const router = useRouter()
-    const { getPath } = useAdminPaths()
 
     const [loading, setLoading] = useState(true)
     const [updating, setUpdating] = useState(false)
@@ -80,7 +79,7 @@ export default function BookingDetailPage({ params }: { params: Promise<{ id: st
 
             if (error || !data) {
                 console.error('Error loading booking:', error)
-                router.push(getPath('/admin/bookings'))
+                router.push(getAdminHref('/admin/bookings'))
                 return
             }
 
@@ -188,7 +187,7 @@ export default function BookingDetailPage({ params }: { params: Promise<{ id: st
         <div className="space-y-6 max-w-4xl">
             {/* Back link */}
             <Link
-                href={getPath("/admin/bookings")}
+                href={getAdminHref("/admin/bookings")}
                 className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground"
             >
                 <ArrowLeft className="size-4" />
@@ -313,7 +312,7 @@ export default function BookingDetailPage({ params }: { params: Promise<{ id: st
                             <Mail className="size-4" /> {booking.parent?.email}
                         </p>
                         <Button variant="outline" size="sm" asChild>
-                            <Link href={getPath(`/admin/users/parents/${booking.parent?.id}`)}>
+                            <Link href={getAdminHref(`/admin/users/parents/${booking.parent?.id}`)}>
                                 View Profile
                             </Link>
                         </Button>
@@ -331,7 +330,7 @@ export default function BookingDetailPage({ params }: { params: Promise<{ id: st
                             <Mail className="size-4" /> {booking.teacher?.email}
                         </p>
                         <Button variant="outline" size="sm" asChild>
-                            <Link href={getPath(`/admin/users/teachers/${booking.teacher?.id}`)}>
+                            <Link href={getAdminHref(`/admin/users/teachers/${booking.teacher?.id}`)}>
                                 View Profile
                             </Link>
                         </Button>

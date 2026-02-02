@@ -13,7 +13,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { format, parseISO } from "date-fns"
-import { useAdminPaths } from "@/lib/admin-paths"
+import { getAdminHref } from "@/lib/admin-paths"
 
 interface Booking {
     id: string
@@ -51,7 +51,6 @@ function BookingsContent() {
     const supabase = createClient()
     const searchParams = useSearchParams()
     const statusParam = searchParams.get('status')
-    const { getPath } = useAdminPaths()
 
     const [loading, setLoading] = useState(true)
     const [bookings, setBookings] = useState<Booking[]>([])
@@ -227,7 +226,7 @@ function BookingsContent() {
                                         </td>
                                         <td className="py-3 px-4">
                                             <Button asChild size="sm" variant="ghost">
-                                                <Link href={getPath(`/admin/bookings/${booking.id}`)}>
+                                                <Link href={getAdminHref(`/admin/bookings/${booking.id}`)}>
                                                     <Eye className="size-4 mr-1" />
                                                     View
                                                 </Link>

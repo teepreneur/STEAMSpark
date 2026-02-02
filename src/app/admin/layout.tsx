@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
@@ -11,17 +11,17 @@ import {
     LogOut, ChevronLeft, Menu, Shield, Bell
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { useAdminPaths } from "@/lib/admin-paths"
 
+// Navigation configuration - will be transformed at render time
 const baseNavigation = [
-    { name: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
-    { name: "Teachers", href: "/admin/users/teachers", icon: GraduationCap },
-    { name: "Parents", href: "/admin/users/parents", icon: Users },
-    { name: "Bookings", href: "/admin/bookings", icon: BookOpen },
-    { name: "Finance", href: "/admin/finance", icon: CreditCard },
-    { name: "Support Tickets", href: "/admin/support/tickets", icon: LifeBuoy },
-    { name: "Messages", href: "/admin/support/messages", icon: MessageSquare },
-    { name: "Settings", href: "/admin/settings", icon: Settings },
+    { name: "Dashboard", basePath: "/dashboard", icon: LayoutDashboard },
+    { name: "Teachers", basePath: "/users/teachers", icon: GraduationCap },
+    { name: "Parents", basePath: "/users/parents", icon: Users },
+    { name: "Bookings", basePath: "/bookings", icon: BookOpen },
+    { name: "Finance", basePath: "/finance", icon: CreditCard },
+    { name: "Support Tickets", basePath: "/support/tickets", icon: LifeBuoy },
+    { name: "Messages", basePath: "/support/messages", icon: MessageSquare },
+    { name: "Settings", basePath: "/settings", icon: Settings },
 ]
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -31,17 +31,21 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     const [admin, setAdmin] = useState<{ full_name: string | null; email: string | null } | null>(null)
     const [sidebarOpen, setSidebarOpen] = useState(true)
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-    const { getPath, isAdminSubdomain } = useAdminPaths()
 
-    // Transform navigation paths based on environment
-    const navigation = useMemo(() =>
-        baseNavigation.map(item => ({ ...item, href: getPath(item.href) })),
-        [getPath, isAdminSubdomain]
-    )
+    // Check if we're on admin subdomain (client-side only)
+    const isAdminSubdomain = typeof window !== 'undefined' &&
+        (window.location.hostname.includes('admin.') || window.location.hostname.startsWith('admin.'))
 
+    // Get the correct path for this environment
+    const getHref = (basePath: string) => {
+        if (isAdminSubdomain) {
+            return basePath // /dashboard, /users/teachers, etc.
+        }
+        return `/admin${basePath}` // /admin/dashboard, /admin/users/teachers, etc.
+    }
 
     // Skip layout for login and unauthorized pages
-    // Check both /admin/login (localhost) and /login (admin subdomain)
+    // Must check BEFORE any hooks that could cause issues
     const isAuthPage = pathname === '/admin/login' || pathname === '/admin/unauthorized'
         || pathname === '/login' || pathname === '/unauthorized'
 
@@ -59,18 +63,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     .single()
 
                 if (profile?.role !== 'admin') {
-                    router.push('/admin/unauthorized')
+                    const redirectPath = isAdminSubdomain ? '/unauthorized' : '/admin/unauthorized'
+                    router.push(redirectPath)
                     return
                 }
                 setAdmin(profile)
             }
         }
         loadAdmin()
-    }, [supabase, router, isAuthPage, pathname])
+    }, [supabase, router, isAuthPage, pathname, isAdminSubdomain])
 
     async function handleLogout() {
         await supabase.auth.signOut()
-        router.push('/admin/login')
+        const loginPath = isAdminSubdomain ? '/login' : '/admin/login'
+        router.push(loginPath)
     }
 
     // For auth pages, render without sidebar
@@ -113,14 +119,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
                 {/* Navigation */}
                 <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-                    {navigation.map((item) => {
-                        const itemPath = item.href
-                        const isActive = pathname === itemPath || pathname.startsWith(itemPath + '/') ||
-                            pathname === item.href.replace('/admin', '') || pathname.startsWith(item.href.replace('/admin', '') + '/')
+                    {baseNavigation.map((item) => {
+                        const href = getHref(item.basePath)
+                        // Check if current path matches this nav item
+                        const isActive = pathname === href ||
+                            pathname.startsWith(href + '/') ||
+                            pathname === item.basePath ||
+                            pathname.startsWith(item.basePath + '/')
                         return (
                             <Link
                                 key={item.name}
-                                href={item.href}
+                                href={href}
                                 className={cn(
                                     "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all",
                                     isActive
