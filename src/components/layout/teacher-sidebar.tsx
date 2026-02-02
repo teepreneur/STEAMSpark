@@ -17,6 +17,7 @@ import {
     Medal,
     ClipboardCheck,
     UserPlus,
+    LifeBuoy,
 } from "lucide-react"
 import { Logo } from "@/components/ui/logo"
 import { LogoutButton } from "@/components/auth/logout-button"
@@ -68,6 +69,7 @@ const sidebarItems: SidebarItem[] = [
     { icon: Users, label: "Students", href: "/teacher/students" },
     { icon: Ticket, label: "My Gigs", href: "/teacher/gigs" },
     { icon: DollarSign, label: "Earnings", href: "/teacher/earnings" },
+    { icon: LifeBuoy, label: "Support", href: "/teacher/support" },
     { icon: Settings, label: "Settings", href: "/teacher/settings" },
 ]
 
