@@ -11,13 +11,13 @@ CREATE TABLE IF NOT EXISTS support_chats (
 CREATE TABLE IF NOT EXISTS support_messages (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     chat_id UUID REFERENCES support_chats(id) ON DELETE CASCADE NOT NULL,
-    sender_id UUID REFERENCES auth.users(id), -- Nullable for system messages if needed, but usually user or admin
+    sender_id UUID REFERENCES auth.users(id),
     content TEXT NOT NULL,
     is_bot BOOLEAN DEFAULT false,
     created_at TIMESTAMPTZ DEFAULT now()
 );
 
--- Create admin_settings table for presence
+-- Create admin_settings table
 CREATE TABLE IF NOT EXISTS admin_settings (
     key TEXT PRIMARY KEY,
     value JSONB NOT NULL,
@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS admin_settings (
     updated_by UUID REFERENCES auth.users(id)
 );
 
--- Insert default presence setting
+-- Insert default setting
 INSERT INTO admin_settings (key, value)
 VALUES ('is_support_online', 'true'::jsonb)
 ON CONFLICT (key) DO NOTHING;
@@ -35,52 +35,39 @@ ALTER TABLE support_chats ENABLE ROW LEVEL SECURITY;
 ALTER TABLE support_messages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE admin_settings ENABLE ROW LEVEL SECURITY;
 
--- Policies for support_chats
-CREATE POLICY "Users can view own chats" ON support_chats
-    FOR SELECT USING (auth.uid() = user_id);
+-- Drop existing policies to avoid conflicts
+DROP POLICY IF EXISTS "Users can view own chats" ON support_chats;
+DROP POLICY IF EXISTS "Users can create own chats" ON support_chats;
+DROP POLICY IF EXISTS "Admins can view all chats" ON support_chats;
+DROP POLICY IF EXISTS "Admins can update all chats" ON support_chats;
 
-CREATE POLICY "Users can create own chats" ON support_chats
-    FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can view messages in own chats" ON support_messages;
+DROP POLICY IF EXISTS "Users can send messages to own chats" ON support_messages;
+DROP POLICY IF EXISTS "Admins can view all messages" ON support_messages;
+DROP POLICY IF EXISTS "Admins can send messages" ON support_messages;
 
-CREATE POLICY "Admins can view all chats" ON support_chats
-    FOR SELECT USING (is_admin());
+DROP POLICY IF EXISTS "Everyone can read support status" ON admin_settings;
+DROP POLICY IF EXISTS "Admins can update settings" ON admin_settings;
 
-CREATE POLICY "Admins can update all chats" ON support_chats
-    FOR UPDATE USING (is_admin());
+-- Re-create Policies
+CREATE POLICY "Users can view own chats" ON support_chats FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can create own chats" ON support_chats FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Admins can view all chats" ON support_chats FOR SELECT USING (is_admin());
+CREATE POLICY "Admins can update all chats" ON support_chats FOR UPDATE USING (is_admin());
 
--- Policies for support_messages
-CREATE POLICY "Users can view messages in own chats" ON support_messages
-    FOR SELECT USING (
-        EXISTS (
-            SELECT 1 FROM support_chats
-            WHERE support_chats.id = support_messages.chat_id
-            AND support_chats.user_id = auth.uid()
-        )
-    );
+CREATE POLICY "Users can view messages in own chats" ON support_messages FOR SELECT USING (
+    EXISTS (SELECT 1 FROM support_chats WHERE support_chats.id = support_messages.chat_id AND support_chats.user_id = auth.uid())
+);
+CREATE POLICY "Users can send messages to own chats" ON support_messages FOR INSERT WITH CHECK (
+    EXISTS (SELECT 1 FROM support_chats WHERE support_chats.id = support_messages.chat_id AND support_chats.user_id = auth.uid())
+);
+CREATE POLICY "Admins can view all messages" ON support_messages FOR SELECT USING (is_admin());
+CREATE POLICY "Admins can send messages" ON support_messages FOR INSERT WITH CHECK (is_admin());
 
-CREATE POLICY "Users can send messages to own chats" ON support_messages
-    FOR INSERT WITH CHECK (
-        EXISTS (
-            SELECT 1 FROM support_chats
-            WHERE support_chats.id = support_messages.chat_id
-            AND support_chats.user_id = auth.uid()
-        )
-    );
+CREATE POLICY "Everyone can read support status" ON admin_settings FOR SELECT USING (key = 'is_support_online');
+CREATE POLICY "Admins can update settings" ON admin_settings FOR ALL USING (is_admin());
 
-CREATE POLICY "Admins can view all messages" ON support_messages
-    FOR SELECT USING (is_admin());
-
-CREATE POLICY "Admins can send messages" ON support_messages
-    FOR INSERT WITH CHECK (is_admin());
-
--- Policies for admin_settings
-CREATE POLICY "Everyone can read support status" ON admin_settings
-    FOR SELECT USING (key = 'is_support_online');
-
-CREATE POLICY "Admins can update settings" ON admin_settings
-    FOR ALL USING (is_admin());
-
--- Grant access
+-- Grants
 GRANT SELECT, INSERT, UPDATE ON support_chats TO authenticated;
 GRANT SELECT, INSERT ON support_messages TO authenticated;
 GRANT SELECT ON admin_settings TO authenticated;

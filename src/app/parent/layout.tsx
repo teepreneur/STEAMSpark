@@ -1,5 +1,6 @@
 import { ParentHeader } from "@/components/layout/parent-header";
 import { LiveNotifications } from "@/components/notifications/live-notifications";
+import { SupportWidget } from "@/components/support/support-widget";
 
 export default function ParentLayout({
     children,
@@ -15,7 +16,7 @@ export default function ParentLayout({
                     {children}
                 </div>
             </main>
+            <SupportWidget />
         </div>
     );
 }
-

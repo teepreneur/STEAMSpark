@@ -49,7 +49,6 @@ const navItems = [
     { label: "Tutors", href: "/parent/tutors" },
     { label: "Roadmaps", href: "/parent/roadmaps" },
     { label: "Messages", href: "/parent/messages" },
-    { label: "Support", href: "/parent/support" },
 ]
 
 export function ParentHeader() {

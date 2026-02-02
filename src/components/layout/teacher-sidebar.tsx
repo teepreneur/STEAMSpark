@@ -69,7 +69,6 @@ const sidebarItems: SidebarItem[] = [
     { icon: Users, label: "Students", href: "/teacher/students" },
     { icon: Ticket, label: "My Gigs", href: "/teacher/gigs" },
     { icon: DollarSign, label: "Earnings", href: "/teacher/earnings" },
-    { icon: LifeBuoy, label: "Support", href: "/teacher/support" },
     { icon: Settings, label: "Settings", href: "/teacher/settings" },
 ]
 

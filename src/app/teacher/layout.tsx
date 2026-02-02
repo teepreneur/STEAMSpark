@@ -1,6 +1,7 @@
 import { TeacherSidebar } from "@/components/layout/teacher-sidebar";
 import { TeacherMobileNav } from "@/components/layout/teacher-mobile-nav";
 import { LiveNotifications } from "@/components/notifications/live-notifications";
+import { SupportWidget } from "@/components/support/support-widget";
 
 export default function TeacherLayout({
     children,
@@ -20,6 +21,7 @@ export default function TeacherLayout({
                     {children}
                 </main>
             </div>
+            <SupportWidget />
         </div>
     );
 }
