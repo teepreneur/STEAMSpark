@@ -10,6 +10,7 @@ import {
     LifeBuoy, Loader2, Clock, CheckCircle, AlertCircle, User
 } from "lucide-react"
 import { format, parseISO } from "date-fns"
+import Link from "next/link"
 
 interface Ticket {
     id: string
@@ -127,8 +128,10 @@ function TicketsContent() {
                                             </span>
                                         </div>
                                     </div>
-                                    <Button size="sm" variant="outline">
-                                        View
+                                    <Button asChild size="sm" variant="outline">
+                                        <Link href={`/admin/support/tickets/${ticket.id}`}>
+                                            View
+                                        </Link>
                                     </Button>
                                 </div>
                             </div>
