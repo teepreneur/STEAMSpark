@@ -1,10 +1,10 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Loader2, ShieldCheck, AlertCircle } from "lucide-react"
+import { Loader2, ShieldCheck, AlertCircle, Eye, EyeOff } from "lucide-react"
 import { useRouter } from "next/navigation"
 
 export default function AdminLoginPage() {
@@ -13,8 +13,27 @@ export default function AdminLoginPage() {
 
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
+    const [showPassword, setShowPassword] = useState(false)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState("")
+    const hidePasswordTimeout = useRef<NodeJS.Timeout | null>(null)
+
+    // Auto-hide password after 3 seconds of no typing
+    useEffect(() => {
+        if (showPassword) {
+            if (hidePasswordTimeout.current) {
+                clearTimeout(hidePasswordTimeout.current)
+            }
+            hidePasswordTimeout.current = setTimeout(() => {
+                setShowPassword(false)
+            }, 3000)
+        }
+        return () => {
+            if (hidePasswordTimeout.current) {
+                clearTimeout(hidePasswordTimeout.current)
+            }
+        }
+    }, [showPassword, password])
 
     async function handleLogin(e: React.FormEvent) {
         e.preventDefault()
@@ -48,8 +67,8 @@ export default function AdminLoginPage() {
             return
         }
 
-        // Redirect to admin dashboard
-        router.push('/admin/dashboard')
+        // Redirect to admin dashboard using window.location for reliable redirect
+        window.location.href = '/admin/dashboard'
     }
 
     return (
@@ -84,14 +103,23 @@ export default function AdminLoginPage() {
                             <label className="block text-sm font-medium mb-2 text-slate-700 dark:text-slate-300">
                                 Password
                             </label>
-                            <Input
-                                type="password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                placeholder="••••••••"
-                                required
-                                className="w-full"
-                            />
+                            <div className="relative">
+                                <Input
+                                    type={showPassword ? "text" : "password"}
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    placeholder="••••••••"
+                                    required
+                                    className="w-full pr-10"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                                >
+                                    {showPassword ? <EyeOff className="size-5" /> : <Eye className="size-5" />}
+                                </button>
+                            </div>
                         </div>
 
                         {error && (

@@ -20,7 +20,17 @@ export async function middleware(request: NextRequest) {
 
     // ========== ADMIN SUBDOMAIN HANDLING ==========
     if (isAdminDomain) {
-        // For admin, create supabase client first
+        // For static assets and API routes, skip auth entirely
+        if (pathname.startsWith('/_next') || pathname.startsWith('/api') || pathname.includes('.')) {
+            return NextResponse.next({ request })
+        }
+
+        // For login page, skip expensive auth checks
+        if (pathname === '/admin/login') {
+            return NextResponse.next({ request })
+        }
+
+        // For all other admin routes, check auth
         let response = NextResponse.next({
             request: { headers: request.headers },
         })
@@ -47,25 +57,6 @@ export async function middleware(request: NextRequest) {
         )
 
         const { data: { user } } = await supabase.auth.getUser()
-
-        // Allow access to admin login page without auth
-        if (pathname === '/admin/login' || pathname.startsWith('/_next') || pathname.startsWith('/api')) {
-            // If logged in admin tries to access login, redirect to admin dashboard
-            if (user && pathname === '/admin/login') {
-                const { data: profile } = await supabase
-                    .from('profiles')
-                    .select('role')
-                    .eq('id', user.id)
-                    .single()
-
-                if (profile?.role === 'admin') {
-                    const url = request.nextUrl.clone()
-                    url.pathname = '/admin/dashboard'
-                    return NextResponse.rewrite(url)
-                }
-            }
-            return response
-        }
 
         // If not logged in, redirect to admin login
         if (!user) {

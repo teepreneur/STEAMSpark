@@ -31,7 +31,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     const [sidebarOpen, setSidebarOpen] = useState(true)
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
+    // Skip layout for login and unauthorized pages
+    const isAuthPage = pathname === '/admin/login' || pathname === '/admin/unauthorized'
+
     useEffect(() => {
+        // Don't check auth for login/unauthorized pages
+        if (isAuthPage) return
+
         async function loadAdmin() {
             const { data: { user } } = await supabase.auth.getUser()
             if (user) {
@@ -49,11 +55,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             }
         }
         loadAdmin()
-    }, [supabase, router])
+    }, [supabase, router, isAuthPage, pathname])
 
     async function handleLogout() {
         await supabase.auth.signOut()
-        router.push('/login')
+        router.push('/admin/login')
+    }
+
+    // For auth pages, render without sidebar
+    if (isAuthPage) {
+        return <>{children}</>
     }
 
     return (
