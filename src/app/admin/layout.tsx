@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
@@ -11,8 +11,9 @@ import {
     LogOut, ChevronLeft, Menu, Shield, Bell
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useAdminPaths } from "@/lib/admin-paths"
 
-const navigation = [
+const baseNavigation = [
     { name: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
     { name: "Teachers", href: "/admin/users/teachers", icon: GraduationCap },
     { name: "Parents", href: "/admin/users/parents", icon: Users },
@@ -30,6 +31,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     const [admin, setAdmin] = useState<{ full_name: string | null; email: string | null } | null>(null)
     const [sidebarOpen, setSidebarOpen] = useState(true)
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+    const { getPath, isAdminSubdomain } = useAdminPaths()
+
+    // Transform navigation paths based on environment
+    const navigation = useMemo(() =>
+        baseNavigation.map(item => ({ ...item, href: getPath(item.href) })),
+        [getPath, isAdminSubdomain]
+    )
 
 
     // Skip layout for login and unauthorized pages
@@ -106,7 +114,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 {/* Navigation */}
                 <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
                     {navigation.map((item) => {
-                        const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
+                        const itemPath = item.href
+                        const isActive = pathname === itemPath || pathname.startsWith(itemPath + '/') ||
+                            pathname === item.href.replace('/admin', '') || pathname.startsWith(item.href.replace('/admin', '') + '/')
                         return (
                             <Link
                                 key={item.name}

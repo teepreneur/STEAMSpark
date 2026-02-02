@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useMemo } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -11,6 +11,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { format, parseISO, subDays } from "date-fns"
+import { useAdminPaths } from "@/lib/admin-paths"
 
 interface DashboardStats {
     totalTeachers: number
@@ -31,6 +32,7 @@ interface RecentActivity {
 
 export default function AdminDashboardPage() {
     const supabase = createClient()
+    const { getPath } = useAdminPaths()
     const [loading, setLoading] = useState(true)
     const [stats, setStats] = useState<DashboardStats>({
         totalTeachers: 0,
@@ -146,14 +148,14 @@ export default function AdminDashboardPage() {
         )
     }
 
-    const statCards = [
-        { label: "Total Teachers", value: stats.totalTeachers, icon: GraduationCap, color: "bg-blue-500", href: "/admin/users/teachers" },
-        { label: "Total Parents", value: stats.totalParents, icon: Users, color: "bg-green-500", href: "/admin/users/parents" },
-        { label: "Pending Verifications", value: stats.pendingVerifications, icon: Clock, color: "bg-orange-500", href: "/admin/users/teachers?filter=unverified" },
-        { label: "Active Bookings", value: stats.activeBookings, icon: BookOpen, color: "bg-purple-500", href: "/admin/bookings" },
-        { label: "Total Revenue", value: `GHS ${stats.totalRevenue.toLocaleString()}`, icon: DollarSign, color: "bg-emerald-500", href: "/admin/finance" },
-        { label: "Open Tickets", value: stats.pendingTickets, icon: AlertCircle, color: "bg-red-500", href: "/admin/support/tickets" },
-    ]
+    const statCards = useMemo(() => [
+        { label: "Total Teachers", value: stats.totalTeachers, icon: GraduationCap, color: "bg-blue-500", href: getPath("/admin/users/teachers") },
+        { label: "Total Parents", value: stats.totalParents, icon: Users, color: "bg-green-500", href: getPath("/admin/users/parents") },
+        { label: "Pending Verifications", value: stats.pendingVerifications, icon: Clock, color: "bg-orange-500", href: getPath("/admin/users/teachers?filter=unverified") },
+        { label: "Active Bookings", value: stats.activeBookings, icon: BookOpen, color: "bg-purple-500", href: getPath("/admin/bookings") },
+        { label: "Total Revenue", value: `GHS ${stats.totalRevenue.toLocaleString()}`, icon: DollarSign, color: "bg-emerald-500", href: getPath("/admin/finance") },
+        { label: "Open Tickets", value: stats.pendingTickets, icon: AlertCircle, color: "bg-red-500", href: getPath("/admin/support/tickets") },
+    ], [stats, getPath])
 
     return (
         <div className="space-y-8">
@@ -196,19 +198,19 @@ export default function AdminDashboardPage() {
                     <h2 className="font-bold text-lg mb-4">Quick Actions</h2>
                     <div className="space-y-3">
                         <Button asChild className="w-full justify-start gap-3" variant="outline">
-                            <Link href="/admin/users/teachers?filter=unverified">
+                            <Link href={getPath("/admin/users/teachers?filter=unverified")}>
                                 <Clock className="size-4" />
                                 Review Pending Verifications ({stats.pendingVerifications})
                             </Link>
                         </Button>
                         <Button asChild className="w-full justify-start gap-3" variant="outline">
-                            <Link href="/admin/bookings?status=pending">
+                            <Link href={getPath("/admin/bookings?status=pending")}>
                                 <BookOpen className="size-4" />
                                 View Pending Bookings
                             </Link>
                         </Button>
                         <Button asChild className="w-full justify-start gap-3" variant="outline">
-                            <Link href="/admin/support/tickets?status=open">
+                            <Link href={getPath("/admin/support/tickets?status=open")}>
                                 <AlertCircle className="size-4" />
                                 Handle Open Tickets ({stats.pendingTickets})
                             </Link>

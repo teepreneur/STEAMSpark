@@ -10,6 +10,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { format, parseISO } from "date-fns"
+import { useAdminPaths } from "@/lib/admin-paths"
 
 interface Parent {
     id: string
@@ -25,6 +26,7 @@ interface Parent {
 
 export default function ParentsPage() {
     const supabase = createClient()
+    const { getPath } = useAdminPaths()
 
     const [loading, setLoading] = useState(true)
     const [parents, setParents] = useState<Parent[]>([])
@@ -162,7 +164,7 @@ export default function ParentsPage() {
                                     </td>
                                     <td className="py-3 px-4">
                                         <Button asChild size="sm" variant="ghost">
-                                            <Link href={`/admin/users/parents/${parent.id}`}>
+                                            <Link href={getPath(`/admin/users/parents/${parent.id}`)}>
                                                 <Eye className="size-4 mr-1" />
                                                 View
                                             </Link>
