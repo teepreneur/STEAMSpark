@@ -4,10 +4,19 @@
  * Admin path helper - returns correct paths for both localhost and admin subdomain
  * On localhost: returns /admin/... paths
  * On admin subdomain: returns /... paths (without /admin prefix)
+ * 
+ * This uses a simple check that works during hydration to avoid mismatches.
  */
+
+function checkIsAdminSubdomain(): boolean {
+    if (typeof window === 'undefined') return false
+    const hostname = window.location.hostname
+    return hostname.includes('admin.') || hostname.startsWith('admin.')
+}
+
 export function useAdminPaths() {
-    const isAdminSubdomain = typeof window !== 'undefined' &&
-        (window.location.hostname.includes('admin.') || window.location.hostname.startsWith('admin.'))
+    // Check on every call - this is stable and works with SSR
+    const isAdminSubdomain = checkIsAdminSubdomain()
 
     const getPath = (path: string): string => {
         if (isAdminSubdomain) {
