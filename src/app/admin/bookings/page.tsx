@@ -98,7 +98,7 @@ function BookingsContent() {
             setLoading(false)
         }
         loadBookings()
-    }, [supabase])
+    }, [])
 
     const filteredBookings = bookings.filter(b => {
         const matchesSearch = !searchQuery ||

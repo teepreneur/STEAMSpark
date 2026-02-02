@@ -97,7 +97,7 @@ function TeachersContent() {
             setLoading(false)
         }
         loadTeachers()
-    }, [supabase])
+    }, [])
 
     // Filter teachers
     const filteredTeachers = teachers.filter(t => {

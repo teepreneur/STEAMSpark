@@ -113,7 +113,7 @@ export default function TeacherDetailPage({ params }: { params: Promise<{ id: st
             setLoading(false)
         }
         loadTeacher()
-    }, [id, supabase, router])
+    }, [id, router])
 
     async function handleVerify() {
         if (!teacher) return

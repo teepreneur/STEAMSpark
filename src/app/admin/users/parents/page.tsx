@@ -72,7 +72,7 @@ export default function ParentsPage() {
             setLoading(false)
         }
         loadParents()
-    }, [supabase])
+    }, [])
 
     const filteredParents = parents.filter(p =>
         !searchQuery ||

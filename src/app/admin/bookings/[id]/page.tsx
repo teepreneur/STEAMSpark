@@ -98,7 +98,7 @@ export default function BookingDetailPage({ params }: { params: Promise<{ id: st
             setLoading(false)
         }
         loadBooking()
-    }, [id, supabase, router])
+    }, [id, router])
 
     async function updateStatus(newStatus: string) {
         if (!booking) return

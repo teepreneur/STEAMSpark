@@ -45,7 +45,7 @@ export default function FinancePage() {
             setLoading(false)
         }
         loadFinance()
-    }, [supabase])
+    }, [])
 
     if (loading) {
         return (

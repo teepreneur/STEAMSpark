@@ -65,7 +65,7 @@ function TicketsContent() {
             setLoading(false)
         }
         loadTickets()
-    }, [supabase, statusFilter])
+    }, [statusFilter])
 
     const getStatusBadge = (status: string | null) => {
         switch (status) {
