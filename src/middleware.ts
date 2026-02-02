@@ -26,7 +26,9 @@ export async function middleware(request: NextRequest) {
         }
 
         // For login page, skip expensive auth checks
-        if (pathname === '/admin/login') {
+        // On admin subdomain, /login becomes the login page (not /admin/login)
+        // Also skip for root / which shows login
+        if (pathname === '/login' || pathname === '/admin/login' || pathname === '/') {
             return NextResponse.next({ request })
         }
 
