@@ -52,98 +52,111 @@ export default function AdminDashboardPage() {
     useEffect(() => {
         async function loadDashboard() {
             setLoading(true)
+            console.log("Dashboard v2.0 Loading...")
 
-            // Get teacher count
-            const { count: teacherCount } = await supabase
-                .from('profiles')
-                .select('*', { count: 'exact', head: true })
-                .eq('role', 'teacher')
+            try {
+                // Get teacher count
+                const { count: teacherCount } = await supabase
+                    .from('profiles')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('role', 'teacher')
 
-            // Get parent count
-            const { count: parentCount } = await supabase
-                .from('profiles')
-                .select('*', { count: 'exact', head: true })
-                .eq('role', 'parent')
+                // Get parent count
+                const { count: parentCount } = await supabase
+                    .from('profiles')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('role', 'parent')
 
-            // Get pending verifications (teachers without verified_at)
-            const { count: pendingCount } = await supabase
-                .from('profiles')
-                .select('*', { count: 'exact', head: true })
-                .eq('role', 'teacher')
-                .is('verified_at', null)
+                // Get active bookings
+                const { count: bookingCount } = await supabase
+                    .from('bookings')
+                    .select('*', { count: 'exact', head: true })
+                    .in('status', ['pending', 'pending_payment', 'confirmed'])
 
-            // Get active bookings
-            const { count: bookingCount } = await supabase
-                .from('bookings')
-                .select('*', { count: 'exact', head: true })
-                .in('status', ['pending', 'pending_payment', 'confirmed'])
+                // Get total revenue from payments
+                const { data: payments } = await supabase
+                    .from('payments')
+                    .select('amount')
+                    .eq('status', 'completed')
 
-            // Get total revenue from payments
-            const { data: payments } = await supabase
-                .from('payments')
-                .select('amount')
-                .eq('status', 'completed')
+                const totalRevenue = payments?.reduce((sum, p) => sum + (p.amount || 0), 0) || 0
 
-            const totalRevenue = payments?.reduce((sum, p) => sum + (p.amount || 0), 0) || 0
+                // Get open support tickets
+                const { count: ticketCount } = await supabase
+                    .from('support_tickets')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('status', 'open')
 
-            // Get open support tickets
-            const { count: ticketCount } = await supabase
-                .from('support_tickets')
-                .select('*', { count: 'exact', head: true })
-                .eq('status', 'open')
+                // Try to get pending verifications (might fail if column missing)
+                let pendingCount = 0
+                try {
+                    const { count } = await supabase
+                        .from('profiles')
+                        .select('*', { count: 'exact', head: true })
+                        .eq('role', 'teacher')
+                        .is('verified_at', null)
+                    pendingCount = count || 0
+                } catch (e) {
+                    console.warn("Failed to fetch pending verifications", e)
+                }
 
-            setStats({
-                totalTeachers: teacherCount || 0,
-                totalParents: parentCount || 0,
-                pendingVerifications: pendingCount || 0,
-                activeBookings: bookingCount || 0,
-                totalRevenue,
-                pendingTickets: ticketCount || 0
-            })
+                setStats({
+                    totalTeachers: teacherCount || 0,
+                    totalParents: parentCount || 0,
+                    pendingVerifications: pendingCount || 0,
+                    activeBookings: bookingCount || 0,
+                    totalRevenue,
+                    pendingTickets: ticketCount || 0
+                })
 
-            // Get recent activity
-            const sevenDaysAgo = subDays(new Date(), 7).toISOString()
+                // Get recent activity
+                const sevenDaysAgo = subDays(new Date(), 7).toISOString()
 
-            // Recent signups
-            const { data: recentSignups } = await supabase
-                .from('profiles')
-                .select('id, full_name, role, created_at')
-                .gte('created_at', sevenDaysAgo)
-                .order('created_at', { ascending: false })
-                .limit(5)
+                // Recent signups
+                const { data: recentSignups } = await supabase
+                    .from('profiles')
+                    .select('id, full_name, role, created_at')
+                    .gte('created_at', sevenDaysAgo)
+                    .order('created_at', { ascending: false })
+                    .limit(5)
 
-            // Recent bookings
-            const { data: recentBookings } = await supabase
-                .from('bookings')
-                .select(`
-                    id, created_at,
-                    gig:gigs(title),
-                    parent:profiles!bookings_parent_id_fkey(full_name)
-                `)
-                .gte('created_at', sevenDaysAgo)
-                .order('created_at', { ascending: false })
-                .limit(5)
+                // Recent bookings
+                const { data: recentBookings } = await supabase
+                    .from('bookings')
+                    .select(`
+                        id, created_at,
+                        gig:gigs(title),
+                        parent:profiles!bookings_parent_id_fkey(full_name)
+                    `)
+                    .gte('created_at', sevenDaysAgo)
+                    .order('created_at', { ascending: false })
+                    .limit(5)
 
-            const activities: RecentActivity[] = [
-                ...(recentSignups || []).map(s => ({
-                    id: `signup-${s.id}`,
-                    type: 'signup' as const,
-                    title: `New ${s.role} registered`,
-                    description: s.full_name || 'Unnamed user',
-                    created_at: s.created_at
-                })),
-                ...(recentBookings || []).map((b: any) => ({
-                    id: `booking-${b.id}`,
-                    type: 'booking' as const,
-                    title: 'New booking',
-                    description: `${b.parent?.full_name || 'A parent'} booked ${b.gig?.title || 'a course'}`,
-                    created_at: b.created_at
-                }))
-            ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-                .slice(0, 8)
+                const activities: RecentActivity[] = [
+                    ...(recentSignups || []).map(s => ({
+                        id: `signup-${s.id}`,
+                        type: 'signup' as const,
+                        title: `New ${s.role} registered`,
+                        description: s.full_name || 'Unnamed user',
+                        created_at: s.created_at
+                    })),
+                    ...(recentBookings || []).map((b: any) => ({
+                        id: `booking-${b.id}`,
+                        type: 'booking' as const,
+                        title: 'New booking',
+                        description: `${b.parent?.full_name || 'A parent'} booked ${b.gig?.title || 'a course'}`,
+                        created_at: b.created_at
+                    }))
+                ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+                    .slice(0, 8)
 
-            setRecentActivity(activities)
-            setLoading(false)
+                setRecentActivity(activities)
+
+            } catch (error) {
+                console.error("Dashboard load error:", error)
+            } finally {
+                setLoading(false)
+            }
         }
         loadDashboard()
     }, [supabase])

@@ -36,6 +36,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     const isAdminSubdomain = typeof window !== 'undefined' &&
         (window.location.hostname.includes('admin.') || window.location.hostname.startsWith('admin.'))
 
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            console.log("Admin Layout v2.0 Loaded", { isAdminSubdomain, pathname })
+        }
+    }, [isAdminSubdomain, pathname])
+
     // Get the correct path for this environment
     const getHref = (basePath: string) => {
         if (isAdminSubdomain) {

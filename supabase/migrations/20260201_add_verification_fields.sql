@@ -5,6 +5,7 @@
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS cv_url TEXT;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS id_url TEXT;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS photo_url TEXT;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS verified_at TIMESTAMPTZ;
 
 -- 2. Add location and teaching preference fields (if they don't exist yet)
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS class_mode TEXT DEFAULT 'online';
