@@ -106,7 +106,7 @@ function ParentMessagesContent() {
                             .eq('conversation_id', c.id)
                             .order('created_at', { ascending: false })
                             .limit(1)
-                            .single()
+                            .maybeSingle()
 
                         const { count } = await supabase
                             .from('messages')
