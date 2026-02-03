@@ -30,12 +30,30 @@ INSERT INTO admin_settings (key, value)
 VALUES ('is_support_online', 'true'::jsonb)
 ON CONFLICT (key) DO NOTHING;
 
--- Enable RLS
+-- Ensure columns exist (in case table was created previously without them)
+ALTER TABLE support_chats ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT now();
+ALTER TABLE support_chats ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'closed'));
+
+ALTER TABLE support_messages ADD COLUMN IF NOT EXISTS is_bot BOOLEAN DEFAULT false;
+
+-- Fix RLS infinite recursion issue (Inline definition for safety)
+CREATE OR REPLACE FUNCTION is_admin()
+RETURNS BOOLEAN AS $$
+BEGIN
+    RETURN EXISTS (
+        SELECT 1 FROM profiles 
+        WHERE id = auth.uid() 
+        AND role = 'admin'
+    );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Re-enable RLS
 ALTER TABLE support_chats ENABLE ROW LEVEL SECURITY;
 ALTER TABLE support_messages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE admin_settings ENABLE ROW LEVEL SECURITY;
 
--- Drop existing policies to avoid conflicts
+-- Drop existing policies
 DROP POLICY IF EXISTS "Users can view own chats" ON support_chats;
 DROP POLICY IF EXISTS "Users can create own chats" ON support_chats;
 DROP POLICY IF EXISTS "Admins can view all chats" ON support_chats;
@@ -70,5 +88,5 @@ CREATE POLICY "Admins can update settings" ON admin_settings FOR ALL USING (is_a
 -- Grants
 GRANT SELECT, INSERT, UPDATE ON support_chats TO authenticated;
 GRANT SELECT, INSERT ON support_messages TO authenticated;
-GRANT SELECT ON admin_settings TO authenticated;
+GRANT SELECT, INSERT, UPDATE ON admin_settings TO authenticated;
 GRANT ALL ON admin_settings TO service_role;
