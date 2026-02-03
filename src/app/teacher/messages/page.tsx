@@ -109,8 +109,8 @@ function TeacherMessagesContent() {
                 )
                 setConversations(enrichedConvos)
 
-                // Auto-select conversation if parent ID in URL
-                if (parentIdFromUrl) {
+                // Auto-select conversation if parent ID in URL (and it's valid)
+                if (parentIdFromUrl && parentIdFromUrl !== 'undefined' && parentIdFromUrl !== 'null') {
                     const existingConvo = enrichedConvos.find(c => c.parent_id === parentIdFromUrl)
                     if (existingConvo) {
                         setSelectedConversation(existingConvo)
@@ -129,6 +129,35 @@ function TeacherMessagesContent() {
     }, [supabase, parentIdFromUrl])
 
     async function createConversation(parentId: string, teacherId: string) {
+        // First, check if conversation already exists (handle unique constraint)
+        const { data: existing } = await supabase
+            .from('conversations')
+            .select(`
+                id,
+                parent_id,
+                last_message_at,
+                parent:profiles!conversations_parent_id_fkey(id, full_name, email, avatar_url)
+            `)
+            .eq('teacher_id', teacherId)
+            .eq('parent_id', parentId)
+            .single()
+
+        if (existing) {
+            const convo = {
+                ...existing,
+                parent: existing.parent as any,
+                last_message: undefined,
+                unread_count: 0
+            }
+            // Add to list if not already there
+            if (!conversations.find(c => c.id === existing.id)) {
+                setConversations([convo, ...conversations])
+            }
+            setSelectedConversation(convo)
+            return
+        }
+
+        // Create new conversation
         const { data: newConvo, error } = await supabase
             .from('conversations')
             .insert({ teacher_id: teacherId, parent_id: parentId })
@@ -140,7 +169,12 @@ function TeacherMessagesContent() {
             `)
             .single()
 
-        if (newConvo && !error) {
+        if (error) {
+            console.error('Error creating conversation:', error)
+            return
+        }
+
+        if (newConvo) {
             const convo = {
                 ...newConvo,
                 parent: newConvo.parent as any,
