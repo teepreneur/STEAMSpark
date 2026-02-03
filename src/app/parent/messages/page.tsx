@@ -50,6 +50,7 @@ function ParentMessagesContent() {
     const supabase = createClient()
     const searchParams = useSearchParams()
     const sharedText = searchParams.get('text')
+    const teacherIdFromUrl = searchParams.get('teacher')
 
     const [loading, setLoading] = useState(true)
     const [sending, setSending] = useState(false)
@@ -124,7 +125,16 @@ function ParentMessagesContent() {
                 )
                 setConversations(enrichedConvos)
 
-                if (enrichedConvos.length > 0) {
+                // Auto-select conversation if teacher ID in URL
+                if (teacherIdFromUrl) {
+                    const existingConvo = enrichedConvos.find(c => c.teacher_id === teacherIdFromUrl)
+                    if (existingConvo) {
+                        setSelectedConversation(existingConvo)
+                    } else {
+                        // Create new conversation with this teacher
+                        await createConversation(teacherIdFromUrl, user.id)
+                    }
+                } else if (enrichedConvos.length > 0) {
                     setSelectedConversation(enrichedConvos[0])
                 }
             }
@@ -132,7 +142,31 @@ function ParentMessagesContent() {
             setLoading(false)
         }
         loadConversations()
-    }, [supabase])
+    }, [supabase, teacherIdFromUrl])
+
+    async function createConversation(teacherId: string, parentId: string) {
+        const { data: newConvo, error } = await supabase
+            .from('conversations')
+            .insert({ teacher_id: teacherId, parent_id: parentId })
+            .select(`
+                id,
+                teacher_id,
+                last_message_at,
+                teacher:profiles!conversations_teacher_id_fkey(id, full_name, email, avatar_url, subjects)
+            `)
+            .single()
+
+        if (newConvo && !error) {
+            const convo = {
+                ...newConvo,
+                teacher: newConvo.teacher as any,
+                last_message: undefined,
+                unread_count: 0
+            }
+            setConversations([convo, ...conversations])
+            setSelectedConversation(convo)
+        }
+    }
 
     // Load messages and subscribe to real-time updates when conversation selected
     useEffect(() => {
