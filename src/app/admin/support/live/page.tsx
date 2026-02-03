@@ -81,11 +81,10 @@ export default function AdminLiveSupportPage() {
         loadDashboard()
     }, [])
 
-    // Realtime Subscriptions
+    // 1. Static Subscription (Chat List) - Runs once
     useEffect(() => {
-        // Chat List Updates
         const chatChannel = supabase
-            .channel('admin-chats')
+            .channel('admin-chats-list')
             .on(
                 'postgres_changes',
                 { event: '*', schema: 'public', table: 'support_chats' },
@@ -93,25 +92,28 @@ export default function AdminLiveSupportPage() {
             )
             .subscribe()
 
-        // Message Updates for Selected Chat
-        let messageChannel: any = null;
-        if (selectedChatId) {
-            messageChannel = supabase
-                .channel(`admin-chat:${selectedChatId}`)
-                .on(
-                    'postgres_changes',
-                    { event: 'INSERT', schema: 'public', table: 'support_messages', filter: `chat_id=eq.${selectedChatId}` },
-                    (payload) => {
-                        setMessages(prev => [...prev, payload.new as Message])
-                        // Assuming fetchChats will update last message preview eventually, or we could optimistic update
-                    }
-                )
-                .subscribe()
-        }
-
         return () => {
             supabase.removeChannel(chatChannel)
-            if (messageChannel) supabase.removeChannel(messageChannel)
+        }
+    }, [])
+
+    // 2. Dynamic Subscription (Selected Chat Messages) - Runs on selection change
+    useEffect(() => {
+        if (!selectedChatId) return
+
+        const messageChannel = supabase
+            .channel(`admin-chat-messages:${selectedChatId}`)
+            .on(
+                'postgres_changes',
+                { event: 'INSERT', schema: 'public', table: 'support_messages', filter: `chat_id=eq.${selectedChatId}` },
+                (payload) => {
+                    setMessages(prev => [...prev, payload.new as Message])
+                }
+            )
+            .subscribe()
+
+        return () => {
+            supabase.removeChannel(messageChannel)
         }
     }, [selectedChatId])
 
