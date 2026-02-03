@@ -52,6 +52,7 @@ export default function AdminLiveSupportPage() {
     const [sending, setSending] = useState(false)
     const [isOnline, setIsOnline] = useState(false)
     const [adminId, setAdminId] = useState<string | null>(null)
+    const [onlineUsers, setOnlineUsers] = useState<any[]>([])
 
     // Load Initial State
     useEffect(() => {
@@ -116,6 +117,21 @@ export default function AdminLiveSupportPage() {
             supabase.removeChannel(messageChannel)
         }
     }, [selectedChatId])
+
+    // Subscribe to Presence
+    useEffect(() => {
+        const channel = supabase.channel('support_presence')
+
+        channel
+            .on('presence', { event: 'sync' }, () => {
+                const state = channel.presenceState()
+                const users = Object.values(state).flat()
+                setOnlineUsers(users)
+            })
+            .subscribe()
+
+        return () => { supabase.removeChannel(channel) }
+    }, [])
 
     // Scroll chat to bottom
     useEffect(() => {
@@ -228,23 +244,6 @@ export default function AdminLiveSupportPage() {
     }
 
     const selectedChat = chats.find(c => c.id === selectedChatId)
-
-    const [onlineUsers, setOnlineUsers] = useState<any[]>([])
-
-    // Subscribe to Presence
-    useEffect(() => {
-        const channel = supabase.channel('support_presence')
-
-        channel
-            .on('presence', { event: 'sync' }, () => {
-                const state = channel.presenceState()
-                const users = Object.values(state).flat()
-                setOnlineUsers(users)
-            })
-            .subscribe()
-
-        return () => { supabase.removeChannel(channel) }
-    }, [])
 
     return (
         <div className="flex h-[calc(100vh-100px)] gap-6">
