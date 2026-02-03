@@ -29,6 +29,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     const supabase = createClient()
     const router = useRouter()
     const pathname = usePathname()
+
+    // Prevent hydration mismatch items
+    const [mounted, setMounted] = useState(false)
+    useEffect(() => setMounted(true), [])
+
     const [admin, setAdmin] = useState<{ full_name: string | null; email: string | null } | null>(null)
     const [sidebarOpen, setSidebarOpen] = useState(true)
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -91,12 +96,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
     // For auth pages, render without sidebar
     if (isAuthPage) {
+        // If not mounted yet, render null to prevent mismatch
+        if (!mounted) return null
         return <>{children}</>
     }
-
-    // Prevent hydration mismatch by waiting for mount before rendering complex layout
-    const [mounted, setMounted] = useState(false)
-    useEffect(() => setMounted(true), [])
 
     if (!mounted) return null
 
