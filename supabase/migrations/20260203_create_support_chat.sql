@@ -90,3 +90,8 @@ GRANT SELECT, INSERT, UPDATE ON support_chats TO authenticated;
 GRANT SELECT, INSERT ON support_messages TO authenticated;
 GRANT SELECT, INSERT, UPDATE ON admin_settings TO authenticated;
 GRANT ALL ON admin_settings TO service_role;
+
+-- Enable Realtime for these tables
+ALTER PUBLICATION supabase_realtime ADD TABLE support_chats;
+ALTER PUBLICATION supabase_realtime ADD TABLE support_messages;
+ALTER PUBLICATION supabase_realtime ADD TABLE admin_settings;
