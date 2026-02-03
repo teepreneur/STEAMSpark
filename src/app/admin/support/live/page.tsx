@@ -22,6 +22,7 @@ interface Chat {
         full_name: string | null
         avatar_url: string | null
         email: string
+        role: string | null
     }
     last_message?: string
 }
@@ -227,7 +228,7 @@ export default function AdminLiveSupportPage() {
             const userIds = Array.from(new Set(chatsData.map(c => c.user_id)))
             const { data: profilesData } = await supabase
                 .from('profiles')
-                .select('id, full_name, avatar_url, email')
+                .select('id, full_name, avatar_url, email, role')
                 .in('id', userIds)
 
             // 3. Map profiles to chats
@@ -238,7 +239,8 @@ export default function AdminLiveSupportPage() {
                     user: userProfile || {
                         email: 'Unknown User',
                         full_name: 'Unknown',
-                        avatar_url: null
+                        avatar_url: null,
+                        role: null
                     }
                 }
             })
@@ -354,10 +356,22 @@ export default function AdminLiveSupportPage() {
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex items-center justify-between mb-1">
-                                                    <span className={cn("font-medium truncate", unreadCount > 0 && "text-primary")}>
-                                                        {chat.user.full_name || chat.user.email}
-                                                    </span>
-                                                    <span className="text-[10px] text-muted-foreground" suppressHydrationWarning>
+                                                    <div className="flex items-center gap-2 min-w-0">
+                                                        <span className={cn("font-medium truncate", unreadCount > 0 && "text-primary")}>
+                                                            {chat.user.full_name || chat.user.email}
+                                                        </span>
+                                                        {chat.user.role && (
+                                                            <span className={cn(
+                                                                "text-[9px] font-bold uppercase px-1.5 py-0.5 rounded shrink-0",
+                                                                chat.user.role === 'teacher'
+                                                                    ? "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"
+                                                                    : "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400"
+                                                            )}>
+                                                                {chat.user.role}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    <span className="text-[10px] text-muted-foreground shrink-0 ml-2" suppressHydrationWarning>
                                                         {formatDistanceToNow(new Date(chat.updated_at), { addSuffix: true })}
                                                     </span>
                                                 </div>
