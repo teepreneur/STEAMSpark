@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Switch } from "@/components/ui/switch"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Loader2, Send, User, MessageSquare, Power, Search } from "lucide-react"
+import { Loader2, Send, User, MessageSquare, Power, Search, Bell } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
 import { format, formatDistanceToNow } from "date-fns"
@@ -40,6 +40,7 @@ export default function AdminLiveSupportPage() {
     const scrollRef = useRef<HTMLDivElement>(null)
 
     const [loading, setLoading] = useState(true)
+    const [unreadCounts, setUnreadCounts] = useState<Record<string, number>>({})
     const [chats, setChats] = useState<Chat[]>([])
     const [mounted, setMounted] = useState(false)
 
@@ -82,6 +83,29 @@ export default function AdminLiveSupportPage() {
         loadDashboard()
     }, [])
 
+    // Play notification sound using Web Audio API
+    const playNotificationSound = () => {
+        try {
+            const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
+            const oscillator = audioContext.createOscillator()
+            const gainNode = audioContext.createGain()
+
+            oscillator.connect(gainNode)
+            gainNode.connect(audioContext.destination)
+
+            oscillator.frequency.value = 880 // A5 note
+            oscillator.type = 'sine'
+
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime)
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3)
+
+            oscillator.start(audioContext.currentTime)
+            oscillator.stop(audioContext.currentTime + 0.3)
+        } catch (e) {
+            console.log('Audio not supported')
+        }
+    }
+
     // 1. Static Subscription (Chat List) - Runs once
     useEffect(() => {
         const chatChannel = supabase
@@ -97,6 +121,38 @@ export default function AdminLiveSupportPage() {
             supabase.removeChannel(chatChannel)
         }
     }, [])
+
+    // Global Message Subscription for Notifications (all chats)
+    useEffect(() => {
+        const globalMsgChannel = supabase
+            .channel('admin-all-messages')
+            .on(
+                'postgres_changes',
+                { event: 'INSERT', schema: 'public', table: 'support_messages' },
+                (payload) => {
+                    const newMsg = payload.new as Message & { chat_id: string }
+                    // Don't notify for own messages or bot messages
+                    if (newMsg.sender_id === adminId || newMsg.is_bot) return
+
+                    // If it's not the currently selected chat, increment unread
+                    if (newMsg.chat_id !== selectedChatId) {
+                        setUnreadCounts(prev => ({
+                            ...prev,
+                            [newMsg.chat_id]: (prev[newMsg.chat_id] || 0) + 1
+                        }))
+                        playNotificationSound()
+                    }
+
+                    // Refresh chat list to update order
+                    fetchChats()
+                }
+            )
+            .subscribe()
+
+        return () => {
+            supabase.removeChannel(globalMsgChannel)
+        }
+    }, [adminId, selectedChatId])
 
     // 2. Dynamic Subscription (Selected Chat Messages) - Runs on selection change
     useEffect(() => {
@@ -246,174 +302,192 @@ export default function AdminLiveSupportPage() {
     const selectedChat = chats.find(c => c.id === selectedChatId)
 
     return (
-        <div className="flex h-[calc(100vh-100px)] gap-6">
-            {/* Sidebar List (Chats) */}
-            <div className="w-80 flex flex-col bg-white dark:bg-slate-900 rounded-xl border overflow-hidden">
-                {/* ... (Existing Sidebar Content) ... */}
-                <div className="p-4 border-b space-y-4">
-                    <div className="flex items-center justify-between">
-                        <h2 className="font-semibold">Live Chats</h2>
-                        <div className="flex items-center gap-2">
-                            <span className={cn("text-xs font-medium", isOnline ? "text-green-600" : "text-muted-foreground")}>
-                                {isOnline ? "Online" : "Offline"}
-                            </span>
-                            <Switch checked={isOnline} onCheckedChange={toggleStatus} />
+        <>
+            <div className="flex h-[calc(100vh-100px)] gap-6">
+                {/* Sidebar List (Chats) */}
+                <div className="w-80 flex flex-col bg-white dark:bg-slate-900 rounded-xl border overflow-hidden">
+                    {/* ... (Existing Sidebar Content) ... */}
+                    <div className="p-4 border-b space-y-4">
+                        <div className="flex items-center justify-between">
+                            <h2 className="font-semibold">Live Chats</h2>
+                            <div className="flex items-center gap-2">
+                                <span className={cn("text-xs font-medium", isOnline ? "text-green-600" : "text-muted-foreground")}>
+                                    {isOnline ? "Online" : "Offline"}
+                                </span>
+                                <Switch checked={isOnline} onCheckedChange={toggleStatus} />
+                            </div>
                         </div>
                     </div>
+
+                    <ScrollArea className="flex-1">
+                        <div className="divide-y">
+                            {chats.length === 0 ? (
+                                <div className="p-8 text-center text-muted-foreground text-sm">
+                                    No active chats
+                                </div>
+                            ) : (
+                                chats.map(chat => {
+                                    const unreadCount = unreadCounts[chat.id] || 0
+                                    return (
+                                        <button
+                                            key={chat.id}
+                                            onClick={() => {
+                                                setSelectedChatId(chat.id)
+                                                // Clear unread count when selecting chat
+                                                setUnreadCounts(prev => ({ ...prev, [chat.id]: 0 }))
+                                            }}
+                                            className={cn(
+                                                "w-full text-left p-4 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors flex items-start gap-3 relative",
+                                                selectedChatId === chat.id && "bg-slate-50 dark:bg-slate-800 border-l-4 border-primary pl-[13px]"
+                                            )}
+                                        >
+                                            <div className="relative">
+                                                <Avatar>
+                                                    <AvatarImage src={chat.user.avatar_url || undefined} />
+                                                    <AvatarFallback>{chat.user.full_name?.[0] || 'U'}</AvatarFallback>
+                                                </Avatar>
+                                                {unreadCount > 0 && (
+                                                    <span className="absolute -top-1 -right-1 size-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center animate-pulse">
+                                                        {unreadCount > 9 ? '9+' : unreadCount}
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex items-center justify-between mb-1">
+                                                    <span className={cn("font-medium truncate", unreadCount > 0 && "text-primary")}>
+                                                        {chat.user.full_name || chat.user.email}
+                                                    </span>
+                                                    <span className="text-[10px] text-muted-foreground" suppressHydrationWarning>
+                                                        {formatDistanceToNow(new Date(chat.updated_at), { addSuffix: true })}
+                                                    </span>
+                                                </div>
+                                                <p className={cn("text-xs truncate", unreadCount > 0 ? "text-foreground font-medium" : "text-muted-foreground")}>
+                                                    {unreadCount > 0 ? `${unreadCount} new message${unreadCount > 1 ? 's' : ''}` : 'Click to view'}
+                                                </p>
+                                            </div>
+                                        </button>
+                                    )
+                                })
+                            )}
+                        </div>
+                    </ScrollArea>
                 </div>
 
-                <ScrollArea className="flex-1">
-                    <div className="divide-y">
-                        {chats.length === 0 ? (
-                            <div className="p-8 text-center text-muted-foreground text-sm">
-                                No active chats
-                            </div>
-                        ) : (
-                            chats.map(chat => (
-                                <button
-                                    key={chat.id}
-                                    onClick={() => setSelectedChatId(chat.id)}
-                                    className={cn(
-                                        "w-full text-left p-4 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors flex items-start gap-3",
-                                        selectedChatId === chat.id && "bg-slate-50 dark:bg-slate-800 border-l-4 border-primary pl-[13px]"
-                                    )}
-                                >
+                {/* Chat Area */}
+                <div className="flex-1 flex flex-col bg-white dark:bg-slate-900 rounded-xl border overflow-hidden">
+                    {!selectedChat ? (
+                        <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground">
+                            <MessageSquare className="size-12 mb-4 opacity-20" />
+                            <p>Select a conversation to start chatting</p>
+                        </div>
+                    ) : (
+                        <>
+                            {/* ... (Existing Chat UI) ... */}
+                            <div className="p-4 border-b flex items-center justify-between">
+                                <div className="flex items-center gap-3">
                                     <Avatar>
-                                        <AvatarImage src={chat.user.avatar_url || undefined} />
-                                        <AvatarFallback>{chat.user.full_name?.[0] || 'U'}</AvatarFallback>
+                                        <AvatarImage src={selectedChat.user.avatar_url || undefined} />
+                                        <AvatarFallback>{selectedChat.user.full_name?.[0]}</AvatarFallback>
                                     </Avatar>
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-center justify-between mb-1">
-                                            <span className="font-medium truncate">{chat.user.full_name || chat.user.email}</span>
-                                            <span className="text-[10px] text-muted-foreground" suppressHydrationWarning>
-                                                {formatDistanceToNow(new Date(chat.updated_at), { addSuffix: true })}
-                                            </span>
-                                        </div>
-                                        <p className="text-xs text-muted-foreground truncate">
-                                            Click to view
-                                        </p>
+                                    <div>
+                                        <h3 className="font-medium">{selectedChat.user.full_name}</h3>
+                                        <p className="text-xs text-muted-foreground">{selectedChat.user.email}</p>
                                     </div>
-                                </button>
-                            ))
-                        )}
-                    </div>
-                </ScrollArea>
-            </div>
-
-            {/* Chat Area */}
-            <div className="flex-1 flex flex-col bg-white dark:bg-slate-900 rounded-xl border overflow-hidden">
-                {!selectedChat ? (
-                    <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground">
-                        <MessageSquare className="size-12 mb-4 opacity-20" />
-                        <p>Select a conversation to start chatting</p>
-                    </div>
-                ) : (
-                    <>
-                        {/* ... (Existing Chat UI) ... */}
-                        <div className="p-4 border-b flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <Avatar>
-                                    <AvatarImage src={selectedChat.user.avatar_url || undefined} />
-                                    <AvatarFallback>{selectedChat.user.full_name?.[0]}</AvatarFallback>
-                                </Avatar>
-                                <div>
-                                    <h3 className="font-medium">{selectedChat.user.full_name}</h3>
-                                    <p className="text-xs text-muted-foreground">{selectedChat.user.email}</p>
                                 </div>
                             </div>
-                        </div>
 
-                        <div
-                            ref={scrollRef}
-                            className="flex-1 overflow-y-auto p-4 space-y-4"
-                        >
-                            {messages.map((msg) => {
-                                const isMe = msg.sender_id === adminId
+                            <div
+                                ref={scrollRef}
+                                className="flex-1 overflow-y-auto p-4 space-y-4"
+                            >
+                                {messages.map((msg) => {
+                                    const isMe = msg.sender_id === adminId
 
-                                if (msg.is_bot) {
+                                    if (msg.is_bot) {
+                                        return (
+                                            <div key={msg.id} className="flex justify-center my-4">
+                                                <span className="bg-slate-100 dark:bg-slate-800 text-xs py-1 px-3 rounded-full text-muted-foreground">
+                                                    Bot: {msg.content}
+                                                </span>
+                                            </div>
+                                        )
+                                    }
+
                                     return (
-                                        <div key={msg.id} className="flex justify-center my-4">
-                                            <span className="bg-slate-100 dark:bg-slate-800 text-xs py-1 px-3 rounded-full text-muted-foreground">
-                                                Bot: {msg.content}
-                                            </span>
-                                        </div>
-                                    )
-                                }
-
-                                return (
-                                    <div key={msg.id} className={cn("flex gap-3 max-w-[80%]", isMe ? "ml-auto flex-row-reverse" : "")}>
-                                        <Avatar className="size-8 mt-1">
-                                            <AvatarFallback className={cn("text-[10px]", isMe ? "bg-primary text-primary-foreground" : "")}>
-                                                {isMe ? 'ME' : selectedChat.user.full_name?.[0]}
-                                            </AvatarFallback>
-                                        </Avatar>
-                                        <div className={cn(
-                                            "rounded-2xl p-3 text-sm",
-                                            isMe ? "bg-primary text-primary-foreground rounded-tr-none" : "bg-secondary rounded-tl-none"
-                                        )}>
-                                            {msg.content}
+                                        <div key={msg.id} className={cn("flex gap-3 max-w-[80%]", isMe ? "ml-auto flex-row-reverse" : "")}>
+                                            <Avatar className="size-8 mt-1">
+                                                <AvatarFallback className={cn("text-[10px]", isMe ? "bg-primary text-primary-foreground" : "")}>
+                                                    {isMe ? 'ME' : selectedChat.user.full_name?.[0]}
+                                                </AvatarFallback>
+                                            </Avatar>
                                             <div className={cn(
-                                                "text-[10px] mt-1 opacity-70",
-                                                isMe ? "text-primary-foreground/70" : "text-muted-foreground"
+                                                "rounded-2xl p-3 text-sm",
+                                                isMe ? "bg-primary text-primary-foreground rounded-tr-none" : "bg-secondary rounded-tl-none"
                                             )}>
-                                                {format(new Date(msg.created_at), 'p')}
+                                                {msg.content}
+                                                <div className={cn(
+                                                    "text-[10px] mt-1 opacity-70",
+                                                    isMe ? "text-primary-foreground/70" : "text-muted-foreground"
+                                                )}>
+                                                    {format(new Date(msg.created_at), 'p')}
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                )
-                            })}
-                        </div>
-
-                        <div className="p-4 border-t">
-                            <form onSubmit={handleSendMessage} className="flex gap-2">
-                                <Input
-                                    placeholder="Type your reply..."
-                                    value={input}
-                                    onChange={(e) => setInput(e.target.value)}
-                                    disabled={sending}
-                                    className="flex-1"
-                                />
-                                <Button type="submit" size="icon" disabled={!input.trim() || sending}>
-                                    {sending ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
-                                </Button>
-                            </form>
-                        </div>
-                    </>
-                )}
-            </div>
-
-            {/* Online Users Panel (New) */}
-            <div className="w-72 bg-white dark:bg-slate-900 rounded-xl border flex flex-col overflow-hidden">
-                <div className="p-4 border-b bg-slate-50 dark:bg-slate-800/50">
-                    <h3 className="font-semibold text-sm">Online Visitors ({onlineUsers.length})</h3>
-                </div>
-                <ScrollArea className="flex-1">
-                    <div className="divide-y">
-                        {onlineUsers.length === 0 ? (
-                            <div className="p-8 text-center text-muted-foreground text-xs">
-                                No visitors currently online
+                                    )
+                                })}
                             </div>
-                        ) : (
-                            onlineUsers.map((user: any, idx) => (
-                                <div key={idx} className="p-3 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                                    <div className="flex items-center justify-between mb-1">
-                                        <span className="font-medium text-xs truncate max-w-[120px]">{user.user_email}</span>
-                                        <span className="size-2 bg-green-500 rounded-full animate-pulse" />
-                                    </div>
-                                    <div className="space-y-0.5">
-                                        <p className="text-[10px] text-muted-foreground flex items-center gap-1">
-                                            <span className="font-mono">{user.ip}</span>
-                                        </p>
-                                        <p className="text-[10px] text-primary truncate" title={user.currentPage}>
-                                            {user.currentPage}
-                                        </p>
-                                    </div>
-                                </div>
-                            ))
-                        )}
+
+                            <div className="p-4 border-t">
+                                <form onSubmit={handleSendMessage} className="flex gap-2">
+                                    <Input
+                                        placeholder="Type your reply..."
+                                        value={input}
+                                        onChange={(e) => setInput(e.target.value)}
+                                        disabled={sending}
+                                        className="flex-1"
+                                    />
+                                    <Button type="submit" size="icon" disabled={!input.trim() || sending}>
+                                        {sending ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
+                                    </Button>
+                                </form>
+                            </div>
+                        </>
+                    )}
+                </div>
+
+                {/* Online Users Panel (New) */}
+                <div className="w-72 bg-white dark:bg-slate-900 rounded-xl border flex flex-col overflow-hidden">
+                    <div className="p-4 border-b bg-slate-50 dark:bg-slate-800/50">
+                        <h3 className="font-semibold text-sm">Online Visitors ({onlineUsers.length})</h3>
                     </div>
-                </ScrollArea>
+                    <ScrollArea className="flex-1">
+                        <div className="divide-y">
+                            {onlineUsers.length === 0 ? (
+                                <div className="p-8 text-center text-muted-foreground text-xs">
+                                    No visitors currently online
+                                </div>
+                            ) : (
+                                onlineUsers.map((user: any, idx) => (
+                                    <div key={idx} className="p-3 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                                        <div className="flex items-center justify-between mb-1">
+                                            <span className="font-medium text-xs truncate max-w-[120px]">{user.user_email}</span>
+                                            <span className="size-2 bg-green-500 rounded-full animate-pulse" />
+                                        </div>
+                                        <div className="space-y-0.5">
+                                            <p className="text-[10px] text-muted-foreground flex items-center gap-1">
+                                                <span className="font-mono">{user.ip}</span>
+                                            </p>
+                                            <p className="text-[10px] text-primary truncate" title={user.currentPage}>
+                                                {user.currentPage}
+                                            </p>
+                                        </div>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    </ScrollArea>
+                </div>
             </div>
-        </div>
+        </>
     )
 }
