@@ -37,6 +37,7 @@ export function SupportWidget() {
     const [chatId, setChatId] = useState<string | null>(null)
     const [isSupportOnline, setIsSupportOnline] = useState(true)
     const [userId, setUserId] = useState<string | null>(null)
+    const [userName, setUserName] = useState<string | null>(null)
     const [hasUnread, setHasUnread] = useState(false)
 
     // Scroll to bottom on new message
@@ -46,80 +47,107 @@ export function SupportWidget() {
         }
     }, [messages, isOpen])
 
+    // Initialize chat on mount
     useEffect(() => {
+        let channel: any = null
+
         async function initChat() {
-            setLoading(true)
-            const { data: { user } } = await supabase.auth.getUser()
-            if (!user) return
+            try {
+                const { data: { user } } = await supabase.auth.getUser()
+                if (!user) {
+                    setLoading(false)
+                    return
+                }
 
-            setUserId(user.id)
+                setUserId(user.id)
 
-            // 1. Check Admin Status
-            const { data: settings } = await supabase
-                .from('admin_settings')
-                .select('value')
-                .eq('key', 'is_support_online')
-                .single()
-
-            if (settings?.value) {
-                const isOnline = settings.value === true || settings.value === 'true'
-                setIsSupportOnline(isOnline)
-            }
-
-            // 2. Find or Create Active Chat
-            const { data: existingChat } = await supabase
-                .from('support_chats')
-                .select('id')
-                .eq('user_id', user.id)
-                .eq('status', 'active')
-                .single()
-
-            let currentChatId = existingChat?.id
-
-            if (!currentChatId) {
-                const { data: newChat } = await supabase
-                    .from('support_chats')
-                    .insert({ user_id: user.id, status: 'active' })
-                    .select('id')
+                // Get user profile for name
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('full_name')
+                    .eq('id', user.id)
                     .single()
 
-                if (newChat) currentChatId = newChat.id
-            }
+                if (profile?.full_name) {
+                    setUserName(profile.full_name)
+                }
 
-            setChatId(currentChatId)
+                // 1. Check Admin Status
+                const { data: settings } = await supabase
+                    .from('admin_settings')
+                    .select('value')
+                    .eq('key', 'is_support_online')
+                    .single()
 
-            // 3. Load Messages
-            if (currentChatId) {
-                const { data: msgs } = await supabase
-                    .from('support_messages')
-                    .select('*')
-                    .eq('chat_id', currentChatId)
-                    .order('created_at', { ascending: true })
+                if (settings?.value) {
+                    const isOnline = settings.value === true || settings.value === 'true'
+                    setIsSupportOnline(isOnline)
+                }
 
-                if (msgs) setMessages(msgs)
+                // 2. Find or Create Active Chat
+                const { data: existingChat } = await supabase
+                    .from('support_chats')
+                    .select('id')
+                    .eq('user_id', user.id)
+                    .eq('status', 'active')
+                    .single()
 
-                // 4. Subscribe to Realtime
-                const channel = supabase
-                    .channel(`widget-chat:${currentChatId}`)
-                    .on(
-                        'postgres_changes',
-                        { event: 'INSERT', schema: 'public', table: 'support_messages', filter: `chat_id=eq.${currentChatId}` },
-                        (payload) => {
-                            const newMsg = payload.new as Message
-                            setMessages(prev => [...prev, newMsg])
-                            if (!isOpen && !newMsg.is_bot && newMsg.sender_id !== user.id) {
-                                // Logic for unread indicator if message is from admin (not implemented fully here as sender_id check handles it)
+                let currentChatId = existingChat?.id
+
+                if (!currentChatId) {
+                    const { data: newChat, error: chatError } = await supabase
+                        .from('support_chats')
+                        .insert({ user_id: user.id, status: 'active' })
+                        .select('id')
+                        .single()
+
+                    if (chatError) {
+                        console.error("Error creating chat:", chatError)
+                    }
+                    if (newChat) currentChatId = newChat.id
+                }
+
+                setChatId(currentChatId || null)
+
+                // 3. Load Messages
+                if (currentChatId) {
+                    const { data: msgs } = await supabase
+                        .from('support_messages')
+                        .select('*')
+                        .eq('chat_id', currentChatId)
+                        .order('created_at', { ascending: true })
+
+                    if (msgs) setMessages(msgs)
+
+                    // 4. Subscribe to Realtime
+                    channel = supabase
+                        .channel(`widget-chat:${currentChatId}`)
+                        .on(
+                            'postgres_changes',
+                            { event: 'INSERT', schema: 'public', table: 'support_messages', filter: `chat_id=eq.${currentChatId}` },
+                            (payload) => {
+                                const newMsg = payload.new as Message
+                                setMessages(prev => [...prev, newMsg])
+                                if (!isOpen && !newMsg.is_bot && newMsg.sender_id !== user.id) {
+                                    setHasUnread(true)
+                                }
                             }
-                        }
-                    )
-                    .subscribe()
-
-                return () => { supabase.removeChannel(channel) }
+                        )
+                        .subscribe()
+                }
+            } catch (error) {
+                console.error("Chat init error:", error)
+            } finally {
+                setLoading(false)
             }
-            setLoading(false)
         }
+
         initChat()
-    }, [isOpen]) // Re-init if opened/closed to refresh status? Actually better on mount, but status check maybe on open.
+
+        return () => {
+            if (channel) supabase.removeChannel(channel)
+        }
+    }, []) // Run once on mount
 
     const pathname = typeof window !== 'undefined' ? window.location.pathname : ''
 
@@ -285,8 +313,15 @@ export function SupportWidget() {
                                     <div className="bg-primary/10 size-12 rounded-full flex items-center justify-center mx-auto mb-3">
                                         <Bot className="size-6 text-primary" />
                                     </div>
-                                    <p className="font-medium text-sm text-foreground">Hi there! 👋</p>
-                                    <p className="text-xs mt-1">How can we help you today?</p>
+                                    <p className="font-medium text-sm text-foreground">
+                                        Hi{userName ? `, ${userName.split(' ')[0]}` : ''}! 👋
+                                    </p>
+                                    <p className="text-xs mt-1">
+                                        {isSupportOnline
+                                            ? "How can we help you today? Type your message below."
+                                            : "We're offline, but leave a message and we'll get back to you!"
+                                        }
+                                    </p>
                                 </div>
                             ) : (
                                 messages.map((msg) => {
