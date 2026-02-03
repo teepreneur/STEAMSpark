@@ -130,45 +130,56 @@ export function SupportWidget() {
         currentPage: string
     }>({ ip: '', userAgent: '', currentPage: '' })
 
-    // Fetch IP and Track Presence
+    // Presence Logic
     useEffect(() => {
-        async function trackPresence() {
-            // 1. Get IP
+        let channel: any = null
+
+        async function setupPresence() {
             try {
+                // 1. Get IP
                 const res = await fetch('/api/get-ip')
-                const data = await res.json()
-                const newState = {
-                    ip: data.ip,
-                    userAgent: navigator.userAgent,
-                    currentPage: window.location.pathname
-                }
-                setPresenceState(newState)
+                const { ip } = await res.json()
 
-                // 2. Join Presence Channel
+                // 2. Get User
                 const { data: { user } } = await supabase.auth.getUser()
-                const channel = supabase.channel('support_presence')
 
-                channel
-                    .on('presence', { event: 'sync' }, () => {
-                        // console.log('Presence synced', channel.presenceState())
-                    })
-                    .subscribe(async (status) => {
+                // 3. Prepare State
+                const initialState = {
+                    ip: ip || 'unknown',
+                    userAgent: navigator.userAgent,
+                    currentPage: window.location.pathname,
+                    user_id: user?.id || 'anon',
+                    user_email: user?.email || 'Anonymous',
+                    online_at: new Date().toISOString()
+                }
+                setPresenceState(initialState)
+
+                // 4. Join Channel
+                channel = supabase.channel('support_presence', {
+                    config: {
+                        presence: {
+                            key: user?.id || ip || 'anon'
+                        }
+                    }
+                })
+
+                channel.on('presence', { event: 'sync' }, () => { })
+                    .subscribe(async (status: string) => {
                         if (status === 'SUBSCRIBED') {
-                            await channel.track({
-                                user_id: user?.id || 'anon',
-                                user_email: user?.email || 'Anonymous',
-                                online_at: new Date().toISOString(),
-                                ...newState
-                            })
+                            await channel.track(initialState)
                         }
                     })
 
-                return () => { supabase.removeChannel(channel) }
             } catch (err) {
-                console.error("Presence error:", err)
+                console.error("Presence setup error:", err)
             }
         }
-        trackPresence()
+
+        setupPresence()
+
+        return () => {
+            if (channel) supabase.removeChannel(channel)
+        }
     }, [])
 
     // Update Presence on Path Change
@@ -177,14 +188,18 @@ export function SupportWidget() {
 
         const updateChannel = async () => {
             const channel = supabase.channel('support_presence')
-            await channel.track({
-                ...presenceState,
-                currentPage: window.location.pathname,
-                updated_at: new Date().toISOString()
-            })
+            try {
+                await channel.track({
+                    ...presenceState,
+                    currentPage: window.location.pathname,
+                    updated_at: new Date().toISOString()
+                })
+            } catch (e) {
+                // Channel might not be ready
+            }
         }
         updateChannel()
-    }, [pathname, presenceState.ip]) // Dependency on pathname is key
+    }, [pathname, presenceState.ip])
 
     async function handleSendMessage(e: React.FormEvent) {
         e.preventDefault()
@@ -304,7 +319,7 @@ export function SupportWidget() {
                                                 <div className={cn(
                                                     "text-[9px] mt-1 opacity-70",
                                                     isMe ? "text-primary-foreground/70" : "text-muted-foreground"
-                                                )}>
+                                                )} suppressHydrationWarning>
                                                     {format(new Date(msg.created_at), 'p')}
                                                 </div>
                                             </div>
