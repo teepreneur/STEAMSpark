@@ -33,15 +33,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     const [sidebarOpen, setSidebarOpen] = useState(true)
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
-    // Check if we're on admin subdomain (client-side only)
-    const isAdminSubdomain = typeof window !== 'undefined' &&
-        (window.location.hostname.includes('admin.') || window.location.hostname.startsWith('admin.'))
+    // Check if we're on admin subdomain (handled in effect to avoid hydration mismatch)
+    const [isAdminSubdomain, setIsAdminSubdomain] = useState(false)
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
-            console.log("Admin Layout v2.0 Loaded", { isAdminSubdomain, pathname })
+            const isSub = window.location.hostname.includes('admin.') || window.location.hostname.startsWith('admin.')
+            setIsAdminSubdomain(isSub)
+            console.log("Admin Layout v2.0 Loaded", { isAdminSubdomain: isSub, pathname })
         }
-    }, [isAdminSubdomain, pathname])
+    }, [pathname])
 
     // Get the correct path for this environment
     const getHref = (basePath: string) => {
@@ -92,6 +93,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     if (isAuthPage) {
         return <>{children}</>
     }
+
+    // Prevent hydration mismatch by waiting for mount before rendering complex layout
+    const [mounted, setMounted] = useState(false)
+    useEffect(() => setMounted(true), [])
+
+    if (!mounted) return null
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
