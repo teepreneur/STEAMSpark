@@ -41,6 +41,11 @@ export default function AdminLiveSupportPage() {
 
     const [loading, setLoading] = useState(true)
     const [chats, setChats] = useState<Chat[]>([])
+    const [mounted, setMounted] = useState(false)
+
+    useEffect(() => {
+        setMounted(true)
+    }, [])
     const [selectedChatId, setSelectedChatId] = useState<string | null>(null)
     const [messages, setMessages] = useState<Message[]>([])
     const [input, setInput] = useState("")
@@ -216,7 +221,7 @@ export default function AdminLiveSupportPage() {
         }
     }
 
-    if (loading) {
+    if (!mounted || loading) {
         return <div className="flex items-center justify-center min-h-[60vh]"><Loader2 className="size-8 animate-spin text-primary" /></div>
     }
 
