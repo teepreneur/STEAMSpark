@@ -132,20 +132,40 @@ export default function AdminLiveSupportPage() {
     }, [selectedChatId])
 
     async function fetchChats() {
-        const { data } = await supabase
+        // 1. Fetch Chats
+        const { data: chatsData, error: chatsError } = await supabase
             .from('support_chats')
-            .select(`
-                *,
-                profiles (full_name, avatar_url, email)
-            `)
+            .select('*')
             .order('updated_at', { ascending: false })
 
-        if (data) {
-            const formattedData = data.map((chat: any) => ({
-                ...chat,
-                user: chat.profiles || { email: 'Unknown', full_name: 'Unknown' } // Flatten structure
-            }))
+        if (chatsError) {
+            console.error("Error fetching chats:", chatsError)
+            return
+        }
+
+        if (chatsData && chatsData.length > 0) {
+            // 2. Fetch Profiles for these users
+            const userIds = Array.from(new Set(chatsData.map(c => c.user_id)))
+            const { data: profilesData } = await supabase
+                .from('profiles')
+                .select('id, full_name, avatar_url, email')
+                .in('id', userIds)
+
+            // 3. Map profiles to chats
+            const formattedData = chatsData.map((chat) => {
+                const userProfile = profilesData?.find(p => p.id === chat.user_id)
+                return {
+                    ...chat,
+                    user: userProfile || {
+                        email: 'Unknown User',
+                        full_name: 'Unknown',
+                        avatar_url: null
+                    }
+                }
+            })
             setChats(formattedData)
+        } else {
+            setChats([])
         }
     }
 
