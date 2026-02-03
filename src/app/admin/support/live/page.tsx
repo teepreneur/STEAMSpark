@@ -136,15 +136,16 @@ export default function AdminLiveSupportPage() {
             .from('support_chats')
             .select(`
                 *,
-                user:profiles(full_name, avatar_url, email)
+                profiles (full_name, avatar_url, email)
             `)
             .order('updated_at', { ascending: false })
 
         if (data) {
-            // For a real app, we'd fetch last message efficiently. 
-            // Here we might just list them or do a subquery. 
-            // Simplification: We won't show last message preview in this MVP step unless we join query.
-            setChats(data as unknown as Chat[])
+            const formattedData = data.map((chat: any) => ({
+                ...chat,
+                user: chat.profiles || { email: 'Unknown', full_name: 'Unknown' } // Flatten structure
+            }))
+            setChats(formattedData)
         }
     }
 
@@ -258,7 +259,7 @@ export default function AdminLiveSupportPage() {
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center justify-between mb-1">
                                             <span className="font-medium truncate">{chat.user.full_name || chat.user.email}</span>
-                                            <span className="text-[10px] text-muted-foreground">
+                                            <span className="text-[10px] text-muted-foreground" suppressHydrationWarning>
                                                 {formatDistanceToNow(new Date(chat.updated_at), { addSuffix: true })}
                                             </span>
                                         </div>
