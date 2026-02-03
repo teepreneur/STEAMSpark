@@ -346,9 +346,15 @@ function StudentsPageContent() {
                                 </div>
 
                                 <div className="mt-auto pt-2 flex gap-2">
-                                    <Button variant="secondary" className="flex-1 font-bold" asChild>
-                                        <Link href={`/teacher/messages?parent=${enrolledStudent.parent?.id}`}>Message</Link>
-                                    </Button>
+                                    {enrolledStudent.parent?.id ? (
+                                        <Button variant="secondary" className="flex-1 font-bold" asChild>
+                                            <Link href={`/teacher/messages?parent=${enrolledStudent.parent.id}`}>Message</Link>
+                                        </Button>
+                                    ) : (
+                                        <Button variant="secondary" className="flex-1 font-bold" disabled>
+                                            Message
+                                        </Button>
+                                    )}
                                     <Button variant="ghost" className="flex-1 font-bold text-primary hover:text-primary hover:bg-primary/10" asChild>
                                         <Link href={`/teacher/students/${enrolledStudent.booking_id}`}>View Details</Link>
                                     </Button>
