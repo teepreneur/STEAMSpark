@@ -11,6 +11,7 @@ import { CompletedSessions } from "./_components/completed-sessions"
 import { NotificationsPanel } from "./_components/notifications-panel"
 import { RecommendedTutors } from "./_components/recommended-tutors"
 import { PendingBookings } from "./_components/pending-bookings"
+import { AcceptedBookings } from "./_components/accepted-bookings"
 import { CheckCircle, X, Loader2 } from "lucide-react"
 
 // Export the main page wrapped in Suspense
@@ -72,6 +73,7 @@ function ParentDashboardContent() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Left Column (Main Content) */}
                 <div className="lg:col-span-2 flex flex-col gap-8">
+                    <AcceptedBookings />
                     <PendingBookings />
                     <ActiveRoadmaps />
                     <ParentUpcomingSessions />
