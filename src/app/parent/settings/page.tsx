@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Plus, Trash2, User, Loader2, Save, Camera, Check, Bell, Shield, MapPin } from "lucide-react"
+import { Plus, Trash2, User, Loader2, Save, Camera, Check, Bell, Shield, MapPin, Phone } from "lucide-react"
 import { useEffect, useState } from "react"
 import { Tables } from "@/lib/types/supabase"
 import { Switch } from "@/components/ui/switch"
@@ -26,6 +26,9 @@ export default function ParentSettingsPage() {
     const [fullName, setFullName] = useState("")
     const [email, setEmail] = useState("")
     const [phone, setPhone] = useState("")
+    const [whatsappNumber, setWhatsappNumber] = useState("")
+    const [whatsappSameAsPhone, setWhatsappSameAsPhone] = useState(true)
+    const [whatsappEnabled, setWhatsappEnabled] = useState(false)
     const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
 
     // New Student Form State
@@ -60,7 +63,10 @@ export default function ParentSettingsPage() {
                     setProfile(profileData)
                     setFullName(profileData.full_name || "")
                     setAvatarUrl(profileData.avatar_url || null)
-                    setPhone((profileData as any).phone || "")
+                    setPhone((profileData as any).phone_number || "")
+                    setWhatsappNumber((profileData as any).whatsapp_number || "")
+                    setWhatsappEnabled((profileData as any).whatsapp_enabled || false)
+                    setWhatsappSameAsPhone((profileData as any).whatsapp_number === (profileData as any).phone_number || !(profileData as any).whatsapp_number)
                     setClassMode((profileData as any).class_mode || 'online')
                     setCountry((profileData as any).country || "")
                     setCity((profileData as any).city || "")
@@ -121,7 +127,10 @@ export default function ParentSettingsPage() {
                 avatar_url: avatarUrl,
                 class_mode: classMode,
                 country: country || null,
-                city: city || null
+                city: city || null,
+                phone_number: phone || null,
+                whatsapp_number: whatsappSameAsPhone ? phone : whatsappNumber || null,
+                whatsapp_enabled: whatsappEnabled
             })
             .eq('id', profile.id)
 
@@ -441,6 +450,86 @@ export default function ParentSettingsPage() {
                             <p className="text-muted-foreground text-sm">Receive tips and STEAM news.</p>
                         </div>
                         <Switch />
+                    </div>
+                </div>
+            </section>
+
+            {/* Phone & WhatsApp Settings */}
+            <section className="bg-card rounded-xl border border-border p-6 shadow-sm">
+                <div className="flex justify-between items-center mb-6">
+                    <h3 className="text-xl font-bold text-foreground flex items-center gap-2">
+                        <Phone className="text-primary size-5" />
+                        Phone & WhatsApp
+                    </h3>
+                </div>
+                <div className="space-y-6">
+                    {/* Phone Number */}
+                    <div className="space-y-2">
+                        <Label>Phone Number</Label>
+                        <div className="flex gap-2">
+                            <div className="w-24 flex items-center justify-center bg-muted border border-input rounded-md text-sm font-medium">
+                                +233
+                            </div>
+                            <Input
+                                className="flex-1"
+                                value={phone.replace(/^\+233/, '')}
+                                onChange={(e) => setPhone('+233' + e.target.value.replace(/^\+233/, '').replace(/\D/g, ''))}
+                                placeholder="24 XXX XXXX"
+                                maxLength={10}
+                            />
+                        </div>
+                        <p className="text-xs text-muted-foreground">Your primary phone number for account verification</p>
+                    </div>
+
+                    {/* WhatsApp Number */}
+                    <div className="space-y-3">
+                        <div className="flex items-center gap-3">
+                            <input
+                                type="checkbox"
+                                id="whatsapp-same"
+                                checked={whatsappSameAsPhone}
+                                onChange={(e) => setWhatsappSameAsPhone(e.target.checked)}
+                                className="size-4 rounded border-input"
+                            />
+                            <Label htmlFor="whatsapp-same" className="cursor-pointer">WhatsApp number is the same as phone</Label>
+                        </div>
+
+                        {!whatsappSameAsPhone && (
+                            <div className="space-y-2">
+                                <Label>WhatsApp Number</Label>
+                                <div className="flex gap-2">
+                                    <div className="w-24 flex items-center justify-center bg-muted border border-input rounded-md text-sm font-medium">
+                                        +233
+                                    </div>
+                                    <Input
+                                        className="flex-1"
+                                        value={whatsappNumber.replace(/^\+233/, '')}
+                                        onChange={(e) => setWhatsappNumber('+233' + e.target.value.replace(/^\+233/, '').replace(/\D/g, ''))}
+                                        placeholder="24 XXX XXXX"
+                                        maxLength={10}
+                                    />
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* WhatsApp Notifications Toggle */}
+                    <div className="flex items-center justify-between p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                        <div className="flex items-center gap-3">
+                            <div className="size-10 bg-green-500 rounded-full flex items-center justify-center">
+                                <svg className="size-5 text-white" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p className="text-foreground font-medium">WhatsApp Notifications</p>
+                                <p className="text-muted-foreground text-sm">Get booking updates via WhatsApp</p>
+                            </div>
+                        </div>
+                        <Switch
+                            checked={whatsappEnabled}
+                            onCheckedChange={setWhatsappEnabled}
+                        />
                     </div>
                 </div>
             </section>

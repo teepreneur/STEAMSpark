@@ -3,7 +3,7 @@
 import {
     Edit, Check, BadgeCheck, Info, AlertTriangle,
     CloudUpload, Save, Bell, User, X, Plus, Loader2, Camera, MapPin,
-    FileText, UserCircle, CreditCard, Download, Trash2
+    FileText, UserCircle, CreditCard, Download, Trash2, Phone
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -45,6 +45,12 @@ export default function SettingsPage() {
     const [country, setCountry] = useState("")
     const [city, setCity] = useState("")
 
+    // Phone & WhatsApp
+    const [phone, setPhone] = useState("")
+    const [whatsappNumber, setWhatsappNumber] = useState("")
+    const [whatsappSameAsPhone, setWhatsappSameAsPhone] = useState(true)
+    const [whatsappEnabled, setWhatsappEnabled] = useState(false)
+
     useEffect(() => {
         async function loadProfile() {
             setLoading(true)
@@ -72,6 +78,10 @@ export default function SettingsPage() {
                     setCvUrl((data as any).cv_url || null)
                     setIdUrl((data as any).id_url || null)
                     setPhotoUrl((data as any).photo_url || null)
+                    setPhone((data as any).phone_number || "")
+                    setWhatsappNumber((data as any).whatsapp_number || "")
+                    setWhatsappEnabled((data as any).whatsapp_enabled || false)
+                    setWhatsappSameAsPhone((data as any).whatsapp_number === (data as any).phone_number || !(data as any).whatsapp_number)
                 }
             }
             setLoading(false)
@@ -150,7 +160,10 @@ export default function SettingsPage() {
                 city: city || null,
                 cv_url: cvUrl,
                 id_url: idUrl,
-                photo_url: photoUrl
+                photo_url: photoUrl,
+                phone_number: phone || null,
+                whatsapp_number: whatsappSameAsPhone ? phone : whatsappNumber || null,
+                whatsapp_enabled: whatsappEnabled
             })
             .eq('id', profile.id)
 

@@ -200,7 +200,7 @@ export async function GET(request: Request) {
                     // ========== SEND RECEIPT EMAIL TO TEACHER ==========
                     const { data: teacherProfile } = await supabase
                         .from('profiles')
-                        .select('email, full_name')
+                        .select('email, full_name, whatsapp_number, whatsapp_enabled')
                         .eq('id', teacherId)
                         .single()
 
@@ -247,6 +247,30 @@ export async function GET(request: Request) {
                             console.log(`[Payment] Receipt email sent to teacher ${teacherProfile.email}`)
                         } catch (emailError) {
                             console.error('Failed to send receipt email:', emailError)
+                        }
+                    }
+
+                    // ========== SEND WHATSAPP TO TEACHER ==========
+                    if (teacherProfile?.whatsapp_enabled && teacherProfile?.whatsapp_number) {
+                        try {
+                            const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://app.steamsparkgh.com'
+                            await fetch(`${appUrl}/api/notifications/whatsapp`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    to: teacherProfile.whatsapp_number,
+                                    templateType: 'payment_received',
+                                    variables: {
+                                        gigTitle,
+                                        studentName,
+                                        amount: `GHS ${amountPaid.toFixed(2)}`,
+                                        parentName
+                                    }
+                                })
+                            })
+                            console.log(`[WhatsApp] Payment notification sent to teacher ${teacherProfile.whatsapp_number}`)
+                        } catch (waError) {
+                            console.error('Failed to send WhatsApp to teacher:', waError)
                         }
                     }
                 }

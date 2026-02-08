@@ -65,6 +65,36 @@ export async function POST(request: NextRequest) {
             }
         }
 
+        // 3. Send WhatsApp Notification (if parent has WhatsApp enabled)
+        if (parentId) {
+            try {
+                const { data: parentProfile } = await supabaseAdmin
+                    .from('profiles')
+                    .select('whatsapp_number, whatsapp_enabled')
+                    .eq('id', parentId)
+                    .single()
+
+                if (parentProfile?.whatsapp_enabled && parentProfile?.whatsapp_number) {
+                    await fetch(`${appUrl}/api/notifications/whatsapp`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            to: parentProfile.whatsapp_number,
+                            templateType: 'booking_accepted',
+                            variables: {
+                                gigTitle,
+                                teacherName: teacherName || 'Your tutor',
+                                paymentLink: `${appUrl}/parent/booking/${bookingId}/payment`
+                            }
+                        })
+                    })
+                    console.log(`[WhatsApp] Booking accepted notification sent to ${parentProfile.whatsapp_number}`)
+                }
+            } catch (waError) {
+                console.error('WhatsApp notification failed:', waError)
+            }
+        }
+
         console.log(`[Notification] Booking accepted notification sent to ${parentEmail} for booking ${bookingId}`)
 
         return NextResponse.json({
@@ -76,4 +106,5 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Failed to send notification' }, { status: 500 })
     }
 }
+
 
