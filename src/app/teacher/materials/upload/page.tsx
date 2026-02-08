@@ -399,12 +399,12 @@ export default function UploadMaterialPage() {
                 {/* Link to Course */}
                 <div className="space-y-2">
                     <Label>Assign to Course (optional)</Label>
-                    <Select value={selectedGigId} onValueChange={setSelectedGigId}>
+                    <Select value={selectedGigId || "none"} onValueChange={(val) => setSelectedGigId(val === "none" ? "" : val)}>
                         <SelectTrigger>
                             <SelectValue placeholder="Select a course..." />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="">No specific course</SelectItem>
+                            <SelectItem value="none">No specific course</SelectItem>
                             {gigs.map(gig => (
                                 <SelectItem key={gig.id} value={gig.id}>{gig.title}</SelectItem>
                             ))}
