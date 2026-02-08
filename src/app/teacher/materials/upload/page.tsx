@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, Suspense } from "react"
 import { createClient } from "@/lib/supabase/client"
 import {
     Upload, FileText, X, Loader2, ArrowLeft, Check, AlertCircle,
@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 
 interface Gig {
     id: string
@@ -37,9 +37,10 @@ function getYouTubeId(url: string): string | null {
     return match ? match[1] : null
 }
 
-export default function UploadMaterialPage() {
+function UploadMaterialContent() {
     const supabase = createClient()
     const router = useRouter()
+    const searchParams = useSearchParams()
 
     // Material type toggle
     const [materialType, setMaterialType] = useState<MaterialType>('file')
@@ -69,10 +70,17 @@ export default function UploadMaterialPage() {
                 .eq('teacher_id', user.id)
                 .order('title')
 
-            if (data) setGigs(data)
+            if (data) {
+                setGigs(data)
+                // Pre-select gig from URL query param
+                const gigFromUrl = searchParams.get('gig')
+                if (gigFromUrl && data.some(g => g.id === gigFromUrl)) {
+                    setSelectedGigId(gigFromUrl)
+                }
+            }
         }
         loadGigs()
-    }, [supabase])
+    }, [supabase, searchParams])
 
     // Auto-detect link type when URL changes
     useEffect(() => {
@@ -461,5 +469,17 @@ export default function UploadMaterialPage() {
                 </div>
             </div>
         </div>
+    )
+}
+
+export default function UploadMaterialPage() {
+    return (
+        <Suspense fallback={
+            <div className="flex items-center justify-center min-h-[60vh]">
+                <Loader2 className="size-8 animate-spin text-primary" />
+            </div>
+        }>
+            <UploadMaterialContent />
+        </Suspense>
     )
 }

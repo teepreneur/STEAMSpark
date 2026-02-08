@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/client"
 import {
     ArrowLeft, CloudUpload, X, Plus, Minus, Trash2,
     FlaskConical, Bot, Cog, Palette, Calculator, Loader2, Save,
-    Video, MapPin, Blend
+    Video, MapPin, Blend, FileText, ExternalLink, Youtube, Globe, Link2
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -28,6 +28,16 @@ interface Topic {
     id: string
     title: string
     outcome: string
+}
+
+interface Material {
+    id: string
+    title: string
+    description: string | null
+    file_url: string
+    material_type: string | null
+    link_type: string | null
+    visibility: string
 }
 
 export default function EditGigPage({ params }: { params: Promise<{ id: string }> }) {
@@ -62,6 +72,10 @@ export default function EditGigPage({ params }: { params: Promise<{ id: string }
     const [coverImage, setCoverImage] = useState<string | null>(null)
     const [coverImageName, setCoverImageName] = useState<string | null>(null)
 
+    // Materials
+    const [materials, setMaterials] = useState<Material[]>([])
+    const [loadingMaterials, setLoadingMaterials] = useState(true)
+
     useEffect(() => {
         async function loadGig() {
             setLoading(true)
@@ -95,7 +109,21 @@ export default function EditGigPage({ params }: { params: Promise<{ id: string }
             }
             setLoading(false)
         }
+
+        async function loadMaterials() {
+            setLoadingMaterials(true)
+            const { data } = await supabase
+                .from('materials')
+                .select('id, title, description, file_url, material_type, link_type, visibility')
+                .eq('gig_id', id)
+                .order('created_at', { ascending: false })
+
+            if (data) setMaterials(data)
+            setLoadingMaterials(false)
+        }
+
         loadGig()
+        loadMaterials()
     }, [id, supabase])
 
     // Topic management
@@ -562,6 +590,65 @@ export default function EditGigPage({ params }: { params: Promise<{ id: string }
                         </div>
                     )}
                 </div>
+            </div>
+
+            {/* Section 5: Learning Materials */}
+            <div className="bg-card rounded-xl border p-6 flex flex-col gap-6 shadow-sm">
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h3 className="text-lg font-bold">Learning Materials</h3>
+                        <p className="text-muted-foreground text-sm">Upload resources for enrolled students</p>
+                    </div>
+                    <Button variant="outline" asChild className="gap-2">
+                        <Link href={`/teacher/materials/upload?gig=${id}`}>
+                            <Plus className="size-4" /> Add Material
+                        </Link>
+                    </Button>
+                </div>
+
+                {loadingMaterials ? (
+                    <div className="flex justify-center py-8">
+                        <Loader2 className="size-6 animate-spin text-primary opacity-40" />
+                    </div>
+                ) : materials.length === 0 ? (
+                    <div className="text-center py-8 bg-muted/30 rounded-xl border-2 border-dashed">
+                        <FileText className="size-10 mx-auto text-muted-foreground opacity-30 mb-2" />
+                        <p className="text-muted-foreground text-sm">No materials added yet</p>
+                        <p className="text-xs text-muted-foreground/70">Add PDFs, videos, or links for your students</p>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {materials.map((material) => {
+                            const isLink = material.material_type === 'link'
+                            const IconComponent = isLink
+                                ? (material.link_type === 'youtube' ? Youtube : material.link_type === 'google_drive' ? FileText : Globe)
+                                : FileText
+                            return (
+                                <div key={material.id} className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg border group">
+                                    <div className={cn(
+                                        "size-10 rounded-lg flex items-center justify-center shrink-0",
+                                        material.link_type === 'youtube' ? "bg-red-100 text-red-600 dark:bg-red-900/30" :
+                                            isLink ? "bg-blue-100 text-blue-600 dark:bg-blue-900/30" :
+                                                "bg-primary/10 text-primary"
+                                    )}>
+                                        <IconComponent className="size-5" />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <p className="font-semibold text-sm truncate">{material.title}</p>
+                                        <p className="text-xs text-muted-foreground capitalize">
+                                            {isLink ? material.link_type || 'Link' : 'File'} • {material.visibility.replace('_', ' ')}
+                                        </p>
+                                    </div>
+                                    <Button variant="ghost" size="icon" className="size-8 opacity-0 group-hover:opacity-100" asChild>
+                                        <a href={material.file_url} target="_blank" rel="noopener noreferrer">
+                                            <ExternalLink className="size-4" />
+                                        </a>
+                                    </Button>
+                                </div>
+                            )
+                        })}
+                    </div>
+                )}
             </div>
 
             {/* Save Actions */}
