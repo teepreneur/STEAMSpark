@@ -3,7 +3,7 @@
 import {
     Edit, Check, BadgeCheck, Info, AlertTriangle,
     CloudUpload, Save, Bell, User, X, Plus, Loader2, Camera, MapPin,
-    FileText, UserCircle, CreditCard, Download, Trash2, Phone
+    FileText, UserCircle, CreditCard, Download, Trash2, Phone, Wallet, Building2, Smartphone
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -51,6 +51,15 @@ export default function SettingsPage() {
     const [whatsappSameAsPhone, setWhatsappSameAsPhone] = useState(true)
     const [whatsappEnabled, setWhatsappEnabled] = useState(false)
 
+    // Payout Details
+    const [payoutMethod, setPayoutMethod] = useState<'mobile_money' | 'bank'>('mobile_money')
+    const [momoProvider, setMomoProvider] = useState('')
+    const [momoNumber, setMomoNumber] = useState('')
+    const [momoName, setMomoName] = useState('')
+    const [bankName, setBankName] = useState('')
+    const [bankAccountNumber, setBankAccountNumber] = useState('')
+    const [bankAccountName, setBankAccountName] = useState('')
+
     useEffect(() => {
         async function loadProfile() {
             setLoading(true)
@@ -82,6 +91,14 @@ export default function SettingsPage() {
                     setWhatsappNumber((data as any).whatsapp_number || "")
                     setWhatsappEnabled((data as any).whatsapp_enabled || false)
                     setWhatsappSameAsPhone((data as any).whatsapp_number === (data as any).phone_number || !(data as any).whatsapp_number)
+                    // Load payout details
+                    setPayoutMethod((data as any).payout_method || 'mobile_money')
+                    setMomoProvider((data as any).momo_provider || '')
+                    setMomoNumber((data as any).momo_number || '')
+                    setMomoName((data as any).momo_name || '')
+                    setBankName((data as any).bank_name || '')
+                    setBankAccountNumber((data as any).bank_account_number || '')
+                    setBankAccountName((data as any).bank_account_name || '')
                 }
             }
             setLoading(false)
@@ -163,7 +180,15 @@ export default function SettingsPage() {
                 photo_url: photoUrl,
                 phone_number: phone || null,
                 whatsapp_number: whatsappSameAsPhone ? phone : whatsappNumber || null,
-                whatsapp_enabled: whatsappEnabled
+                whatsapp_enabled: whatsappEnabled,
+                // Payout details
+                payout_method: payoutMethod,
+                momo_provider: payoutMethod === 'mobile_money' ? momoProvider : null,
+                momo_number: payoutMethod === 'mobile_money' ? momoNumber : null,
+                momo_name: payoutMethod === 'mobile_money' ? momoName : null,
+                bank_name: payoutMethod === 'bank' ? bankName : null,
+                bank_account_number: payoutMethod === 'bank' ? bankAccountNumber : null,
+                bank_account_name: payoutMethod === 'bank' ? bankAccountName : null
             })
             .eq('id', profile.id)
 
@@ -602,6 +627,138 @@ export default function SettingsPage() {
                                 )}
                             </div>
                         </div>
+                    </section>
+
+                    {/* Payout Details Card */}
+                    <section className="bg-card rounded-xl border border-border p-6 shadow-sm">
+                        <div className="flex justify-between items-center mb-6">
+                            <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
+                                <Wallet className="text-primary size-5" />
+                                Payout Details
+                            </h3>
+                        </div>
+                        <p className="text-sm text-muted-foreground mb-6">
+                            Add your payment details to receive earnings from completed sessions. We support Mobile Money and Bank Transfers.
+                        </p>
+
+                        {/* Payout Method Selection */}
+                        <div className="grid grid-cols-2 gap-3 mb-6">
+                            <button
+                                type="button"
+                                onClick={() => setPayoutMethod('mobile_money')}
+                                className={cn(
+                                    "p-4 rounded-xl border-2 flex flex-col items-center gap-2 transition-all",
+                                    payoutMethod === 'mobile_money'
+                                        ? "border-primary bg-primary/5"
+                                        : "border-border hover:border-primary/50"
+                                )}
+                            >
+                                <Smartphone className={cn("size-6", payoutMethod === 'mobile_money' ? "text-primary" : "text-muted-foreground")} />
+                                <span className={cn("font-medium text-sm", payoutMethod === 'mobile_money' ? "text-primary" : "text-muted-foreground")}>Mobile Money</span>
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setPayoutMethod('bank')}
+                                className={cn(
+                                    "p-4 rounded-xl border-2 flex flex-col items-center gap-2 transition-all",
+                                    payoutMethod === 'bank'
+                                        ? "border-primary bg-primary/5"
+                                        : "border-border hover:border-primary/50"
+                                )}
+                            >
+                                <Building2 className={cn("size-6", payoutMethod === 'bank' ? "text-primary" : "text-muted-foreground")} />
+                                <span className={cn("font-medium text-sm", payoutMethod === 'bank' ? "text-primary" : "text-muted-foreground")}>Bank Transfer</span>
+                            </button>
+                        </div>
+
+                        {/* Mobile Money Fields */}
+                        {payoutMethod === 'mobile_money' && (
+                            <div className="space-y-4">
+                                <div className="space-y-2">
+                                    <Label>Mobile Money Provider</Label>
+                                    <select
+                                        value={momoProvider}
+                                        onChange={(e) => setMomoProvider(e.target.value)}
+                                        className="w-full h-10 px-3 rounded-lg border border-input bg-background text-sm"
+                                    >
+                                        <option value="">Select provider...</option>
+                                        <option value="MTN">MTN Mobile Money</option>
+                                        <option value="Vodafone">Vodafone Cash</option>
+                                        <option value="AirtelTigo">AirtelTigo Money</option>
+                                    </select>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>Mobile Money Number</Label>
+                                    <Input
+                                        placeholder="e.g. 0241234567"
+                                        value={momoNumber}
+                                        onChange={(e) => setMomoNumber(e.target.value)}
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>Registered Name on Account</Label>
+                                    <Input
+                                        placeholder="Name as registered on MoMo"
+                                        value={momoName}
+                                        onChange={(e) => setMomoName(e.target.value)}
+                                    />
+                                    <p className="text-xs text-muted-foreground">This must match the name registered on your mobile money account</p>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Bank Transfer Fields */}
+                        {payoutMethod === 'bank' && (
+                            <div className="space-y-4">
+                                <div className="space-y-2">
+                                    <Label>Bank Name</Label>
+                                    <select
+                                        value={bankName}
+                                        onChange={(e) => setBankName(e.target.value)}
+                                        className="w-full h-10 px-3 rounded-lg border border-input bg-background text-sm"
+                                    >
+                                        <option value="">Select bank...</option>
+                                        <option value="GCB Bank">GCB Bank</option>
+                                        <option value="Ecobank">Ecobank</option>
+                                        <option value="Fidelity Bank">Fidelity Bank</option>
+                                        <option value="Stanbic Bank">Stanbic Bank</option>
+                                        <option value="Standard Chartered">Standard Chartered</option>
+                                        <option value="Zenith Bank">Zenith Bank</option>
+                                        <option value="Access Bank">Access Bank</option>
+                                        <option value="CalBank">CalBank</option>
+                                        <option value="Absa Bank">Absa Bank</option>
+                                        <option value="UBA">UBA</option>
+                                        <option value="Republic Bank">Republic Bank</option>
+                                        <option value="First National Bank">First National Bank</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>Account Number</Label>
+                                    <Input
+                                        placeholder="Enter account number"
+                                        value={bankAccountNumber}
+                                        onChange={(e) => setBankAccountNumber(e.target.value)}
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>Account Holder Name</Label>
+                                    <Input
+                                        placeholder="Name on the bank account"
+                                        value={bankAccountName}
+                                        onChange={(e) => setBankAccountName(e.target.value)}
+                                    />
+                                    <p className="text-xs text-muted-foreground">This must match the name on your bank account exactly</p>
+                                </div>
+                            </div>
+                        )}
+
+                        {(payoutMethod === 'mobile_money' ? (momoProvider && momoNumber && momoName) : (bankName && bankAccountNumber && bankAccountName)) && (
+                            <div className="mt-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3 flex items-center gap-3">
+                                <Check className="size-5 text-green-600" />
+                                <span className="text-sm text-green-700 dark:text-green-400">Payout details configured. You'll receive earnings to this account.</span>
+                            </div>
+                        )}
                     </section>
 
                     {/* Quick Tips */}
