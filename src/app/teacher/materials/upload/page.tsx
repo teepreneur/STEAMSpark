@@ -2,7 +2,10 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { createClient } from "@/lib/supabase/client"
-import { Upload, FileText, X, Loader2, ArrowLeft, Check, AlertCircle } from "lucide-react"
+import {
+    Upload, FileText, X, Loader2, ArrowLeft, Check, AlertCircle,
+    Link2, Youtube, FolderOpen, Globe, Image, Video
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -17,9 +20,29 @@ interface Gig {
     title: string
 }
 
+type MaterialType = 'file' | 'link'
+type LinkType = 'youtube' | 'google_drive' | 'website' | 'other'
+
+// Detect link type from URL
+function detectLinkType(url: string): LinkType {
+    if (url.includes('youtube.com') || url.includes('youtu.be')) return 'youtube'
+    if (url.includes('drive.google.com') || url.includes('docs.google.com')) return 'google_drive'
+    return 'website'
+}
+
+// Extract YouTube video ID for thumbnail
+function getYouTubeId(url: string): string | null {
+    const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/
+    const match = url.match(regex)
+    return match ? match[1] : null
+}
+
 export default function UploadMaterialPage() {
     const supabase = createClient()
     const router = useRouter()
+
+    // Material type toggle
+    const [materialType, setMaterialType] = useState<MaterialType>('file')
 
     const [title, setTitle] = useState("")
     const [description, setDescription] = useState("")
@@ -30,6 +53,10 @@ export default function UploadMaterialPage() {
     const [uploading, setUploading] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [dragActive, setDragActive] = useState(false)
+
+    // Link-specific state
+    const [linkUrl, setLinkUrl] = useState("")
+    const [linkType, setLinkType] = useState<LinkType>('website')
 
     useEffect(() => {
         async function loadGigs() {
@@ -47,6 +74,13 @@ export default function UploadMaterialPage() {
         loadGigs()
     }, [supabase])
 
+    // Auto-detect link type when URL changes
+    useEffect(() => {
+        if (linkUrl) {
+            setLinkType(detectLinkType(linkUrl))
+        }
+    }, [linkUrl])
+
     const handleDrag = useCallback((e: React.DragEvent) => {
         e.preventDefault()
         e.stopPropagation()
@@ -63,13 +97,21 @@ export default function UploadMaterialPage() {
         setDragActive(false)
 
         if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-            setSelectedFile(e.dataTransfer.files[0])
+            const file = e.dataTransfer.files[0]
+            setSelectedFile(file)
+            if (!title) {
+                setTitle(file.name.replace(/\.[^/.]+$/, ""))
+            }
         }
-    }, [])
+    }, [title])
 
     const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
-            setSelectedFile(e.target.files[0])
+            const file = e.target.files[0]
+            setSelectedFile(file)
+            if (!title) {
+                setTitle(file.name.replace(/\.[^/.]+$/, ""))
+            }
         }
     }
 
@@ -83,8 +125,18 @@ export default function UploadMaterialPage() {
     }
 
     const handleUpload = async () => {
-        if (!selectedFile || !title.trim()) {
-            setError("Please provide a title and select a file.")
+        if (!title.trim()) {
+            setError("Please provide a title.")
+            return
+        }
+
+        if (materialType === 'file' && !selectedFile) {
+            setError("Please select a file to upload.")
+            return
+        }
+
+        if (materialType === 'link' && !linkUrl.trim()) {
+            setError("Please provide a URL.")
             return
         }
 
@@ -95,32 +147,49 @@ export default function UploadMaterialPage() {
             const { data: { user } } = await supabase.auth.getUser()
             if (!user) throw new Error("Not authenticated")
 
-            // Upload file to Supabase Storage
-            const fileExt = selectedFile.name.split('.').pop()
-            const fileName = `${user.id}/${Date.now()}.${fileExt}`
+            let fileUrl = ""
+            let fileName = null
+            let fileType = null
+            let fileSize = null
 
-            const { data: uploadData, error: uploadError } = await supabase.storage
-                .from('materials')
-                .upload(fileName, selectedFile)
+            if (materialType === 'file' && selectedFile) {
+                // Upload file to Supabase Storage
+                const fileExt = selectedFile.name.split('.').pop()
+                const storageName = `${user.id}/${Date.now()}.${fileExt}`
 
-            if (uploadError) throw uploadError
+                const { error: uploadError } = await supabase.storage
+                    .from('materials')
+                    .upload(storageName, selectedFile)
 
-            // Get public URL
-            const { data: urlData } = supabase.storage
-                .from('materials')
-                .getPublicUrl(fileName)
+                if (uploadError) throw uploadError
+
+                const { data: urlData } = supabase.storage
+                    .from('materials')
+                    .getPublicUrl(storageName)
+
+                fileUrl = urlData.publicUrl
+                fileName = selectedFile.name
+                fileType = getFileType(selectedFile)
+                fileSize = selectedFile.size
+            } else {
+                // Link type
+                fileUrl = linkUrl
+                fileType = linkType
+            }
 
             // Insert material record
             const { error: insertError } = await supabase.from('materials').insert({
                 teacher_id: user.id,
                 title: title.trim(),
                 description: description.trim() || null,
-                file_url: urlData.publicUrl,
-                file_name: selectedFile.name,
-                file_type: getFileType(selectedFile),
-                file_size: selectedFile.size,
+                file_url: fileUrl,
+                file_name: fileName,
+                file_type: fileType,
+                file_size: fileSize,
                 gig_id: selectedGigId || null,
-                visibility
+                visibility,
+                material_type: materialType,
+                link_type: materialType === 'link' ? linkType : null
             })
 
             if (insertError) throw insertError
@@ -133,6 +202,8 @@ export default function UploadMaterialPage() {
             setUploading(false)
         }
     }
+
+    const youtubeId = materialType === 'link' && linkType === 'youtube' ? getYouTubeId(linkUrl) : null
 
     return (
         <div className="max-w-2xl mx-auto">
@@ -148,61 +219,159 @@ export default function UploadMaterialPage() {
             </div>
 
             <div className="bg-card rounded-xl border border-border p-6 space-y-6">
-                {/* File Drop Zone */}
-                <div
-                    className={cn(
-                        "border-2 border-dashed rounded-xl p-8 text-center transition-colors cursor-pointer",
-                        dragActive ? "border-primary bg-primary/5" : "border-border hover:border-primary/50",
-                        selectedFile && "border-green-500 bg-green-50 dark:bg-green-900/10"
-                    )}
-                    onDragEnter={handleDrag}
-                    onDragLeave={handleDrag}
-                    onDragOver={handleDrag}
-                    onDrop={handleDrop}
-                    onClick={() => document.getElementById('file-input')?.click()}
-                >
-                    <input
-                        id="file-input"
-                        type="file"
-                        className="hidden"
-                        onChange={handleFileSelect}
-                        accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.mp4,.mov,.jpg,.jpeg,.png,.gif"
-                    />
-                    {selectedFile ? (
-                        <div className="flex flex-col items-center gap-3">
-                            <div className="size-14 rounded-full bg-green-100 flex items-center justify-center">
-                                <Check className="size-7 text-green-600" />
+                {/* Material Type Toggle */}
+                <div className="space-y-3">
+                    <Label>Material Type</Label>
+                    <div className="grid grid-cols-2 gap-3">
+                        <button
+                            type="button"
+                            onClick={() => setMaterialType('file')}
+                            className={cn(
+                                "flex items-center gap-3 p-4 rounded-xl border-2 transition-all",
+                                materialType === 'file'
+                                    ? "border-primary bg-primary/5"
+                                    : "border-border hover:border-primary/50"
+                            )}
+                        >
+                            <div className={cn(
+                                "size-10 rounded-full flex items-center justify-center",
+                                materialType === 'file' ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                            )}>
+                                <Upload className="size-5" />
                             </div>
-                            <div>
-                                <p className="font-bold text-foreground">{selectedFile.name}</p>
-                                <p className="text-sm text-muted-foreground">
-                                    {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB
-                                </p>
+                            <div className="text-left">
+                                <p className="font-bold text-sm">File Upload</p>
+                                <p className="text-xs text-muted-foreground">PDF, Images, Videos</p>
                             </div>
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={(e) => {
-                                    e.stopPropagation()
-                                    setSelectedFile(null)
-                                }}
-                            >
-                                <X className="size-4 mr-2" /> Remove
-                            </Button>
-                        </div>
-                    ) : (
-                        <div className="flex flex-col items-center gap-3">
-                            <div className="size-14 rounded-full bg-primary/10 flex items-center justify-center">
-                                <Upload className="size-7 text-primary" />
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={() => setMaterialType('link')}
+                            className={cn(
+                                "flex items-center gap-3 p-4 rounded-xl border-2 transition-all",
+                                materialType === 'link'
+                                    ? "border-primary bg-primary/5"
+                                    : "border-border hover:border-primary/50"
+                            )}
+                        >
+                            <div className={cn(
+                                "size-10 rounded-full flex items-center justify-center",
+                                materialType === 'link' ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                            )}>
+                                <Link2 className="size-5" />
                             </div>
-                            <div>
-                                <p className="font-bold text-foreground">Drop your file here</p>
-                                <p className="text-sm text-muted-foreground">or click to browse</p>
+                            <div className="text-left">
+                                <p className="font-bold text-sm">External Link</p>
+                                <p className="text-xs text-muted-foreground">YouTube, Drive, Web</p>
                             </div>
-                            <p className="text-xs text-muted-foreground">PDF, DOC, PPT, XLS, MP4, JPG up to 50MB</p>
-                        </div>
-                    )}
+                        </button>
+                    </div>
                 </div>
+
+                {/* File Drop Zone */}
+                {materialType === 'file' && (
+                    <div
+                        className={cn(
+                            "border-2 border-dashed rounded-xl p-8 text-center transition-colors cursor-pointer",
+                            dragActive ? "border-primary bg-primary/5" : "border-border hover:border-primary/50",
+                            selectedFile && "border-green-500 bg-green-50 dark:bg-green-900/10"
+                        )}
+                        onDragEnter={handleDrag}
+                        onDragLeave={handleDrag}
+                        onDragOver={handleDrag}
+                        onDrop={handleDrop}
+                        onClick={() => document.getElementById('file-input')?.click()}
+                    >
+                        <input
+                            id="file-input"
+                            type="file"
+                            className="hidden"
+                            onChange={handleFileSelect}
+                            accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.mp4,.mov,.webm,.jpg,.jpeg,.png,.gif,.webp"
+                        />
+                        {selectedFile ? (
+                            <div className="flex flex-col items-center gap-3">
+                                <div className="size-14 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                                    <Check className="size-7 text-green-600" />
+                                </div>
+                                <div>
+                                    <p className="font-bold text-foreground">{selectedFile.name}</p>
+                                    <p className="text-sm text-muted-foreground">
+                                        {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB
+                                    </p>
+                                </div>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        setSelectedFile(null)
+                                    }}
+                                >
+                                    <X className="size-4 mr-2" /> Remove
+                                </Button>
+                            </div>
+                        ) : (
+                            <div className="flex flex-col items-center gap-3">
+                                <div className="size-14 rounded-full bg-primary/10 flex items-center justify-center">
+                                    <Upload className="size-7 text-primary" />
+                                </div>
+                                <div>
+                                    <p className="font-bold text-foreground">Drop your file here</p>
+                                    <p className="text-sm text-muted-foreground">or click to browse</p>
+                                </div>
+                                <p className="text-xs text-muted-foreground">PDF, DOC, PPT, XLS, MP4, JPG up to 50MB</p>
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {/* Link Input */}
+                {materialType === 'link' && (
+                    <div className="space-y-4">
+                        <div className="space-y-2">
+                            <Label>Paste URL</Label>
+                            <Input
+                                placeholder="https://youtube.com/watch?v=... or any URL"
+                                value={linkUrl}
+                                onChange={(e) => setLinkUrl(e.target.value)}
+                                className="text-base"
+                            />
+                        </div>
+
+                        {linkUrl && (
+                            <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                                <div className={cn(
+                                    "size-10 rounded-lg flex items-center justify-center",
+                                    linkType === 'youtube' ? "bg-red-100 text-red-600 dark:bg-red-900/30" :
+                                        linkType === 'google_drive' ? "bg-blue-100 text-blue-600 dark:bg-blue-900/30" :
+                                            "bg-green-100 text-green-600 dark:bg-green-900/30"
+                                )}>
+                                    {linkType === 'youtube' ? <Youtube className="size-5" /> :
+                                        linkType === 'google_drive' ? <FolderOpen className="size-5" /> :
+                                            <Globe className="size-5" />}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <p className="font-bold text-sm capitalize">{linkType.replace('_', ' ')} Link</p>
+                                    <p className="text-xs text-muted-foreground truncate">{linkUrl}</p>
+                                </div>
+                                <Check className="size-5 text-green-500" />
+                            </div>
+                        )}
+
+                        {/* YouTube Preview */}
+                        {youtubeId && (
+                            <div className="rounded-xl overflow-hidden border border-border">
+                                <img
+                                    src={`https://img.youtube.com/vi/${youtubeId}/mqdefault.jpg`}
+                                    alt="YouTube thumbnail"
+                                    className="w-full aspect-video object-cover"
+                                />
+                            </div>
+                        )}
+                    </div>
+                )}
 
                 {/* Title */}
                 <div className="space-y-2">
@@ -229,7 +398,7 @@ export default function UploadMaterialPage() {
 
                 {/* Link to Course */}
                 <div className="space-y-2">
-                    <Label>Link to Course (optional)</Label>
+                    <Label>Assign to Course (optional)</Label>
                     <Select value={selectedGigId} onValueChange={setSelectedGigId}>
                         <SelectTrigger>
                             <SelectValue placeholder="Select a course..." />
@@ -241,6 +410,9 @@ export default function UploadMaterialPage() {
                             ))}
                         </SelectContent>
                     </Select>
+                    <p className="text-xs text-muted-foreground">
+                        Students enrolled in this course will be able to access this material.
+                    </p>
                 </div>
 
                 {/* Visibility */}
@@ -274,7 +446,7 @@ export default function UploadMaterialPage() {
                     <Button
                         className="flex-1 font-bold gap-2"
                         onClick={handleUpload}
-                        disabled={uploading || !selectedFile || !title.trim()}
+                        disabled={uploading || !title.trim() || (materialType === 'file' ? !selectedFile : !linkUrl.trim())}
                     >
                         {uploading ? (
                             <>

@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react"
 import { createClient } from "@/lib/supabase/client"
-import { FileText, Video, Image, File, Upload, Trash2, Share2, Loader2, FolderOpen, Search, Filter } from "lucide-react"
+import { FileText, Video, Image, File, Upload, Trash2, Share2, Loader2, FolderOpen, Search, Filter, Youtube, Globe, Link2, ExternalLink } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -21,6 +21,8 @@ interface Material {
     gig_id: string | null
     visibility: string
     created_at: string
+    material_type?: string | null
+    link_type?: string | null
     gig?: { title: string } | null
 }
 
@@ -29,6 +31,10 @@ const fileIcons: Record<string, React.ElementType> = {
     video: Video,
     image: Image,
     document: FileText,
+    youtube: Youtube,
+    google_drive: FolderOpen,
+    website: Globe,
+    link: Link2,
     default: File
 }
 
@@ -136,16 +142,23 @@ export default function MaterialsPage() {
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {filteredMaterials.map(material => {
-                        const IconComponent = fileIcons[material.file_type || 'default'] || fileIcons.default
+                        const iconType = material.material_type === 'link'
+                            ? (material.link_type || 'link')
+                            : (material.file_type || 'default')
+                        const IconComponent = fileIcons[iconType] || fileIcons.default
+                        const isLink = material.material_type === 'link'
                         return (
                             <div key={material.id} className="bg-card rounded-xl border border-border p-5 hover:shadow-md transition-shadow">
                                 <div className="flex items-start gap-4">
                                     <div className={cn(
                                         "size-12 rounded-lg flex items-center justify-center",
-                                        material.file_type === 'pdf' ? "bg-red-100 text-red-600 dark:bg-red-900/30" :
-                                            material.file_type === 'video' ? "bg-purple-100 text-purple-600 dark:bg-purple-900/30" :
-                                                material.file_type === 'image' ? "bg-green-100 text-green-600 dark:bg-green-900/30" :
-                                                    "bg-blue-100 text-blue-600 dark:bg-blue-900/30"
+                                        material.link_type === 'youtube' ? "bg-red-100 text-red-600 dark:bg-red-900/30" :
+                                            material.link_type === 'google_drive' ? "bg-blue-100 text-blue-600 dark:bg-blue-900/30" :
+                                                material.link_type === 'website' ? "bg-green-100 text-green-600 dark:bg-green-900/30" :
+                                                    material.file_type === 'pdf' ? "bg-red-100 text-red-600 dark:bg-red-900/30" :
+                                                        material.file_type === 'video' ? "bg-purple-100 text-purple-600 dark:bg-purple-900/30" :
+                                                            material.file_type === 'image' ? "bg-green-100 text-green-600 dark:bg-green-900/30" :
+                                                                "bg-blue-100 text-blue-600 dark:bg-blue-900/30"
                                     )}>
                                         <IconComponent className="size-6" />
                                     </div>

@@ -9,7 +9,7 @@ import { Progress } from "@/components/ui/progress"
 import {
     ArrowLeft, Check, Play, Lock, Flag, Loader2, Share2, Edit,
     BookOpen, Clock, Target, ChevronRight, Lightbulb, User, GraduationCap,
-    Copy, MessageCircle, ExternalLink, CheckCircle, FileText
+    Copy, MessageCircle, ExternalLink, CheckCircle, FileText, Download
 } from "lucide-react"
 import { MaterialsList, Material } from "@/components/materials/materials-list"
 import {
@@ -65,6 +65,7 @@ export default function RoadmapDetailPage() {
     const supabase = createClient()
     const [roadmap, setRoadmap] = useState<Roadmap | null>(null)
     const [materials, setMaterials] = useState<Material[]>([])
+    const [enrolledGigIds, setEnrolledGigIds] = useState<string[]>([])
     const [loading, setLoading] = useState(true)
     const [loadingMaterials, setLoadingMaterials] = useState(true)
     const [copied, setCopied] = useState(false)
@@ -180,6 +181,9 @@ export default function RoadmapDetailPage() {
 
                     if (data) enrolledMaterials = data
                 }
+
+                // Store enrolled gig IDs for download all feature
+                setEnrolledGigIds(enrolledGigIds)
 
                 // Combine and deduplicate
                 const allMaterials = [...filteredPublic, ...enrolledMaterials]
@@ -487,6 +491,20 @@ export default function RoadmapDetailPage() {
                                                                     <p className="text-muted-foreground text-sm font-medium">Resources to help you master this journey</p>
                                                                 </div>
                                                             </div>
+                                                            {materials.length > 0 && enrolledGigIds.length > 0 && (
+                                                                <Button
+                                                                    variant="outline"
+                                                                    size="sm"
+                                                                    className="gap-2"
+                                                                    onClick={() => {
+                                                                        const firstGigId = enrolledGigIds[0]
+                                                                        window.open(`/api/materials/download-all?gig_id=${firstGigId}`, '_blank')
+                                                                    }}
+                                                                >
+                                                                    <Download className="size-4" />
+                                                                    Download All
+                                                                </Button>
+                                                            )}
                                                         </div>
 
                                                         {loadingMaterials ? (
