@@ -121,6 +121,7 @@ export default function PaymentPage({ params }: { params: Promise<{ id: string }
                     amount: amountToPay,
                     booking_id: bookingId,
                     payment_type: paymentOption,
+                    teacher_amount: paymentOption === 'full' ? teacherTotal : Math.ceil(teacherTotal / 2), // Pro-rated for deposit
                     callback_url: `${window.location.origin}/parent/booking/verify?booking_id=${bookingId}`
                 })
             })

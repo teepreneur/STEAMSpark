@@ -29,10 +29,20 @@ function generateReceiptMessage(details: {
     studentName: string
     parentName: string
     totalSessions: number
+    firstSessionDate?: string
+    firstSessionTime?: string
 }) {
     const formattedDate = new Date(details.paidAt).toLocaleDateString('en-GB', {
         day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
     })
+
+    let firstSessionInfo = ''
+    if (details.firstSessionDate) {
+        const sessionDate = new Date(details.firstSessionDate).toLocaleDateString('en-GB', {
+            weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+        })
+        firstSessionInfo = `\n\n🗓️ FIRST SESSION\n━━━━━━━━━━━━━━━━━━━━━\nDate: ${sessionDate}${details.firstSessionTime ? `\nTime: ${details.firstSessionTime}` : ''}\n━━━━━━━━━━━━━━━━━━━━━`
+    }
 
     return `📧 PAYMENT CONFIRMATION
 
@@ -47,7 +57,7 @@ Sessions: ${details.totalSessions}
 Amount Paid: GHS ${details.amount.toFixed(2)}
 Reference: ${details.reference}
 Date: ${formattedDate}
-━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━${firstSessionInfo}
 
 Looking forward to the classes! 🎉`
 }
@@ -115,6 +125,16 @@ export async function GET(request: Request) {
                     console.error('Error updating booking:', bookingError)
                 }
 
+                // ========== UPDATE BOOKING SESSIONS TO CONFIRMED ==========
+                const { error: sessionsError } = await supabase
+                    .from('booking_sessions')
+                    .update({ status: 'confirmed' })
+                    .eq('booking_id', bookingId)
+
+                if (sessionsError) {
+                    console.error('Error updating sessions:', sessionsError)
+                }
+
                 // Create teacher earnings record
                 if (bookingDetails && (bookingDetails.gig as any)?.teacher_id) {
                     const teacherId = (bookingDetails.gig as any).teacher_id
@@ -173,6 +193,15 @@ export async function GET(request: Request) {
 
                         // Send payment confirmation message
                         if (conversationId) {
+                            // Get first scheduled session
+                            const { data: firstSession } = await supabase
+                                .from('booking_sessions')
+                                .select('session_date, session_time')
+                                .eq('booking_id', bookingId)
+                                .order('session_date', { ascending: true })
+                                .limit(1)
+                                .single()
+
                             const receiptMessage = generateReceiptMessage({
                                 reference,
                                 amount: amountPaid,
@@ -180,7 +209,9 @@ export async function GET(request: Request) {
                                 gigTitle,
                                 studentName,
                                 parentName,
-                                totalSessions
+                                totalSessions,
+                                firstSessionDate: firstSession?.session_date,
+                                firstSessionTime: firstSession?.session_time
                             })
 
                             await supabase.from('messages').insert({
@@ -271,6 +302,74 @@ export async function GET(request: Request) {
                             console.log(`[WhatsApp] Payment notification sent to teacher ${teacherProfile.whatsapp_number}`)
                         } catch (waError) {
                             console.error('Failed to send WhatsApp to teacher:', waError)
+                        }
+                    }
+
+                    // ========== IN-APP NOTIFICATIONS ==========
+                    // Notify teacher
+                    await supabase.from('notifications').insert({
+                        user_id: teacherId,
+                        type: 'payment_received',
+                        title: 'New Student Enrolled! 💰',
+                        message: `${parentName} paid for ${studentName}'s enrollment in "${gigTitle}". GHS ${amountPaid.toFixed(2)} received.`,
+                        action_url: `/teacher/students`
+                    })
+
+                    // Notify parent
+                    await supabase.from('notifications').insert({
+                        user_id: parentId,
+                        type: 'payment_confirmed',
+                        title: 'Payment Successful! 🎉',
+                        message: `Your payment of GHS ${amountPaid.toFixed(2)} for "${gigTitle}" is confirmed. Sessions are now scheduled with ${teacherProfile?.full_name || 'your teacher'}.`,
+                        action_url: `/parent/dashboard`
+                    })
+
+                    // ========== SEND CONFIRMATION EMAIL TO PARENT ==========
+                    const parentEmail = (bookingDetails.parent as any)?.email
+                    if (parentEmail && process.env.RESEND_API_KEY) {
+                        const formattedDate = new Date(data.data.paid_at).toLocaleDateString('en-GB', {
+                            day: 'numeric', month: 'long', year: 'numeric'
+                        })
+
+                        try {
+                            await resend.emails.send({
+                                from: 'STEAM Spark <notifications@steamsparkgh.com>',
+                                to: parentEmail,
+                                subject: `Payment Confirmed: ${gigTitle}`,
+                                html: `
+                                    <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px;">
+                                        <h2 style="color: #16a34a;">✅ Payment Confirmed!</h2>
+                                        <p>Hi ${parentName},</p>
+                                        <p>Great news! Your payment for <strong>${studentName}</strong>'s enrollment has been confirmed.</p>
+                                        
+                                        <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                                            <h3 style="margin-top: 0; color: #166534;">📋 Receipt</h3>
+                                            <p style="margin: 5px 0;"><strong>Course:</strong> ${gigTitle}</p>
+                                            <p style="margin: 5px 0;"><strong>Teacher:</strong> ${teacherProfile?.full_name || 'Your Teacher'}</p>
+                                            <p style="margin: 5px 0;"><strong>Student:</strong> ${studentName}</p>
+                                            <p style="margin: 5px 0;"><strong>Total Sessions:</strong> ${totalSessions}</p>
+                                            <p style="margin: 5px 0;"><strong>Amount Paid:</strong> GHS ${amountPaid.toFixed(2)}</p>
+                                            <p style="margin: 5px 0;"><strong>Reference:</strong> ${reference}</p>
+                                            <p style="margin: 5px 0;"><strong>Date:</strong> ${formattedDate}</p>
+                                        </div>
+                                        
+                                        <p>Your sessions are now scheduled! You can view them in your dashboard and message your teacher to coordinate.</p>
+                                        
+                                        <div style="margin: 30px 0;">
+                                            <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://app.steamsparkgh.com'}/parent/dashboard" 
+                                               style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">
+                                                View Dashboard
+                                            </a>
+                                        </div>
+                                        
+                                        <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
+                                        <p style="color: #94a3b8; font-size: 12px;">STEAM Spark - Empowering the next generation of innovators.</p>
+                                    </div>
+                                `
+                            })
+                            console.log(`[Payment] Confirmation email sent to parent ${parentEmail}`)
+                        } catch (emailError) {
+                            console.error('Failed to send confirmation email to parent:', emailError)
                         }
                     }
                 }
