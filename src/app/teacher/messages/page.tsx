@@ -22,6 +22,7 @@ interface Conversation {
     last_message_at: string
     last_message?: string
     unread_count: number
+    hasActiveBooking?: boolean
 }
 
 interface Message {
@@ -58,6 +59,7 @@ function TeacherMessagesContent() {
     const [messages, setMessages] = useState<Message[]>([])
     const [newMessage, setNewMessage] = useState("")
     const [searchQuery, setSearchQuery] = useState("")
+    const [canChat, setCanChat] = useState(false)  // True if confirmed booking exists
     const messagesEndRef = useRef<HTMLDivElement>(null)
 
     // Load conversations
@@ -208,7 +210,40 @@ function TeacherMessagesContent() {
                     .neq('sender_id', userId)
             }
         }
+
+        // Check if there's a confirmed booking with this parent
+        async function checkActiveBooking() {
+            const parentId = selectedConversation?.parent_id
+            if (!parentId || !userId) {
+                setCanChat(false)
+                return
+            }
+
+            // Get all gigs by this teacher
+            const { data: gigs } = await supabase
+                .from('gigs')
+                .select('id')
+                .eq('teacher_id', userId)
+
+            if (gigs && gigs.length > 0) {
+                const gigIds = gigs.map(g => g.id)
+                const { data: confirmedBooking } = await supabase
+                    .from('bookings')
+                    .select('id')
+                    .eq('parent_id', parentId)
+                    .eq('status', 'confirmed')
+                    .in('gig_id', gigIds)
+                    .limit(1)
+                    .maybeSingle()
+
+                setCanChat(!!confirmedBooking)
+            } else {
+                setCanChat(false)
+            }
+        }
+
         loadMessages()
+        checkActiveBooking()
 
         // Subscribe to new messages in real-time
         const channel = supabase
@@ -448,33 +483,44 @@ function TeacherMessagesContent() {
                         )}
                     </ScrollArea>
 
-                    {/* Input */}
+                    {/* Input - Only enabled if confirmed booking exists */}
                     <div className="p-4 border-t border-border bg-card">
-                        <div className="flex items-end gap-2 max-w-4xl mx-auto">
-                            <div className="flex-1 bg-muted rounded-2xl flex items-center border border-transparent focus-within:border-primary/50 focus-within:bg-background transition-all">
-                                <textarea
-                                    className="w-full bg-transparent border-none focus:ring-0 text-foreground placeholder:text-muted-foreground px-4 py-3 min-h-[48px] max-h-32 resize-none text-sm focus:outline-none"
-                                    placeholder={`Message ${selectedConversation.parent?.full_name || 'parent'}...`}
-                                    rows={1}
-                                    value={newMessage}
-                                    onChange={(e) => setNewMessage(e.target.value)}
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter' && !e.shiftKey) {
-                                            e.preventDefault()
-                                            handleSendMessage()
-                                        }
-                                    }}
-                                />
+                        {canChat ? (
+                            <div className="flex items-end gap-2 max-w-4xl mx-auto">
+                                <div className="flex-1 bg-muted rounded-2xl flex items-center border border-transparent focus-within:border-primary/50 focus-within:bg-background transition-all">
+                                    <textarea
+                                        className="w-full bg-transparent border-none focus:ring-0 text-foreground placeholder:text-muted-foreground px-4 py-3 min-h-[48px] max-h-32 resize-none text-sm focus:outline-none"
+                                        placeholder={`Message ${selectedConversation.parent?.full_name || 'parent'}...`}
+                                        rows={1}
+                                        value={newMessage}
+                                        onChange={(e) => setNewMessage(e.target.value)}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter' && !e.shiftKey) {
+                                                e.preventDefault()
+                                                handleSendMessage()
+                                            }
+                                        }}
+                                    />
+                                </div>
+                                <Button
+                                    size="icon"
+                                    className="rounded-xl shadow-md"
+                                    onClick={handleSendMessage}
+                                    disabled={sending || !newMessage.trim()}
+                                >
+                                    {sending ? <Loader2 className="size-5 animate-spin" /> : <Send className="size-5" />}
+                                </Button>
                             </div>
-                            <Button
-                                size="icon"
-                                className="rounded-xl shadow-md"
-                                onClick={handleSendMessage}
-                                disabled={sending || !newMessage.trim()}
-                            >
-                                {sending ? <Loader2 className="size-5 animate-spin" /> : <Send className="size-5" />}
-                            </Button>
-                        </div>
+                        ) : (
+                            <div className="text-center py-3 px-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-800">
+                                <p className="text-sm font-medium text-amber-800 dark:text-amber-300">
+                                    💬 Chat unlocked after payment
+                                </p>
+                                <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
+                                    You can chat with this parent once they complete payment
+                                </p>
+                            </div>
+                        )}
                     </div>
                 </div>
             ) : (

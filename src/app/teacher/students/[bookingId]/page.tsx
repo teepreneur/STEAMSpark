@@ -197,6 +197,7 @@ export default function StudentDetailPage({ params }: { params: Promise<{ bookin
                     body: JSON.stringify({
                         parentEmail: studentData.parent.email,
                         parentName: studentData.parent.full_name,
+                        parentId: studentData.parent.id,
                         studentName: studentData.student.name,
                         gigTitle: studentData.gig.title,
                         teacherName: teacherName,

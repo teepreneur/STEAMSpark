@@ -12,7 +12,7 @@ const supabaseAdmin = createClient(
 
 export async function POST(request: NextRequest) {
     try {
-        const { parentEmail, parentName, studentName, gigTitle, teacherName, bookingId } = await request.json()
+        const { parentEmail, parentName, parentId, studentName, gigTitle, teacherName, bookingId } = await request.json()
 
         if (!parentEmail || !gigTitle || !bookingId) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
@@ -20,16 +20,31 @@ export async function POST(request: NextRequest) {
 
         const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
-        // 1. Send Email Notification
+        // 1. Create in-app notification for parent
+        if (parentId) {
+            try {
+                await supabaseAdmin.from('notifications').insert({
+                    user_id: parentId,
+                    type: 'booking_accepted',
+                    title: 'Booking Accepted! 🎉',
+                    message: `${teacherName || 'The teacher'} has accepted your booking for ${studentName} in "${gigTitle}". Please complete payment to confirm.`,
+                    action_url: `/parent/booking/${bookingId}/payment`
+                })
+            } catch (notifError) {
+                console.error('In-app notification failed:', notifError)
+            }
+        }
+
+        // 2. Send Email Notification
         if (process.env.RESEND_API_KEY) {
             try {
                 await resend.emails.send({
-                    from: 'STEAM Spark <notifications@steamspark.com>',
+                    from: 'STEAM Spark <notifications@steamsparkgh.com>',
                     to: parentEmail,
                     subject: `Booking Accepted: ${gigTitle}`,
                     html: `
-                        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; rounded: 12px;">
-                            <h2 style="color: #2563eb;">Great news! Your booking has been accepted</h2>
+                        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px;">
+                            <h2 style="color: #2563eb;">Great news! Your booking has been accepted 🎉</h2>
                             <p>Hi ${parentName || 'Parent'},</p>
                             <p><strong>${teacherName || 'The teacher'}</strong> has accepted the booking for <strong>${studentName}</strong> in the course "<strong>${gigTitle}</strong>".</p>
                             <p>To confirm your sessions, please complete the payment using the link below:</p>
@@ -39,7 +54,7 @@ export async function POST(request: NextRequest) {
                                     Complete Payment
                                 </a>
                             </div>
-                            <p style="color: #64748b; font-size: 14px;">If you have any questions, you can message the teacher directly from your dashboard.</p>
+                            <p style="color: #64748b; font-size: 14px;">After payment, you'll be able to message the teacher directly.</p>
                             <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
                             <p style="color: #94a3b8; font-size: 12px;">STEAM Spark - Empowering the next generation of innovators.</p>
                         </div>
@@ -61,3 +76,4 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Failed to send notification' }, { status: 500 })
     }
 }
+

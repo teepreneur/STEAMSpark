@@ -95,6 +95,7 @@ export function RecentInquiries() {
                     body: JSON.stringify({
                         parentEmail: inquiry.profiles?.email,
                         parentName: inquiry.profiles?.full_name,
+                        parentId: parentId,
                         studentName: inquiry.students?.name,
                         gigTitle: inquiry.gigs.title,
                         teacherName: teacherName,
