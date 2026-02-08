@@ -1,3 +1,25 @@
+import { NextResponse } from 'next/server'
+import { createClient } from '@/lib/supabase/server'
+import { Resend } from 'resend'
+
+const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY
+const resend = new Resend(process.env.RESEND_API_KEY)
+
+interface PaystackVerifyResponse {
+    status: boolean
+    message: string
+    data: {
+        status: string
+        reference: string
+        amount: number
+        currency: string
+        paid_at: string
+        metadata: {
+            booking_id?: string
+        }
+    }
+}
+
 // Generate a formatted HTML receipt for email
 function generateEmailReceipt({
     details,
