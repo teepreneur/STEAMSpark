@@ -66,7 +66,7 @@ export function CompletedSessions() {
                         title,
                         profiles:teacher_id (full_name)
                     ),
-                    reviews (id)
+                    reviews:reviews!reviews_booking_id_fkey (id)
                 )
             `)
             .eq('booking.parent_id', user.id)
