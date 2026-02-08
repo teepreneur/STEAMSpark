@@ -9,8 +9,9 @@ import { Progress } from "@/components/ui/progress"
 import {
     ArrowLeft, Check, Play, Lock, Flag, Loader2, Share2, Edit,
     BookOpen, Clock, Target, ChevronRight, Lightbulb, User, GraduationCap,
-    Copy, MessageCircle, ExternalLink, CheckCircle
+    Copy, MessageCircle, ExternalLink, CheckCircle, FileText
 } from "lucide-react"
+import { MaterialsList, Material } from "@/components/materials/materials-list"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -63,7 +64,9 @@ export default function RoadmapDetailPage() {
     const router = useRouter()
     const supabase = createClient()
     const [roadmap, setRoadmap] = useState<Roadmap | null>(null)
+    const [materials, setMaterials] = useState<Material[]>([])
     const [loading, setLoading] = useState(true)
+    const [loadingMaterials, setLoadingMaterials] = useState(true)
     const [copied, setCopied] = useState(false)
 
     const shareUrl = typeof window !== 'undefined'
@@ -137,8 +140,59 @@ export default function RoadmapDetailPage() {
 
             if (data) {
                 setRoadmap(data as Roadmap)
+                // Now fetch materials related to this roadmap
+                fetchRelatedMaterials(data as Roadmap)
             }
             setLoading(false)
+        }
+
+        async function fetchRelatedMaterials(roadmapData: Roadmap) {
+            setLoadingMaterials(true)
+            try {
+                // 1. Fetch public materials
+                // Since materials don't have subject directly, we can fetch all public materials
+                // or those linked to gigs with matching subject
+                const { data: publicMaterials } = await supabase
+                    .from('materials')
+                    .select('*, gig:gigs(subject)')
+                    .eq('visibility', 'public')
+
+                const filteredPublic = publicMaterials?.filter(m =>
+                    (m.gig as any)?.subject === roadmapData.subject || !m.gig_id
+                ) || []
+
+                // 2. Fetch materials for gigs this student is enrolled in
+                const { data: bookings } = await supabase
+                    .from('bookings')
+                    .select('gig_id')
+                    .eq('student_id', (roadmapData as any).student_id)
+                    .in('status', ['confirmed', 'completed'])
+
+                const enrolledGigIds = bookings?.map(b => b.gig_id) || []
+
+                let enrolledMaterials: any[] = []
+                if (enrolledGigIds.length > 0) {
+                    const { data } = await supabase
+                        .from('materials')
+                        .select('*, gig:gigs(subject)')
+                        .in('gig_id', enrolledGigIds)
+                        .in('visibility', ['enrolled_students', 'public'])
+
+                    if (data) enrolledMaterials = data
+                }
+
+                // Combine and deduplicate
+                const allMaterials = [...filteredPublic, ...enrolledMaterials]
+                const uniqueMaterials = allMaterials.filter((m, index, self) =>
+                    index === self.findIndex((t) => t.id === m.id)
+                )
+
+                setMaterials(uniqueMaterials as Material[])
+            } catch (err) {
+                console.error('Error fetching materials:', err)
+            } finally {
+                setLoadingMaterials(false)
+            }
         }
 
         loadRoadmap()
@@ -347,58 +401,63 @@ export default function RoadmapDetailPage() {
                                     {roadmap.modules?.map((module, idx) => {
                                         const isCompleted = module.status === 'completed'
                                         const isInProgress = module.status === 'in_progress'
-                                        const isLocked = module.status === 'locked'
+                                        // We keep the status for logic, but we don't "lock" the view anymore
+                                        const isPlanned = module.status === 'locked'
 
                                         return (
-                                            <div key={idx} className={cn(
-                                                "relative pl-14 transition-opacity",
-                                                isLocked && "opacity-60"
-                                            )}>
+                                            <div key={idx} className="relative pl-14">
                                                 {/* Status Node */}
                                                 <div className={cn(
                                                     "absolute left-0 size-10 rounded-full flex items-center justify-center z-10",
                                                     isCompleted && "bg-green-500 text-white",
                                                     isInProgress && "bg-primary text-white ring-4 ring-primary/20",
-                                                    isLocked && "bg-muted text-muted-foreground border border-border"
+                                                    isPlanned && "bg-blue-50 text-blue-500 border-2 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800"
                                                 )}>
                                                     {isCompleted && <Check className="size-5" />}
                                                     {isInProgress && <Play className="size-5" />}
-                                                    {isLocked && <Lock className="size-4" />}
+                                                    {isPlanned && <span className="text-xs font-bold">{idx + 1}</span>}
                                                 </div>
 
                                                 {/* Module Card */}
                                                 <div className={cn(
-                                                    "rounded-xl p-5 border transition-all",
+                                                    "rounded-xl p-5 border transition-all hover:shadow-md",
                                                     isCompleted && "bg-green-50/50 dark:bg-green-900/10 border-green-200 dark:border-green-900/30",
-                                                    isInProgress && "bg-card border-primary shadow-lg",
-                                                    isLocked && "bg-muted/30 border-dashed"
+                                                    isInProgress && "bg-card border-primary shadow-lg ring-1 ring-primary/10",
+                                                    isPlanned && "bg-card border-border"
                                                 )}>
                                                     <div className="flex justify-between items-start mb-2">
                                                         <div>
-                                                            <h4 className="font-bold text-lg">{module.title}</h4>
+                                                            <div className="flex items-center gap-2 mb-1">
+                                                                <h4 className="font-bold text-lg">{module.title}</h4>
+                                                                {isCompleted && (
+                                                                    <span className="flex items-center gap-1 text-[10px] font-bold text-green-600 bg-green-100 dark:bg-green-900/30 px-1.5 py-0.5 rounded uppercase">
+                                                                        <Check className="size-2.5" /> Done
+                                                                    </span>
+                                                                )}
+                                                            </div>
                                                             <span className={cn(
                                                                 "text-xs font-bold uppercase tracking-wider",
                                                                 isCompleted && "text-green-600",
                                                                 isInProgress && "text-primary",
-                                                                isLocked && "text-muted-foreground"
+                                                                isPlanned && "text-muted-foreground"
                                                             )}>
-                                                                {isCompleted ? "Completed" : isInProgress ? "In Progress" : "Locked"}
+                                                                {isCompleted ? "Completed" : isInProgress ? "In Progress" : "Planned Step"}
                                                             </span>
                                                         </div>
-                                                        <span className="text-xs text-muted-foreground bg-background px-2 py-1 rounded border">
-                                                            ~{module.estimatedWeeks} weeks
+                                                        <span className="text-xs text-muted-foreground bg-muted/30 px-2 py-1 rounded border border-border/50">
+                                                            ~{module.estimatedWeeks} {module.estimatedWeeks === 1 ? 'week' : 'weeks'}
                                                         </span>
                                                     </div>
 
-                                                    <p className="text-sm text-muted-foreground mb-3">
+                                                    <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
                                                         {module.description}
                                                     </p>
 
                                                     {/* Skills */}
                                                     {module.skills?.length > 0 && (
-                                                        <div className="flex flex-wrap gap-2 mb-3">
+                                                        <div className="flex flex-wrap gap-2 mb-4">
                                                             {module.skills.map((skill, i) => (
-                                                                <span key={i} className="text-[10px] font-medium bg-secondary px-2 py-1 rounded">
+                                                                <span key={i} className="text-[10px] font-semibold bg-primary/5 text-primary border border-primary/10 px-2 py-1 rounded-md">
                                                                     {skill}
                                                                 </span>
                                                             ))}
@@ -407,38 +466,76 @@ export default function RoadmapDetailPage() {
 
                                                     {/* Project */}
                                                     {module.project && (
-                                                        <div className="text-sm bg-background/80 rounded-lg p-3 border">
-                                                            <span className="font-medium">🛠️ Project:</span> {module.project}
+                                                        <div className="text-sm bg-muted/20 rounded-lg p-4 border border-border/50 mb-4">
+                                                            <div className="flex items-center gap-2 mb-1.5">
+                                                                <span className="text-base">🛠️</span>
+                                                                <span className="font-bold text-xs uppercase tracking-tight text-muted-foreground">Capstone Project</span>
+                                                            </div>
+                                                            <p className="text-foreground/90">{module.project}</p>
                                                         </div>
                                                     )}
 
-                                                    {/* Recommended Courses */}
+                                                    {/* Learning Materials Section */}
+                                                    <div className="mt-12 space-y-6">
+                                                        <div className="flex items-center justify-between">
+                                                            <div className="flex items-center gap-2">
+                                                                <div className="size-10 rounded-xl bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-orange-600 dark:text-orange-400">
+                                                                    <FileText className="size-6" />
+                                                                </div>
+                                                                <div>
+                                                                    <h2 className="text-2xl font-bold">Learning Materials</h2>
+                                                                    <p className="text-muted-foreground text-sm font-medium">Resources to help you master this journey</p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        {loadingMaterials ? (
+                                                            <div className="flex justify-center py-10">
+                                                                <Loader2 className="size-8 animate-spin text-primary opacity-20" />
+                                                            </div>
+                                                        ) : (
+                                                            <MaterialsList
+                                                                materials={materials}
+                                                                isTeacher={false}
+                                                            />
+                                                        )}
+                                                    </div>
+
+                                                    {/* Recommended Tutors */}
                                                     {(module as any).recommendedCourses?.length > 0 && (
-                                                        <div className="mt-4 bg-gradient-to-r from-primary/5 to-purple-500/5 rounded-lg p-4 border border-primary/20">
-                                                            <p className="text-sm font-bold text-primary mb-3 flex items-center gap-2">
-                                                                📚 Recommended Courses
+                                                        <div className="mt-4 bg-gradient-to-br from-primary/[0.03] to-purple-500/[0.03] rounded-xl p-5 border border-primary/20">
+                                                            <p className="text-sm font-black text-primary mb-4 flex items-center gap-2">
+                                                                <BookOpen className="size-4" /> Recommended Courses
                                                             </p>
-                                                            <div className="space-y-2">
+                                                            <div className="space-y-3">
                                                                 {(module as any).recommendedCourses.map((course: RecommendedCourse, i: number) => (
-                                                                    <div key={i} className="bg-background rounded-lg p-3 border">
-                                                                        <div className="flex items-start justify-between gap-2">
+                                                                    <div key={i} className="bg-card rounded-lg p-4 border shadow-sm hover:border-primary/40 transition-colors group/course">
+                                                                        <div className="flex items-start justify-between gap-4">
                                                                             <div className="flex-1 min-w-0">
-                                                                                <p className="font-medium text-sm truncate">{course.courseTitle}</p>
-                                                                                <p className="text-xs text-muted-foreground">by {course.teacher}</p>
-                                                                                <p className="text-xs text-muted-foreground mt-1">{course.reason}</p>
+                                                                                <div className="flex items-center gap-2 mb-0.5">
+                                                                                    <p className="font-bold text-sm truncate">{course.courseTitle}</p>
+                                                                                    {course.price && (
+                                                                                        <span className="text-[10px] font-bold text-green-600 bg-green-50 dark:bg-green-900/30 px-1.5 py-0.5 rounded border border-green-100 dark:border-green-800">
+                                                                                            GHS {course.price}
+                                                                                        </span>
+                                                                                    )}
+                                                                                </div>
+                                                                                <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-2">
+                                                                                    <User className="size-3" />
+                                                                                    <span>by {course.teacher}</span>
+                                                                                </div>
+                                                                                <p className="text-xs text-muted-foreground/80 italic leading-snug">"{course.reason}"</p>
                                                                             </div>
                                                                             {course.courseId && (
                                                                                 <Link
                                                                                     href={`/parent/tutors?gig=${course.courseId}`}
-                                                                                    className="shrink-0 px-3 py-1.5 bg-primary text-primary-foreground text-xs font-bold rounded-lg hover:bg-primary/90 transition-colors"
+                                                                                    className="shrink-0 size-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-md"
+                                                                                    title="View Course"
                                                                                 >
-                                                                                    View
+                                                                                    <ChevronRight className="size-4" />
                                                                                 </Link>
                                                                             )}
                                                                         </div>
-                                                                        {course.price && (
-                                                                            <p className="text-xs font-medium text-green-600 mt-2">GHS {course.price}/session</p>
-                                                                        )}
                                                                     </div>
                                                                 ))}
                                                             </div>
@@ -448,10 +545,10 @@ export default function RoadmapDetailPage() {
                                                     {/* Action Button */}
                                                     {isInProgress && (
                                                         <Button
-                                                            className="mt-4 gap-2"
+                                                            className="mt-6 w-full sm:w-auto gap-2 font-bold shadow-lg shadow-primary/20"
                                                             onClick={() => handleModuleAction(idx, 'complete')}
                                                         >
-                                                            <Check className="size-4" /> Mark Complete
+                                                            <Check className="size-4" /> Mark Module as Complete
                                                         </Button>
                                                     )}
                                                 </div>

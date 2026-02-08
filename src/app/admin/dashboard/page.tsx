@@ -52,7 +52,7 @@ export default function AdminDashboardPage() {
     useEffect(() => {
         async function loadDashboard() {
             setLoading(true)
-            console.log("Dashboard v2.1 Loading... (Fixed Loop)")
+
 
             if (!supabase) {
                 console.error("Supabase client not initialized")

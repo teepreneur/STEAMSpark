@@ -8,10 +8,11 @@ export default async function MyGigsPage() {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
-    let query = supabase.from('gigs').select('*')
-    if (user) {
-        query = query.eq('teacher_id', user.id)
+    if (!user) {
+        return <div>Please log in to view your gigs.</div>
     }
+
+    let query = supabase.from('gigs').select('*').eq('teacher_id', user.id)
 
     const { data: gigs, error } = await query
 

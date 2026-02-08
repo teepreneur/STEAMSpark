@@ -7,6 +7,7 @@ import { ChildStats } from "./_components/child-stats"
 import { ParentQuickActions } from "./_components/quick-actions"
 import { ActiveRoadmaps } from "./_components/active-roadmaps"
 import { ParentUpcomingSessions } from "./_components/upcoming-sessions"
+import { CompletedSessions } from "./_components/completed-sessions"
 import { NotificationsPanel } from "./_components/notifications-panel"
 import { RecommendedTutors } from "./_components/recommended-tutors"
 import { PendingBookings } from "./_components/pending-bookings"
@@ -74,6 +75,7 @@ function ParentDashboardContent() {
                     <PendingBookings />
                     <ActiveRoadmaps />
                     <ParentUpcomingSessions />
+                    <CompletedSessions />
                 </div>
 
                 {/* Right Column (Sidebar) */}

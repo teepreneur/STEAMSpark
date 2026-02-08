@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { Zap, GraduationCap, Upload, MessageSquare } from "lucide-react"
+import { Zap, GraduationCap, FolderOpen, MessageSquare } from "lucide-react"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
@@ -57,11 +57,11 @@ export function QuickActions() {
                     </Link>
                 </Button>
                 <Button variant="outline" className="h-auto p-4 flex flex-col items-start gap-4 hover:border-primary/50 hover:shadow-md transition-all group" asChild>
-                    <Link href="/teacher/materials/upload">
+                    <Link href="/teacher/materials">
                         <div className="bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 group-hover:bg-purple-600 group-hover:text-white w-10 h-10 rounded-lg flex items-center justify-center transition-colors">
-                            <Upload size={24} />
+                            <FolderOpen size={24} />
                         </div>
-                        <span className="font-semibold text-sm">Upload Materials</span>
+                        <span className="font-semibold text-sm">Manage Materials</span>
                     </Link>
                 </Button>
                 {/* Message Parents - with red notification badge */}

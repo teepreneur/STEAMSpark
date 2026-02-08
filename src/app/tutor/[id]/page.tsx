@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils"
 import Link from "next/link"
 import { Tables } from "@/lib/types/supabase"
 import { ShareButton } from "@/components/share-button"
+import { ReviewList, type Review } from "@/components/reviews/review-list"
 
 interface ProfilePageProps {
     params: Promise<{ id: string }>
@@ -37,11 +38,20 @@ export default async function TutorProfilePage({ params }: ProfilePageProps) {
         .eq('status', 'active')
         .order('created_at', { ascending: false })
 
-    // 3. Fetch Reviews for rating
-    const { data: reviewData } = await supabase
+    // 3. Fetch Detailed Reviews
+    const { data: reviews } = await supabase
         .from('reviews')
-        .select('rating')
+        .select(`
+            *,
+            profiles:parent_id (
+                full_name,
+                avatar_url
+            )
+        `)
         .eq('teacher_id', id)
+        .order('created_at', { ascending: false })
+
+    const reviewData = reviews || []
 
     // HYBRID RATING CALCULATION (Sync with Dashboard logic)
     let trustScore = 0
@@ -272,6 +282,14 @@ export default async function TutorProfilePage({ params }: ProfilePageProps) {
                                     </div>
                                 )}
                             </div>
+                        </section>
+
+                        {/* Reviews Section */}
+                        <section className="space-y-6">
+                            <h2 className="text-xl font-black uppercase tracking-tight text-primary flex items-center gap-2">
+                                <Star className="size-5 fill-primary text-primary" /> Client Feedback
+                            </h2>
+                            <ReviewList reviews={reviewData as unknown as Review[]} />
                         </section>
                     </div>
                 </div>

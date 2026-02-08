@@ -31,7 +31,7 @@ export default async function FindTutorsPage() {
     // Fetch active gigs with teacher details
     const { data: gigs, error } = await supabase
         .from('gigs')
-        .select('*, teacher:profiles(*)')
+        .select('*, teacher:profiles(id, full_name, avatar_url, bio, subjects, country, city, class_mode)')
         .eq('status', 'active')
         .order('created_at', { ascending: false })
 

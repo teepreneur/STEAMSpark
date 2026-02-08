@@ -45,7 +45,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         if (typeof window !== 'undefined') {
             const isSub = window.location.hostname.includes('admin.') || window.location.hostname.startsWith('admin.')
             setIsAdminSubdomain(isSub)
-            console.log("Admin Layout v2.0 Loaded", { isAdminSubdomain: isSub, pathname })
+
         }
     }, [pathname])
 
