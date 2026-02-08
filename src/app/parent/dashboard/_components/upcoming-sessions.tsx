@@ -66,12 +66,19 @@ export function ParentUpcomingSessions() {
                 .order('session_time', { ascending: true })
                 .limit(10)
 
+            console.log('[ParentUpcomingSessions] Query result:', { data, error, userId: user.id })
+
+            if (error) {
+                console.error('[ParentUpcomingSessions] Query error:', error)
+            }
+
             if (data) {
                 // Filter for current user's bookings (since we can't filter nested easily)
                 const userSessions = data.filter((s: any) =>
                     s.booking?.parent_id === user.id
                 ) as unknown as SessionWithBooking[]
 
+                console.log('[ParentUpcomingSessions] Filtered sessions:', userSessions.length)
                 setSessions(userSessions.slice(0, 5))
             }
             setLoading(false)
