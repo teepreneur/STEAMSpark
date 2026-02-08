@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { Resend } from 'resend'
 
 const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY
+const resend = new Resend(process.env.RESEND_API_KEY)
 
 interface PaystackVerifyResponse {
     status: boolean
@@ -16,6 +18,38 @@ interface PaystackVerifyResponse {
             booking_id?: string
         }
     }
+}
+
+// Generate a formatted receipt message
+function generateReceiptMessage(details: {
+    reference: string
+    amount: number
+    paidAt: string
+    gigTitle: string
+    studentName: string
+    parentName: string
+    totalSessions: number
+}) {
+    const formattedDate = new Date(details.paidAt).toLocaleDateString('en-GB', {
+        day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
+    })
+
+    return `📧 PAYMENT CONFIRMATION
+
+Hello! I've just completed payment for ${details.studentName}'s enrollment.
+
+━━━━━━━━━━━━━━━━━━━━━
+📋 RECEIPT
+━━━━━━━━━━━━━━━━━━━━━
+Course: ${details.gigTitle}
+Student: ${details.studentName}
+Sessions: ${details.totalSessions}
+Amount Paid: GHS ${details.amount.toFixed(2)}
+Reference: ${details.reference}
+Date: ${formattedDate}
+━━━━━━━━━━━━━━━━━━━━━
+
+Looking forward to the classes! 🎉`
 }
 
 export async function GET(request: Request) {
@@ -54,10 +88,15 @@ export async function GET(request: Request) {
             const bookingId = data.data.metadata?.booking_id
 
             if (bookingId) {
-                // Get booking details for teacher earnings
+                // Get full booking details including parent, teacher, and gig info
                 const { data: bookingDetails } = await supabase
                     .from('bookings')
-                    .select('teacher_amount, total_sessions, gigs(teacher_id)')
+                    .select(`
+                        *,
+                        gig:gigs(id, title, teacher_id),
+                        student:students(name),
+                        parent:profiles!bookings_parent_id_fkey(id, full_name, email)
+                    `)
                     .eq('id', bookingId)
                     .single()
 
@@ -76,9 +115,9 @@ export async function GET(request: Request) {
                     console.error('Error updating booking:', bookingError)
                 }
 
-                // Create teacher earnings record (released per 2 completed sessions)
-                if (bookingDetails && (bookingDetails.gigs as any)?.teacher_id) {
-                    const teacherId = (bookingDetails.gigs as any).teacher_id
+                // Create teacher earnings record
+                if (bookingDetails && (bookingDetails.gig as any)?.teacher_id) {
+                    const teacherId = (bookingDetails.gig as any).teacher_id
                     const teacherAmount = bookingDetails.teacher_amount || 0
                     const totalSessions = bookingDetails.total_sessions || 1
 
@@ -86,7 +125,6 @@ export async function GET(request: Request) {
                     const earningsPerSession = teacherAmount / totalSessions
                     const numEarningBatches = Math.ceil(totalSessions / 2)
 
-                    // Create earning records for every 2 sessions
                     const earningsRecords = []
                     for (let i = 0; i < numEarningBatches; i++) {
                         const sessionsInBatch = Math.min(2, totalSessions - i * 2)
@@ -94,19 +132,129 @@ export async function GET(request: Request) {
                             teacher_id: teacherId,
                             booking_id: bookingId,
                             amount: earningsPerSession * sessionsInBatch,
-                            sessions_required: (i + 1) * 2, // Release after 2, 4, 6, etc. sessions
+                            sessions_required: (i + 1) * 2,
                             sessions_completed: 0,
                             status: 'held'
                         })
                     }
 
                     await supabase.from('teacher_earnings').insert(earningsRecords)
+
+                    // ========== AUTO-CREATE CONVERSATION & SEND PAYMENT MESSAGE ==========
+                    const parentId = (bookingDetails.parent as any)?.id
+                    const parentName = (bookingDetails.parent as any)?.full_name || 'Parent'
+                    const gigTitle = (bookingDetails.gig as any)?.title || 'Course'
+                    const studentName = (bookingDetails.student as any)?.name || 'Student'
+                    const amountPaid = data.data.amount / 100 // Convert from pesewas
+
+                    if (parentId && teacherId) {
+                        // Check if conversation exists or create one
+                        let conversationId: string | null = null
+
+                        const { data: existingConvo } = await supabase
+                            .from('conversations')
+                            .select('id')
+                            .eq('teacher_id', teacherId)
+                            .eq('parent_id', parentId)
+                            .single()
+
+                        if (existingConvo) {
+                            conversationId = existingConvo.id
+                        } else {
+                            // Create new conversation
+                            const { data: newConvo } = await supabase
+                                .from('conversations')
+                                .insert({ teacher_id: teacherId, parent_id: parentId })
+                                .select('id')
+                                .single()
+
+                            if (newConvo) conversationId = newConvo.id
+                        }
+
+                        // Send payment confirmation message
+                        if (conversationId) {
+                            const receiptMessage = generateReceiptMessage({
+                                reference,
+                                amount: amountPaid,
+                                paidAt: data.data.paid_at,
+                                gigTitle,
+                                studentName,
+                                parentName,
+                                totalSessions
+                            })
+
+                            await supabase.from('messages').insert({
+                                conversation_id: conversationId,
+                                sender_id: parentId,
+                                content: receiptMessage
+                            })
+
+                            // Update conversation last_message_at
+                            await supabase
+                                .from('conversations')
+                                .update({ last_message_at: new Date().toISOString() })
+                                .eq('id', conversationId)
+                        }
+                    }
+
+                    // ========== SEND RECEIPT EMAIL TO TEACHER ==========
+                    const { data: teacherProfile } = await supabase
+                        .from('profiles')
+                        .select('email, full_name')
+                        .eq('id', teacherId)
+                        .single()
+
+                    if (teacherProfile?.email && process.env.RESEND_API_KEY) {
+                        const formattedDate = new Date(data.data.paid_at).toLocaleDateString('en-GB', {
+                            day: 'numeric', month: 'long', year: 'numeric'
+                        })
+
+                        try {
+                            await resend.emails.send({
+                                from: 'STEAM Spark <notifications@steamsparkgh.com>',
+                                to: teacherProfile.email,
+                                subject: `Payment Received: ${gigTitle}`,
+                                html: `
+                                    <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px;">
+                                        <h2 style="color: #16a34a;">💰 Payment Received!</h2>
+                                        <p>Hi ${teacherProfile.full_name || 'Teacher'},</p>
+                                        <p>Great news! <strong>${parentName}</strong> has completed payment for <strong>${studentName}</strong>'s enrollment in your course.</p>
+                                        
+                                        <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                                            <h3 style="margin-top: 0; color: #166534;">📋 Receipt Details</h3>
+                                            <p style="margin: 5px 0;"><strong>Course:</strong> ${gigTitle}</p>
+                                            <p style="margin: 5px 0;"><strong>Student:</strong> ${studentName}</p>
+                                            <p style="margin: 5px 0;"><strong>Total Sessions:</strong> ${totalSessions}</p>
+                                            <p style="margin: 5px 0;"><strong>Amount:</strong> GHS ${amountPaid.toFixed(2)}</p>
+                                            <p style="margin: 5px 0;"><strong>Reference:</strong> ${reference}</p>
+                                            <p style="margin: 5px 0;"><strong>Date:</strong> ${formattedDate}</p>
+                                        </div>
+                                        
+                                        <p>You can now schedule sessions with the student. The parent has been notified and a conversation has been started.</p>
+                                        
+                                        <div style="margin: 30px 0;">
+                                            <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://app.steamsparkgh.com'}/teacher/messages" 
+                                               style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">
+                                                View Messages
+                                            </a>
+                                        </div>
+                                        
+                                        <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
+                                        <p style="color: #94a3b8; font-size: 12px;">STEAM Spark - Empowering the next generation of innovators.</p>
+                                    </div>
+                                `
+                            })
+                            console.log(`[Payment] Receipt email sent to teacher ${teacherProfile.email}`)
+                        } catch (emailError) {
+                            console.error('Failed to send receipt email:', emailError)
+                        }
+                    }
                 }
 
                 // Create payment record
                 await supabase.from('payments').insert({
                     booking_id: bookingId,
-                    amount: data.data.amount / 100, // Convert from pesewas to cedis
+                    amount: data.data.amount / 100,
                     currency: data.data.currency,
                     status: 'success',
                     paystack_reference: reference,
@@ -134,3 +282,4 @@ export async function GET(request: Request) {
         )
     }
 }
+
