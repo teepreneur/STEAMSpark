@@ -109,6 +109,8 @@ export function PendingBookings() {
                         const gig = booking.gig as any
                         const teacher = gig?.profiles
                         const student = booking.student as any
+                        const teacherName = teacher?.full_name || "Teacher"
+                        const gigTitle = gig?.title || "Course"
 
                         return (
                             <div

@@ -147,10 +147,21 @@ export function ParentUpcomingSessions() {
                 </div>
             </div>
             <div className="bg-card rounded-xl border shadow-sm divide-y overflow-hidden">
-                {sessions.map((session) => {
+                {sessions.filter(session => {
+                    if (!session.session_date) return false
+                    try {
+                        const date = parseISO(session.session_date)
+                        return true
+                    } catch (e) {
+                        return false
+                    }
+                }).map((session) => {
                     const date = parseISO(session.session_date)
                     const isUpcoming = isToday(date) || isTomorrow(date)
                     const bookingStatus = (session.booking as any)?.status
+                    const gigTitle = (session.booking?.gigs as any)?.title || 'Session'
+                    const teacherName = (session.booking?.gigs as any)?.profiles?.full_name || "Teacher"
+                    const studentName = (session.booking?.students as any)?.name || "Student"
 
                     return (
                         <Link

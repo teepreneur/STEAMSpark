@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { BarChart } from "lucide-react"
-import { format, startOfWeek, addDays, parseISO } from "date-fns"
 
 interface DayData {
     day: string
@@ -13,55 +12,82 @@ interface DayData {
 
 export function ActivityChart() {
     const supabase = createClient()
-    const [weekData, setWeekData] = useState<DayData[]>([])
+    const [weekData, setWeekData] = useState<DayData[]>([
+        { day: 'Monday', count: 0, label: 'M' },
+        { day: 'Tuesday', count: 0, label: 'T' },
+        { day: 'Wednesday', count: 0, label: 'W' },
+        { day: 'Thursday', count: 0, label: 'T' },
+        { day: 'Friday', count: 0, label: 'F' },
+        { day: 'Saturday', count: 0, label: 'S' },
+        { day: 'Sunday', count: 0, label: 'S' }
+    ])
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
         async function loadActivity() {
-            const { data: { user } } = await supabase.auth.getUser()
-            if (!user) return
+            try {
+                const { data: { user } } = await supabase.auth.getUser()
+                if (!user) {
+                    setLoading(false)
+                    return
+                }
 
-            // Get sessions for this week
-            const weekStart = startOfWeek(new Date(), { weekStartsOn: 1 }) // Monday
-            const weekEnd = addDays(weekStart, 6) // Sunday
+                // Get current week start (Monday)
+                const now = new Date()
+                const dayOfWeek = now.getDay()
+                const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek
+                const weekStart = new Date(now)
+                weekStart.setDate(now.getDate() + mondayOffset)
+                weekStart.setHours(0, 0, 0, 0)
 
-            const { data: sessions } = await supabase
-                .from('booking_sessions')
-                .select(`
-                    id,
-                    session_date,
-                    status,
-                    booking:bookings!inner (
-                        gig:gigs!inner (teacher_id)
-                    )
-                `)
-                .gte('session_date', format(weekStart, 'yyyy-MM-dd'))
-                .lte('session_date', format(weekEnd, 'yyyy-MM-dd'))
-                .in('status', ['scheduled', 'confirmed', 'completed'])
+                const weekEnd = new Date(weekStart)
+                weekEnd.setDate(weekStart.getDate() + 6)
 
-            // Filter for this teacher
-            const teacherSessions = sessions?.filter((s: any) =>
-                s.booking?.gig?.teacher_id === user.id
-            ) || []
+                const formatDate = (d: Date) => d.toISOString().split('T')[0]
 
-            // Count sessions per day
-            const dayCounts: Record<string, number> = {}
-            teacherSessions.forEach((s: any) => {
-                const day = format(parseISO(s.session_date), 'EEEE')
-                dayCounts[day] = (dayCounts[day] || 0) + 1
-            })
+                const { data: sessions } = await supabase
+                    .from('booking_sessions')
+                    .select(`
+                        id,
+                        session_date,
+                        status,
+                        booking:bookings!inner (
+                            gig:gigs!inner (teacher_id)
+                        )
+                    `)
+                    .gte('session_date', formatDate(weekStart))
+                    .lte('session_date', formatDate(weekEnd))
+                    .in('status', ['scheduled', 'confirmed', 'completed'])
 
-            // Create week data array
-            const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-            const dayLabels = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
+                // Filter for this teacher
+                const teacherSessions = sessions?.filter((s: any) =>
+                    s.booking?.gig?.teacher_id === user.id
+                ) || []
 
-            const data = days.map((day, i) => ({
-                day,
-                count: dayCounts[day] || 0,
-                label: dayLabels[i]
-            }))
+                // Count sessions per day
+                const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+                const dayCounts: Record<string, number> = {}
 
-            setWeekData(data)
+                teacherSessions.forEach((s: any) => {
+                    const date = new Date(s.session_date + 'T00:00:00')
+                    const dayName = dayNames[date.getDay()]
+                    dayCounts[dayName] = (dayCounts[dayName] || 0) + 1
+                })
+
+                // Create week data array
+                const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+                const dayLabels = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
+
+                const data = days.map((day, i) => ({
+                    day,
+                    count: dayCounts[day] || 0,
+                    label: dayLabels[i]
+                }))
+
+                setWeekData(data)
+            } catch (error) {
+                console.error('[ActivityChart] Error loading activity:', error)
+            }
             setLoading(false)
         }
 
@@ -70,6 +96,9 @@ export function ActivityChart() {
 
     // Calculate max for scaling bars
     const maxCount = Math.max(...weekData.map(d => d.count), 1)
+
+    // Get today's day name
+    const todayName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][new Date().getDay()]
 
     return (
         <section>
@@ -92,7 +121,7 @@ export function ActivityChart() {
                     <div className="flex items-end justify-between h-40 gap-2 sm:gap-4">
                         {weekData.map((day, i) => {
                             const height = day.count > 0 ? `${(day.count / maxCount) * 100}%` : '5%'
-                            const isToday = format(new Date(), 'EEEE') === day.day
+                            const isToday = todayName === day.day
 
                             return (
                                 <div key={i} className="flex flex-col items-center gap-2 flex-1 group cursor-pointer">

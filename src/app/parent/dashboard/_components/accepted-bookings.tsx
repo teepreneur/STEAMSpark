@@ -205,6 +205,8 @@ export function AcceptedBookings() {
                             const teacher = gig?.profiles
                             const student = booking.student as any
                             const totalPrice = (gig?.price || 0) * (booking.total_sessions || 1)
+                            const teacherName = teacher?.full_name || "Teacher"
+                            const gigTitle = gig?.title || "Course"
 
                             return (
                                 <div
@@ -216,7 +218,7 @@ export function AcceptedBookings() {
                                         {teacher?.avatar_url ? (
                                             <img
                                                 src={teacher.avatar_url}
-                                                alt={teacher?.full_name || "Teacher"}
+                                                alt={teacherName}
                                                 className="size-12 rounded-full object-cover"
                                             />
                                         ) : (
