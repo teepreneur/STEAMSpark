@@ -14,59 +14,84 @@ export default async function TeacherDashboard() {
 
     if (!user) return null
 
-    // Fetch profile for Trust Score calculation
-    const { data: profile } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single()
+    // Initialize with defaults
+    let profile: any = null
+    let reviewData: any[] = []
+    let bookings: any[] = []
+    let upcomingSessions: any[] = []
 
-    // Fetch average rating from reviews
-    const { data: reviewData } = await supabase
-        .from('reviews')
-        .select('rating')
-        .eq('teacher_id', user.id)
+    try {
+        // Fetch profile for Trust Score calculation
+        const { data: profileData } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', user.id)
+            .single()
+        profile = profileData
+    } catch (e) {
+        console.error('[Teacher Dashboard] Profile fetch error:', e)
+    }
 
-    // Fetch bookings for stats (legacy query for earnings/students count)
-    const { data: bookings } = await supabase
-        .from('bookings')
-        .select(`
-            *,
-            gig:gigs!inner(*),
-            student:students(*)
-        `)
-        .eq('gig.teacher_id', user.id)
+    try {
+        // Fetch average rating from reviews
+        const { data } = await supabase
+            .from('reviews')
+            .select('rating')
+            .eq('teacher_id', user.id)
+        reviewData = data || []
+    } catch (e) {
+        console.error('[Teacher Dashboard] Reviews fetch error:', e)
+    }
 
-    // Fetch individual sessions for upcoming display
-    const today = new Date().toISOString().split('T')[0]
-    const { data: sessionsData } = await supabase
-        .from('booking_sessions')
-        .select(`
-            id,
-            session_date,
-            session_time,
-            session_number,
-            status,
-            booking:bookings!inner (
+    try {
+        // Fetch bookings for stats
+        const { data } = await supabase
+            .from('bookings')
+            .select(`
+                *,
+                gig:gigs!inner(*),
+                student:students(*)
+            `)
+            .eq('gig.teacher_id', user.id)
+        bookings = data || []
+    } catch (e) {
+        console.error('[Teacher Dashboard] Bookings fetch error:', e)
+    }
+
+    try {
+        // Fetch individual sessions for upcoming display
+        const today = new Date().toISOString().split('T')[0]
+        const { data: sessionsData } = await supabase
+            .from('booking_sessions')
+            .select(`
                 id,
+                session_date,
+                session_time,
+                session_number,
                 status,
-                gig:gigs!inner (
-                    title,
-                    teacher_id
-                ),
-                student:students (name)
-            )
-        `)
-        .gte('session_date', today)
-        .in('status', ['scheduled', 'confirmed'])
-        .order('session_date', { ascending: true })
-        .order('session_time', { ascending: true })
-        .limit(10)
+                booking:bookings!inner (
+                    id,
+                    status,
+                    gig:gigs!inner (
+                        title,
+                        teacher_id
+                    ),
+                    student:students (name)
+                )
+            `)
+            .gte('session_date', today)
+            .in('status', ['scheduled', 'confirmed'])
+            .order('session_date', { ascending: true })
+            .order('session_time', { ascending: true })
+            .limit(10)
 
-    // Filter for this teacher's sessions
-    const upcomingSessions = sessionsData?.filter((s: any) =>
-        s.booking?.gig?.teacher_id === user.id
-    ) || []
+        // Filter for this teacher's sessions
+        upcomingSessions = sessionsData?.filter((s: any) =>
+            s.booking?.gig?.teacher_id === user.id
+        ) || []
+    } catch (e) {
+        console.error('[Teacher Dashboard] Sessions fetch error:', e)
+    }
 
     // Simple calculations from bookings
     const earnings = (bookings?.reduce((acc, curr) => acc + (curr.gig?.price || 0), 0) || 0)
