@@ -7,10 +7,10 @@ const resend = new Resend(process.env.RESEND_API_KEY || 're_123')
 export async function POST(request: Request) {
     try {
         const body = await request.json()
-        const { name, email, phone, subject, experience, reason } = body
+        const { name, email, phone, subject, experience, reason, role = 'teacher', child_age, interests, needs_setup_help } = body
 
         // Basic validation
-        if (!name || !email || !phone || !subject) {
+        if (!name || !email || !phone) {
             return NextResponse.json(
                 { error: 'Missing required fields' },
                 { status: 400 }
@@ -27,7 +27,11 @@ export async function POST(request: Request) {
                 phone,
                 subject,
                 experience,
-                reason
+                reason,
+                role,
+                child_age,
+                interests,
+                needs_setup_help
             })
 
         if (dbError) {
@@ -43,18 +47,34 @@ export async function POST(request: Request) {
             console.log('⚠️ RESEND_API_KEY missing. Skipped email.')
         } else {
             try {
-                await resend.emails.send({
-                    from: 'STEAM Spark <onboarding@resend.dev>',
-                    to: ['triumphtetteh@gmail.com'],
-                    subject: `New Teacher Early Access: ${name}`,
-                    html: `
-                        <h1>New Teacher Application</h1>
-                        <p><strong>Name:</strong> ${name}</p>
-                        <p><strong>Email:</strong> ${email}</p>
-                        <p><strong>Phone:</strong> ${phone}</p>
+                // Determine email subject based on role
+                const emailSubject = role === 'parent'
+                    ? `New Parent Early Access: ${name}`
+                    : `New Teacher Early Access: ${name}`;
+
+                // Determine HTML content based on role
+                const detailsHtml = role === 'parent'
+                    ? `
+                        <p><strong>Child's Age/Grade:</strong> ${child_age || 'N/A'}</p>
+                        <p><strong>Needs Account Setup Help:</strong> ${needs_setup_help ? 'Yes' : 'No'}</p>
+                        <p><strong>Interests:</strong> ${interests || 'N/A'}</p>
+                      `
+                    : `
                         <p><strong>Subject Area:</strong> ${subject}</p>
                         <p><strong>Experience:</strong> ${experience}</p>
                         <p><strong>Why they want to join:</strong> ${reason}</p>
+                      `;
+
+                await resend.emails.send({
+                    from: 'STEAM Spark <onboarding@resend.dev>',
+                    to: ['triumphtetteh@gmail.com', 'hello@steamsparkgh.com'],
+                    subject: emailSubject,
+                    html: `
+                        <h1>New ${role === 'parent' ? 'Parent' : 'Teacher'} Application</h1>
+                        <p><strong>Name:</strong> ${name}</p>
+                        <p><strong>Email:</strong> ${email}</p>
+                        <p><strong>Phone:</strong> ${phone}</p>
+                        ${detailsHtml}
                         <hr />
                         <p><em>Saved to database successfully.</em></p>
                     `
