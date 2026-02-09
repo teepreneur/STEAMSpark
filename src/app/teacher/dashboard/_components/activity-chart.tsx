@@ -94,11 +94,16 @@ export function ActivityChart() {
         loadActivity()
     }, [supabase])
 
-    // Calculate max for scaling bars
+    // Calculate max for sclaing bars
     const maxCount = Math.max(...weekData.map(d => d.count), 1)
 
-    // Get today's day name
-    const todayName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][new Date().getDay()]
+    // Handle hydration safely for "Today" highlight
+    const [todayName, setTodayName] = useState<string>("")
+
+    useEffect(() => {
+        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+        setTodayName(days[new Date().getDay()])
+    }, [])
 
     return (
         <section>

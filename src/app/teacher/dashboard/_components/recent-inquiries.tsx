@@ -198,7 +198,7 @@ export function RecentInquiries() {
                                 <div className="flex flex-col gap-1 w-full">
                                     <div className="flex justify-between items-start">
                                         <p className="text-sm font-bold">{parentName}</p>
-                                        <span className="text-[10px] text-muted-foreground">
+                                        <span className="text-[10px] text-muted-foreground" suppressHydrationWarning>
                                             {formatDistanceToNow(new Date(inquiry.created_at), { addSuffix: true })}
                                         </span>
                                     </div>

@@ -194,7 +194,7 @@ export function TeacherSidebar({ className }: { className?: string }) {
                                                     <div className="flex-1 min-w-0">
                                                         <p className="text-sm font-medium leading-tight truncate">{notif.title}</p>
                                                         <p className="text-xs text-muted-foreground truncate">{notif.message}</p>
-                                                        <p className="text-[10px] text-muted-foreground mt-1">
+                                                        <p className="text-[10px] text-muted-foreground mt-1" suppressHydrationWarning>
                                                             {formatDistanceToNow(new Date(notif.created_at), { addSuffix: true })}
                                                         </p>
                                                     </div>
