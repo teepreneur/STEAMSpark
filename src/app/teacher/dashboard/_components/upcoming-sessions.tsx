@@ -21,14 +21,24 @@ export function UpcomingSessions({ sessions }: { sessions: Session[] }) {
             </div>
             <div className="bg-card rounded-xl border shadow-sm overflow-hidden flex flex-col divide-y">
                 {sessions.length > 0 ? sessions.map((session) => {
+                    const dateStr = session.scheduled_at
                     let dayLabel = "Unknown"
                     let timeLabel = "Unknown"
 
                     try {
-                        const date = new Date(session.scheduled_at)
+                        const date = new Date(dateStr)
                         if (!isNaN(date.getTime())) {
                             dayLabel = isToday(date) ? "Today" : isTomorrow(date) ? "Tomorrow" : format(date, "MMM d")
                             timeLabel = format(date, "h:mm a")
+                        } else {
+                            // Fallback if Date parsing fails but we have strings
+                            console.error("Invalid date:", dateStr)
+                            // Try to extract time manually if possible
+                            if (dateStr.includes('T')) {
+                                const [d, t] = dateStr.split('T')
+                                dayLabel = d
+                                timeLabel = t.substring(0, 5)
+                            }
                         }
                     } catch (e) {
                         console.error("Date parse error", e)
@@ -39,7 +49,7 @@ export function UpcomingSessions({ sessions }: { sessions: Session[] }) {
                             {/* Date Badge */}
                             <div className={`flex-shrink-0 flex flex-row sm:flex-col items-center sm:justify-center gap-2 sm:gap-0 rounded-lg p-2 sm:size-16 min-w-[100px] sm:min-w-[64px] text-center ${dayLabel === 'Today' ? 'bg-primary/10' : 'bg-muted border border-dashed'}`}>
                                 <span className={`text-xs font-bold uppercase ${dayLabel === 'Today' ? 'text-primary' : 'text-muted-foreground'}`}>{dayLabel}</span>
-                                <span className="text-sm sm:text-lg font-bold">{timeLabel}</span>
+                                <span className="text-sm sm:text-xs md:text-sm font-bold truncate w-full">{timeLabel}</span>
                             </div>
 
                             {/* Details */}

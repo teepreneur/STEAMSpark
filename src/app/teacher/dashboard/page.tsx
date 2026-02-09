@@ -151,11 +151,21 @@ export default async function TeacherDashboard() {
         formattedSessions = upcomingSessions.slice(0, 3).map((s: any) => {
             // Ensure we have a valid date string
             const safeDate = s.session_date || new Date().toISOString().split('T')[0]
-            const safeTime = s.session_time || '00:00'
+
+            // Handle time format - if it already has seconds (HH:mm:ss), don't add more
+            // If it's just HH:mm, add :00 for ISO compatibility
+            let safeTime = s.session_time || '00:00'
+            const timeParts = safeTime.split(':')
+            if (timeParts.length === 2) {
+                safeTime = `${safeTime}:00`
+            } else if (timeParts.length === 1) {
+                safeTime = `${safeTime}:00:00`
+            }
+
             return {
                 id: s.id,
                 title: s.booking?.gig?.title || "Unknown Class",
-                scheduled_at: `${safeDate}T${safeTime}:00`,
+                scheduled_at: `${safeDate}T${safeTime}`,
                 student_name: s.booking?.student?.name || "Unknown Student",
                 session_number: s.session_number
             }
