@@ -62,33 +62,74 @@ export default async function TeacherDashboard() {
     try {
         // Fetch individual sessions for upcoming display
         const today = new Date().toISOString().split('T')[0]
-        const { data: sessionsData } = await supabase
-            .from('booking_sessions')
-            .select(`
-                id,
-                session_date,
-                session_time,
-                session_number,
-                status,
-                booking:bookings!inner (
+
+        // Calculate week range for Activity Chart
+        const now = new Date()
+        const dayOfWeek = now.getDay()
+        const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek
+        const weekStart = new Date(now)
+        weekStart.setDate(now.getDate() + mondayOffset)
+        const weekEnd = new Date(weekStart)
+        weekEnd.setDate(weekStart.getDate() + 6)
+
+        const weekStartStr = weekStart.toISOString().split('T')[0]
+        const weekEndStr = weekEnd.toISOString().split('T')[0]
+
+        // Parallel fetch for upcoming sessions and weekly activity
+        const [upcomingResult, weeklyResult] = await Promise.all([
+            // 1. Upcoming Sessions
+            supabase
+                .from('booking_sessions')
+                .select(`
                     id,
+                    session_date,
+                    session_time,
+                    session_number,
                     status,
-                    total_sessions,
-                    gig:gigs!inner (
-                        title,
-                        teacher_id
-                    ),
-                    student:students (name)
-                )
-            `)
-            .gte('session_date', today)
-            .in('status', ['scheduled', 'confirmed'])
-            .order('session_date', { ascending: true })
-            .order('session_time', { ascending: true })
-            .limit(10)
+                    booking:bookings!inner (
+                        id,
+                        status,
+                        total_sessions,
+                        gig:gigs!inner (
+                            title,
+                            teacher_id
+                        ),
+                        student:students (name),
+                        parent:profiles!parent_id (full_name)
+                    )
+                `)
+                .gte('session_date', today)
+                .in('status', ['scheduled', 'confirmed'])
+                .order('session_date', { ascending: true })
+                .order('session_time', { ascending: true })
+                .limit(10),
+
+            // 2. Weekly Activity (All statuses)
+            supabase
+                .from('booking_sessions')
+                .select(`
+                    id,
+                    session_date,
+                    status,
+                    booking:bookings!inner (
+                        gig:gigs!inner (teacher_id)
+                    )
+                `)
+                .gte('session_date', weekStartStr)
+                .lte('session_date', weekEndStr)
+                .in('status', ['scheduled', 'confirmed', 'completed'])
+        ])
+
+        const sessionsData = upcomingResult.data
+        const weeklyResultData = weeklyResult.data
 
         // Filter for this teacher's sessions
         upcomingSessions = sessionsData?.filter((s: any) =>
+            s.booking?.gig?.teacher_id === user.id
+        ) || []
+
+        // Filter weekly data
+        activityRaw = weeklyResultData?.filter((s: any) =>
             s.booking?.gig?.teacher_id === user.id
         ) || []
     } catch (e) {
