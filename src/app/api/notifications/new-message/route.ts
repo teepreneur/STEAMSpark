@@ -1,14 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
-// Create admin client for creating notifications
-const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
-
 export async function POST(request: NextRequest) {
     try {
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+        const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+        if (!supabaseUrl || !supabaseServiceKey) {
+            console.error('[Notification] Missing Supabase credentials')
+            return NextResponse.json({ error: 'Server configuration error' }, { status: 500 })
+        }
+
+        const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey)
+
         const { recipientId, senderName, messagePreview, conversationId, senderRole } = await request.json()
 
         if (!recipientId || !senderName) {
@@ -16,8 +20,6 @@ export async function POST(request: NextRequest) {
         }
 
         // Determine action URL based on who is receiving (opposite of sender's role)
-        // If parent sends, teacher receives -> teacher messages URL
-        // If teacher sends, parent receives -> parent messages URL
         const actionUrl = senderRole === 'parent' ? '/teacher/messages' : '/parent/messages'
 
         // Create in-app notification

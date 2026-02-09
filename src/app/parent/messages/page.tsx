@@ -231,30 +231,47 @@ function ParentMessagesContent() {
         // Check if there's a confirmed booking with this teacher
         async function checkActiveBooking() {
             const teacherId = selectedConversation?.teacher_id
-            if (!teacherId) {
+            if (!teacherId || !userId) {
                 setCanChat(false)
                 return
             }
 
-            // Check through gigs table
-            const { data: gigs } = await supabase
-                .from('gigs')
-                .select('id')
-                .eq('teacher_id', teacherId)
-
-            if (gigs && gigs.length > 0) {
-                const gigIds = gigs.map(g => g.id)
-                const { data: confirmedBooking } = await supabase
+            try {
+                // Fetch all bookings for this parent which are paid or confirmed
+                // We fetch all to ensure we don't miss anything due to complex filtering
+                const { data: bookings } = await supabase
                     .from('bookings')
-                    .select('id')
+                    .select(`
+                        id,
+                        status,
+                        payment_status,
+                        gig:gigs(teacher_id)
+                    `)
                     .eq('parent_id', userId)
-                    .in('status', ['confirmed', 'completed'])
-                    .in('gig_id', gigIds)
-                    .limit(1)
-                    .maybeSingle()
 
-                setCanChat(!!confirmedBooking)
-            } else {
+                if (!bookings) {
+                    setCanChat(false)
+                    return
+                }
+
+                // Check if ANY booking matches this teacher and is valid
+                const isActive = bookings.some((b: any) => {
+                    // Check if booking belongs to this teacher
+                    const gigTeacherId = Array.isArray(b.gig) ? b.gig[0]?.teacher_id : b.gig?.teacher_id
+
+                    if (gigTeacherId !== teacherId) return false
+
+                    // Check status
+                    const isPaid = b.payment_status === 'paid'
+                    const isConfirmed = b.status === 'confirmed' || b.status === 'completed'
+
+                    return isPaid || isConfirmed
+                })
+
+                setCanChat(isActive)
+            } catch (error) {
+                console.error('Error checking booking status:', error)
+                // Default to false for security, but make sure to log
                 setCanChat(false)
             }
         }
