@@ -93,49 +93,76 @@ export default async function TeacherDashboard() {
         console.error('[Teacher Dashboard] Sessions fetch error:', e)
     }
 
-    // Simple calculations from bookings
-    const earnings = (bookings?.reduce((acc, curr) => acc + (curr.gig?.price || 0), 0) || 0)
-    const activeStudents = new Set(bookings?.map(b => b.student_id)).size
-    const pendingEnrollments = bookings?.filter(b => b.status === 'pending' || b.status === 'pending_payment').length || 0
-    const completedSessions = bookings?.filter(b => b.status === 'completed').length || 0
+    // Safe calculations with try-catch to prevent render crashes
+    let earnings = 0
+    let activeStudents = 0
+    let pendingEnrollments = 0
+    let completedSessions = 0
+
+    try {
+        earnings = (bookings?.reduce((acc, curr) => acc + (curr.gig?.price || 0), 0) || 0)
+        activeStudents = new Set(bookings?.map(b => b.student_id)).size
+        pendingEnrollments = bookings?.filter(b => b.status === 'pending' || b.status === 'pending_payment').length || 0
+        completedSessions = bookings?.filter(b => b.status === 'completed').length || 0
+    } catch (e) {
+        console.error('[Teacher Dashboard] Stats calculation error:', e)
+    }
 
     // HYBRID RATING CALCULATION
     // 1. Trust Score (Max 50 points)
     let trustScore = 0
-    if (profile) {
-        // Profile Basics (20 pts, 4 each)
-        if (profile.full_name) trustScore += 4
-        if (profile.bio && profile.bio.length > 20) trustScore += 4
-        if (profile.subjects && profile.subjects.length > 0) trustScore += 4
-        if (profile.hourly_rate) trustScore += 4
-        if (profile.avatar_url) trustScore += 4
+    try {
+        if (profile) {
+            // Profile Basics (20 pts, 4 each)
+            if (profile.full_name) trustScore += 4
+            if (profile.bio && profile.bio.length > 20) trustScore += 4
+            if (profile.subjects && profile.subjects.length > 0) trustScore += 4
+            if (profile.hourly_rate) trustScore += 4
+            if (profile.avatar_url) trustScore += 4
 
-        // Verification (30 pts, 10 each)
-        if (profile.cv_url) trustScore += 10
-        if (profile.id_url) trustScore += 10
-        if (profile.photo_url) trustScore += 10
+            // Verification (30 pts, 10 each)
+            if (profile.cv_url) trustScore += 10
+            if (profile.id_url) trustScore += 10
+            if (profile.photo_url) trustScore += 10
+        }
+    } catch (e) {
+        console.error('[Teacher Dashboard] Trust score calc error:', e)
     }
 
     // 2. Client Rating (Max 50 points)
     let clientRatingPoints = 0
-    if (reviewData && reviewData.length > 0) {
-        const avgRating = reviewData.reduce((acc, curr) => acc + curr.rating, 0) / reviewData.length
-        clientRatingPoints = (avgRating / 5) * 50
-    } else {
-        // Baseline for new teachers (4.0 stars = 40 points)
-        clientRatingPoints = 40
+    try {
+        if (reviewData && reviewData.length > 0) {
+            const avgRating = reviewData.reduce((acc, curr) => acc + curr.rating, 0) / reviewData.length
+            clientRatingPoints = (avgRating / 5) * 50
+        } else {
+            // Baseline for new teachers (4.0 stars = 40 points)
+            clientRatingPoints = 40
+        }
+    } catch (e) {
+        console.error('[Teacher Dashboard] Rating calc error:', e)
     }
 
     const finalRating = (trustScore + clientRatingPoints) / 20
     const displayRating = Math.max(0, Math.min(5, finalRating)) // Clamp between 0 and 5
 
-    const formattedSessions = upcomingSessions.slice(0, 3).map((s: any) => ({
-        id: s.id,
-        title: s.booking?.gig?.title || "Unknown Class",
-        scheduled_at: `${s.session_date}T${s.session_time || '00:00'}:00`,
-        student_name: s.booking?.student?.name || "Unknown Student",
-        session_number: s.session_number
-    }))
+    let formattedSessions: any[] = []
+    try {
+        formattedSessions = upcomingSessions.slice(0, 3).map((s: any) => {
+            // Ensure we have a valid date string
+            const safeDate = s.session_date || new Date().toISOString().split('T')[0]
+            const safeTime = s.session_time || '00:00'
+            return {
+                id: s.id,
+                title: s.booking?.gig?.title || "Unknown Class",
+                scheduled_at: `${safeDate}T${safeTime}:00`,
+                student_name: s.booking?.student?.name || "Unknown Student",
+                session_number: s.session_number
+            }
+        })
+    } catch (e) {
+        console.error('[Teacher Dashboard] Session formatting error:', e)
+    }
 
     return (
         <div className="flex flex-col gap-6">

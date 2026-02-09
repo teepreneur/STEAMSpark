@@ -21,9 +21,18 @@ export function UpcomingSessions({ sessions }: { sessions: Session[] }) {
             </div>
             <div className="bg-card rounded-xl border shadow-sm overflow-hidden flex flex-col divide-y">
                 {sessions.length > 0 ? sessions.map((session) => {
-                    const date = new Date(session.scheduled_at)
-                    const dayLabel = isToday(date) ? "Today" : isTomorrow(date) ? "Tomorrow" : format(date, "MMM d")
-                    const timeLabel = format(date, "h:mm a")
+                    let dayLabel = "Unknown"
+                    let timeLabel = "Unknown"
+
+                    try {
+                        const date = new Date(session.scheduled_at)
+                        if (!isNaN(date.getTime())) {
+                            dayLabel = isToday(date) ? "Today" : isTomorrow(date) ? "Tomorrow" : format(date, "MMM d")
+                            timeLabel = format(date, "h:mm a")
+                        }
+                    } catch (e) {
+                        console.error("Date parse error", e)
+                    }
 
                     return (
                         <div key={session.id} className="p-4 hover:bg-muted/50 transition-colors flex flex-col sm:flex-row gap-4 sm:items-center">
