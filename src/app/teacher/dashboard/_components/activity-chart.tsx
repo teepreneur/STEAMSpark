@@ -84,8 +84,8 @@ export function ActivityChart({ sessions }: { sessions: any[] }) {
 
                             return (
                                 <div key={i} className="flex flex-col items-center gap-2 flex-1 group cursor-pointer">
-                                    <div className="text-xs font-bold text-primary opacity-0 group-hover:opacity-100 transition-opacity">
-                                        {day.count}
+                                    <div className="text-xs font-bold text-primary transition-opacity">
+                                        {day.count > 0 ? day.count : ''}
                                     </div>
                                     <div className="w-full bg-primary/20 dark:bg-primary/10 rounded-t-lg h-full relative overflow-hidden group-hover:bg-primary/30 transition-colors">
                                         <div
