@@ -248,7 +248,7 @@ function ParentMessagesContent() {
                     .from('bookings')
                     .select('id')
                     .eq('parent_id', userId)
-                    .eq('status', 'confirmed')
+                    .in('status', ['confirmed', 'completed'])
                     .in('gig_id', gigIds)
                     .limit(1)
                     .maybeSingle()
