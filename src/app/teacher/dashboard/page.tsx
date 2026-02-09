@@ -19,6 +19,7 @@ export default async function TeacherDashboard() {
     let reviewData: any[] = []
     let bookings: any[] = []
     let upcomingSessions: any[] = []
+    let activityRaw: any[] = []
 
     try {
         // Fetch profile for Trust Score calculation
@@ -221,7 +222,7 @@ export default async function TeacherDashboard() {
                 <div className="lg:col-span-2 flex flex-col gap-6">
                     <QuickActions />
                     <UpcomingSessions sessions={formattedSessions} />
-                    <ActivityChart />
+                    <ActivityChart sessions={activityRaw} />
                 </div>
 
                 {/* Right Column */}

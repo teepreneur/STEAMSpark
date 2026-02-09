@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { createClient } from "@/lib/supabase/client"
 import { BarChart } from "lucide-react"
 
 interface DayData {
@@ -10,8 +9,7 @@ interface DayData {
     label: string
 }
 
-export function ActivityChart() {
-    const supabase = createClient()
+export function ActivityChart({ sessions }: { sessions: any[] }) {
     const [weekData, setWeekData] = useState<DayData[]>([
         { day: 'Monday', count: 0, label: 'M' },
         { day: 'Tuesday', count: 0, label: 'T' },
@@ -21,54 +19,15 @@ export function ActivityChart() {
         { day: 'Saturday', count: 0, label: 'S' },
         { day: 'Sunday', count: 0, label: 'S' }
     ])
-    const [loading, setLoading] = useState(true)
 
     useEffect(() => {
-        async function loadActivity() {
+        function processActivity() {
             try {
-                const { data: { user } } = await supabase.auth.getUser()
-                if (!user) {
-                    setLoading(false)
-                    return
-                }
-
-                // Get current week start (Monday)
-                const now = new Date()
-                const dayOfWeek = now.getDay()
-                const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek
-                const weekStart = new Date(now)
-                weekStart.setDate(now.getDate() + mondayOffset)
-                weekStart.setHours(0, 0, 0, 0)
-
-                const weekEnd = new Date(weekStart)
-                weekEnd.setDate(weekStart.getDate() + 6)
-
-                const formatDate = (d: Date) => d.toISOString().split('T')[0]
-
-                const { data: sessions } = await supabase
-                    .from('booking_sessions')
-                    .select(`
-                        id,
-                        session_date,
-                        status,
-                        booking:bookings!inner (
-                            gig:gigs!inner (teacher_id)
-                        )
-                    `)
-                    .gte('session_date', formatDate(weekStart))
-                    .lte('session_date', formatDate(weekEnd))
-                    .in('status', ['scheduled', 'confirmed', 'completed'])
-
-                // Filter for this teacher
-                const teacherSessions = sessions?.filter((s: any) =>
-                    s.booking?.gig?.teacher_id === user.id
-                ) || []
-
                 // Count sessions per day
                 const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
                 const dayCounts: Record<string, number> = {}
 
-                teacherSessions.forEach((s: any) => {
+                sessions.forEach((s: any) => {
                     const date = new Date(s.session_date + 'T00:00:00')
                     const dayName = dayNames[date.getDay()]
                     dayCounts[dayName] = (dayCounts[dayName] || 0) + 1
@@ -86,13 +45,12 @@ export function ActivityChart() {
 
                 setWeekData(data)
             } catch (error) {
-                console.error('[ActivityChart] Error loading activity:', error)
+                console.error('[ActivityChart] Error processing activity:', error)
             }
-            setLoading(false)
         }
 
-        loadActivity()
-    }, [supabase])
+        processActivity()
+    }, [sessions])
 
     // Calculate max for sclaing bars
     const maxCount = Math.max(...weekData.map(d => d.count), 1)
@@ -112,11 +70,7 @@ export function ActivityChart() {
                 <h2 className="text-lg font-bold">Weekly Activity</h2>
             </div>
             <div className="bg-card p-6 rounded-xl border shadow-sm">
-                {loading ? (
-                    <div className="h-40 flex items-center justify-center">
-                        <div className="animate-pulse text-muted-foreground">Loading...</div>
-                    </div>
-                ) : weekData.every(d => d.count === 0) ? (
+                {weekData.every(d => d.count === 0) ? (
                     <div className="h-40 flex flex-col items-center justify-center text-center">
                         <BarChart className="size-8 text-muted-foreground mb-2" />
                         <p className="text-sm text-muted-foreground">No sessions this week</p>
