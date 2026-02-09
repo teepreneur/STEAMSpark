@@ -72,6 +72,7 @@ export default async function TeacherDashboard() {
                 booking:bookings!inner (
                     id,
                     status,
+                    total_sessions,
                     gig:gigs!inner (
                         title,
                         teacher_id
@@ -167,7 +168,9 @@ export default async function TeacherDashboard() {
                 title: s.booking?.gig?.title || "Unknown Class",
                 scheduled_at: `${safeDate}T${safeTime}`,
                 student_name: s.booking?.student?.name || "Unknown Student",
-                session_number: s.session_number
+                parent_name: s.booking?.parent?.full_name || "Unknown Parent",
+                session_number: s.session_number,
+                total_sessions: s.booking?.total_sessions
             }
         })
     } catch (e) {

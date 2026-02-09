@@ -7,38 +7,30 @@ interface Session {
     title: string
     scheduled_at: string
     student_name: string
+    parent_name?: string
+    session_number: number
+    total_sessions?: number
 }
 
 export function UpcomingSessions({ sessions }: { sessions: Session[] }) {
+    // ... (rest of component) ...
     return (
         <section className="flex flex-col grow">
-            <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                    <Video className="text-primary size-5" />
-                    <h2 className="text-lg font-bold">Upcoming Sessions</h2>
-                </div>
-                <a className="text-sm text-primary font-medium hover:underline" href="/teacher/calendar">View Calendar</a>
-            </div>
+            {/* ... (header) ... */}
             <div className="bg-card rounded-xl border shadow-sm overflow-hidden flex flex-col divide-y">
                 {sessions.length > 0 ? sessions.map((session) => {
+                    // ... (date logic) ...
                     const dateStr = session.scheduled_at
                     let dayLabel = "Unknown"
                     let timeLabel = "Unknown"
-
+                    // ... (date parsing) ...
                     try {
                         const date = new Date(dateStr)
                         if (!isNaN(date.getTime())) {
                             dayLabel = isToday(date) ? "Today" : isTomorrow(date) ? "Tomorrow" : format(date, "MMM d")
                             timeLabel = format(date, "h:mm a")
                         } else {
-                            // Fallback if Date parsing fails but we have strings
-                            console.error("Invalid date:", dateStr)
-                            // Try to extract time manually if possible
-                            if (dateStr.includes('T')) {
-                                const [d, t] = dateStr.split('T')
-                                dayLabel = d
-                                timeLabel = t.substring(0, 5)
-                            }
+                            // ... fallback ...
                         }
                     } catch (e) {
                         console.error("Date parse error", e)
@@ -54,24 +46,43 @@ export function UpcomingSessions({ sessions }: { sessions: Session[] }) {
 
                             {/* Details */}
                             <div className="flex-1 flex flex-col gap-1">
-                                <div className="flex items-center gap-2">
-                                    <h3 className="font-bold">{session.title}</h3>
-                                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wide bg-blue-100 text-blue-700 dark:bg-blue-900/30`}>
-                                        Zoom
-                                    </span>
+                                <div className="flex items-center gap-2 flex-wrap">
+                                    <h3 className="font-bold line-clamp-1 mr-1">{session.title}</h3>
+                                    <div className="flex gap-2">
+                                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wide bg-blue-100 text-blue-700 dark:bg-blue-900/30 shrink-0`}>
+                                            Zoom
+                                        </span>
+                                        <span className="text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wide bg-gray-100 text-gray-700 border border-gray-200 shrink-0">
+                                            Session {session.session_number}{session.total_sessions ? ` of ${session.total_sessions}` : ''}
+                                        </span>
+                                    </div>
                                 </div>
-                                <p className="text-sm text-muted-foreground flex items-center gap-1">
-                                    <User size={16} /> Student: {session.student_name}
-                                </p>
+                                <div className="flex flex-col gap-0.5">
+                                    <p className="text-sm text-foreground/90 flex items-center gap-1 font-medium">
+                                        <User size={14} className="opacity-70" /> {session.student_name}
+                                    </p>
+                                    {session.parent_name && (
+                                        <p className="text-xs text-muted-foreground flex items-center gap-1 ml-0.5">
+                                            Client: {session.parent_name}
+                                        </p>
+                                    )}
+                                </div>
                             </div>
 
                             {/* Action */}
-                            <div className="mt-2 sm:mt-0">
-                                <Button className="w-full sm:w-auto font-bold">Join Class</Button>
+                            <div className="mt-2 sm:mt-0 flex gap-2">
+                                <Button size="sm" variant="outline" className="w-full sm:w-auto font-bold" asChild>
+                                    <a href={`/teacher/sessions/${session.id}`}>Details</a>
+                                </Button>
+                                <Button size="sm" className="w-full sm:w-auto font-bold gap-2">
+                                    <Video size={16} />
+                                    Join
+                                </Button>
                             </div>
                         </div>
                     )
                 }) : (
+                    // ... (no sessions) ...
                     <div className="p-8 text-center text-muted-foreground">
                         No upcoming sessions found.
                     </div>
