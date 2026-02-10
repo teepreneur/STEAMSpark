@@ -30,9 +30,9 @@ export default function ParentEarlyAccessPage() {
                         <span className="text-2xl font-bold text-slate-800">STEAM Spark Ghana</span>
                     </Link>
                     <nav className="hidden md:flex items-center space-x-6">
-                        <Link href="/login" className="text-slate-600 hover:text-blue-500 font-medium">
+                        <a href="/login" className="text-slate-600 hover:text-blue-500 font-medium">
                             Sign In
-                        </Link>
+                        </a>
                         <button
                             onClick={scrollToForm}
                             className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition font-medium"
@@ -273,7 +273,7 @@ export default function ParentEarlyAccessPage() {
 
             {/* Social Proof */}
             <section className="py-24 bg-blue-500 text-white overflow-hidden relative">
-                <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10" />
+                <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:16px_16px]" />
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                     <div className="text-center mb-12">
                         <h2 className="text-3xl md:text-4xl font-bold mb-4">
@@ -420,15 +420,15 @@ export default function ParentEarlyAccessPage() {
                             <span className="text-white font-semibold">STEAM Spark Ghana</span>
                         </div>
                         <div className="flex space-x-6">
-                            <Link href="/about" className="hover:text-white transition">
+                            <a href="/about" className="hover:text-white transition">
                                 About
-                            </Link>
-                            <Link href="/contact" className="hover:text-white transition">
+                            </a>
+                            <a href="/contact" className="hover:text-white transition">
                                 Contact
-                            </Link>
-                            <Link href="/privacy" className="hover:text-white transition">
+                            </a>
+                            <a href="/privacy" className="hover:text-white transition">
                                 Privacy
-                            </Link>
+                            </a>
                         </div>
                     </div>
                     <div className="mt-8 text-center text-sm">
