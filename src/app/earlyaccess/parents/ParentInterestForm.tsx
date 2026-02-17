@@ -119,7 +119,7 @@ export default function ParentInterestForm() {
                         type="text"
                         name="name"
                         required
-                        className="w-full h-11 px-4 rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all outline-none"
+                        className="w-full h-11 px-4 rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all outline-none text-slate-900 placeholder:text-slate-400"
                         placeholder="e.g. Akosua Mensah"
                         value={formData.name}
                         onChange={handleChange}
@@ -133,7 +133,7 @@ export default function ParentInterestForm() {
                             type="tel"
                             name="phone"
                             required
-                            className="w-full h-11 px-4 rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all outline-none"
+                            className="w-full h-11 px-4 rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all outline-none text-slate-900 placeholder:text-slate-400"
                             placeholder="024..."
                             value={formData.phone}
                             onChange={handleChange}
@@ -145,7 +145,7 @@ export default function ParentInterestForm() {
                             type="email"
                             name="email"
                             required
-                            className="w-full h-11 px-4 rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all outline-none"
+                            className="w-full h-11 px-4 rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all outline-none text-slate-900 placeholder:text-slate-400"
                             placeholder="you@email.com"
                             value={formData.email}
                             onChange={handleChange}
@@ -157,7 +157,7 @@ export default function ParentInterestForm() {
                     <label className="text-sm font-medium text-slate-700">Child's Age Group</label>
                     <select
                         name="child_age"
-                        className="w-full h-11 px-4 rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all outline-none bg-white"
+                        className="w-full h-11 px-4 rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all outline-none bg-white text-slate-900"
                         value={formData.child_age}
                         onChange={handleChange}
                     >
@@ -182,8 +182,8 @@ export default function ParentInterestForm() {
                                     type="button"
                                     onClick={() => toggleInterest(option.id)}
                                     className={`flex items-center justify-center gap-2 p-2 rounded-lg border text-sm transition-all ${isSelected
-                                            ? 'bg-blue-50 border-blue-500 text-blue-700'
-                                            : 'bg-white border-slate-200 text-slate-600 hover:border-blue-300'
+                                        ? 'bg-blue-50 border-blue-500 text-blue-700'
+                                        : 'bg-white border-slate-200 text-slate-600 hover:border-blue-300'
                                         }`}
                                 >
                                     <Icon className="w-4 h-4" />
@@ -198,7 +198,7 @@ export default function ParentInterestForm() {
                             placeholder="Please specify other interests..."
                             value={otherInterest}
                             onChange={(e) => setOtherInterest(e.target.value)}
-                            className="w-full h-11 px-4 mt-2 rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all outline-none animate-in fade-in slide-in-from-top-2 duration-200"
+                            className="w-full h-11 px-4 mt-2 rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all outline-none animate-in fade-in slide-in-from-top-2 duration-200 text-slate-900 placeholder:text-slate-400"
                         />
                     )}
                 </div>

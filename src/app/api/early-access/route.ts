@@ -19,20 +19,35 @@ export async function POST(request: Request) {
 
         // 1. Save to Database (Primary System of Record)
         const supabase = await createClient()
-        const { error: dbError } = await supabase
-            .from('early_access_signups')
-            .insert({
-                name,
-                email,
-                phone,
-                subject,
-                experience,
-                reason,
-                role,
-                child_age,
-                interests,
-                needs_setup_help
-            })
+        let dbError;
+
+        if (role === 'parent') {
+            const { error } = await supabase
+                .from('parent_early_access')
+                .insert({
+                    name,
+                    email,
+                    phone,
+                    child_age,
+                    interests,
+                    needs_setup_help
+                })
+            dbError = error;
+        } else {
+            // Teacher (default)
+            const { error } = await supabase
+                .from('early_access_signups')
+                .insert({
+                    name,
+                    email,
+                    phone,
+                    subject,
+                    experience,
+                    reason,
+                    role: 'teacher' // Force role to teacher for legacy table
+                })
+            dbError = error;
+        }
 
         if (dbError) {
             console.error('Database Error:', dbError)
@@ -53,11 +68,12 @@ export async function POST(request: Request) {
                     : `New Teacher Early Access: ${name}`;
 
                 // Determine HTML content based on role
-                const detailsHtml = role === 'parent'
+                const isParent = role === 'parent';
+                const detailsHtml = isParent
                     ? `
-                        <p><strong>Child's Age/Grade:</strong> ${child_age || 'N/A'}</p>
-                        <p><strong>Needs Account Setup Help:</strong> ${needs_setup_help ? 'Yes' : 'No'}</p>
-                        <p><strong>Interests:</strong> ${interests || 'N/A'}</p>
+                        <p><strong>Child's Age Group:</strong> ${child_age || 'Not specified'}</p>
+                        <p><strong>Interests:</strong> ${interests || 'None selected'}</p>
+                        <p><strong>Needs Account Setup Help:</strong> ${needs_setup_help ? '<span style="color:green; font-weight:bold;">YES</span>' : 'No'}</p>
                       `
                     : `
                         <p><strong>Subject Area:</strong> ${subject}</p>
@@ -70,13 +86,19 @@ export async function POST(request: Request) {
                     to: ['triumphtetteh@gmail.com', 'hello@steamsparkgh.com'],
                     subject: emailSubject,
                     html: `
-                        <h1>New ${role === 'parent' ? 'Parent' : 'Teacher'} Application</h1>
-                        <p><strong>Name:</strong> ${name}</p>
-                        <p><strong>Email:</strong> ${email}</p>
-                        <p><strong>Phone:</strong> ${phone}</p>
-                        ${detailsHtml}
-                        <hr />
-                        <p><em>Saved to database successfully.</em></p>
+                        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+                            <h1 style="color: #2563eb;">New ${isParent ? 'Parent' : 'Teacher'} Application</h1>
+                            <div style="background: #f8fafc; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                                <p><strong>Name:</strong> ${name}</p>
+                                <p><strong>Email:</strong> <a href="mailto:${email}">${email}</a></p>
+                                <p><strong>Phone:</strong> ${phone}</p>
+                                <hr style="border-top: 1px solid #cbd5e1; margin: 20px 0;" />
+                                ${detailsHtml}
+                            </div>
+                            <p style="color: #64748b; font-size: 12px; margin-top: 20px;">
+                                Saved to database: <code>${isParent ? 'parent_early_access' : 'early_access_signups'}</code>
+                            </p>
+                        </div>
                     `
                 })
             } catch (emailError) {
