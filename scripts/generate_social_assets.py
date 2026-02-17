@@ -4,14 +4,15 @@ from PIL import Image, ImageDraw, ImageFont
 # Configuration
 ASSET_DIR = "marketing/spark_100_campaign/assets"
 LOGO_PATH = os.path.join(ASSET_DIR, "steam_spark_logo.png")
-OUTPUT_SUFFIX = "_social"
 
-# Text Mappings
+# Text Mappings (Base Name -> Text)
+# Input file will be {base_name}_raw.png
+# Output file will be {base_name}.png
 ASSETS = {
-    "co_creation_hero.png": "Build Together.\nJoin as a Founding Family.",
-    "future_impact_hero.png": "Engineering Her Future\nwith STEAM Spark.",
-    "curiosity_science_hero.png": "Igniting the Spark\nof Curiosity.",
-    "family_pride_hero.png": "See Their Progress.\nShare Their Pride."
+    "co_creation_hero": "Build Together.\nJoin as a Founding Family.",
+    "future_impact_hero": "Engineering Her Future\nwith STEAM Spark.",
+    "curiosity_science_hero": "Igniting the Spark\nof Curiosity.",
+    "family_pride_hero": "See Their Progress.\nShare Their Pride."
 }
 
 def generate_assets():
@@ -34,15 +35,20 @@ def generate_assets():
             font = ImageFont.load_default()
             print("Warning: collaborative font not found, using default.")
 
-    for filename, text in ASSETS.items():
-        image_path = os.path.join(ASSET_DIR, filename)
+    for base_name, text in ASSETS.items():
+        input_filename = f"{base_name}_raw.png"
+        output_filename = f"{base_name}.png"
+        
+        image_path = os.path.join(ASSET_DIR, input_filename)
+        output_path = os.path.join(ASSET_DIR, output_filename)
+        
         if not os.path.exists(image_path):
-            print(f"Skipping missing asset: {filename}")
+            print(f"Skipping missing asset: {input_filename}")
             continue
 
-        print(f"Processing {filename}...")
+        print(f"Processing {base_name}...")
         
-        # Open Base Image
+        # Open Base Reference Image (Raw)
         base_img = Image.open(image_path).convert("RGBA")
         width, height = base_img.size
 
@@ -69,7 +75,7 @@ def generate_assets():
         draw_ctx.text((text_x + shadow_offset, text_y + shadow_offset), text, font=font, fill=(0, 0, 0, 200))
         draw_ctx.text((text_x, text_y), text, font=font, fill=(255, 255, 255, 255))
 
-        # Draw Logo (Top Right or Bottom Right)
+        # Draw Logo (Top Right)
         # Resize logo to reasonable size (e.g., 20% of width)
         logo_target_width = int(width * 0.2)
         logo_ratio = logo.height / logo.width
@@ -82,9 +88,7 @@ def generate_assets():
         logo_y = 40
         out_img.paste(resized_logo, (logo_x, logo_y), resized_logo)
 
-        # Save
-        output_filename = filename.replace(".png", f"{OUTPUT_SUFFIX}.png")
-        output_path = os.path.join(ASSET_DIR, output_filename)
+        # Save as main filename
         out_img.save(output_path)
         print(f"Saved {output_filename}")
 

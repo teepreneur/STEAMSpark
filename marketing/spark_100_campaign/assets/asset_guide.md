@@ -2,10 +2,10 @@
 
 This folder contains visual assets designed to support the "Impact & Co-creation" marketing strategy. 
 
-**✨ READY TO POST:** The files ending in `_social.png` already have the STEAM Spark logo and strategic text overlaid. Use these for immediate social media posting.
+**✨ READY TO POST:** The files in this folder (`co_creation_hero.png`, etc.) are now fully branded with the STEAM Spark logo in the top-right and strategic text overlaid.
 
-## 1. Co-creation Hero (`co_creation_hero_social.png`)
-![Co-creation Hero Social](co_creation_hero_social.png)
+## 1. Co-creation Hero (`co_creation_hero.png`)
+![Co-creation Hero](co_creation_hero.png)
 
 **Theme:** "Build Together" / Collaboration
 **Visual:** Ghanaian father and daughter engaged with a laptop, smiling and pointing.
@@ -14,8 +14,8 @@ This folder contains visual assets designed to support the "Impact & Co-creation
 - **Goal:** Show parents that they are active participants, not just customers.
 - **Channels:** LinkedIn posts, Email Headers (Welcome Sequence).
 
-## 2. Future Impact Hero (`future_impact_hero_social.png`)
-![Future Impact Hero Social](future_impact_hero_social.png)
+## 2. Future Impact Hero (`future_impact_hero.png`)
+![Future Impact Hero](future_impact_hero.png)
 
 **Theme:** "Future Ready" / Empowerment
 **Visual:** Close-up of a young girl focused on building a robotics/electronics project.
@@ -24,8 +24,8 @@ This folder contains visual assets designed to support the "Impact & Co-creation
 - **Goal:** Highlight the tangible skills and confidence children gain.
 - **Channels:** Instagram Ads, Facebook Ads (Retargeting).
 
-## 3. Family Pride Hero (`family_pride_hero_social.png`)
-![Family Pride Hero Social](family_pride_hero_social.png)
+## 3. Family Pride Hero (`family_pride_hero.png`)
+![Family Pride Hero](family_pride_hero.png)
 
 **Theme:** "Visible Progress" / Joy
 **Visual:** Mother showing child's tablet achievement to a grandparent/friend.
@@ -34,8 +34,8 @@ This folder contains visual assets designed to support the "Impact & Co-creation
 - **Goal:** Appeal to the desire for shared family success and tracking progress.
 - **Channels:** WhatsApp Status, Community Group Posts.
 
-## 4. Curiosity Science Hero (`curiosity_science_hero_social.png`)
-![Curiosity Science Hero Social](curiosity_science_hero_social.png)
+## 4. Curiosity Science Hero (`curiosity_science_hero.png`)
+![Curiosity Science Hero](curiosity_science_hero.png)
 
 **Theme:** "Igniting Spark" / Wonder
 **Visual:** Young boy looking with wonder at a science experiment.
