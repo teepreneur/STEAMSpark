@@ -13,23 +13,22 @@
 
 ## Campaign Pillars
 
-### 1. Exclusivity & Scarcity
-**Psychology:** People want what they can't easily have.
-- "Limited Beta: Only 100 Families"
-- "Early Adopter Advantage"
-- Real-time counter showing spots remaining
+### 1. Impact & Co-creation
+**Psychology:** Parents care most about their child's future and being heard.
+- "Build the Perfect Platform for Your Child"
+- "Shape the Future of STEAM Education"
+- "Founding Family Status"
 
-### 2. Trust Transfer
-**Psychology:** Leverage 7 years of manual service credibility.
-- Testimonials from existing families
-- "Upgraded Experience, Same Trusted Educators"
-- Showcase student competition wins
+### 2. Priority Access
+**Psychology:** Fear of missing out on the best resources.
+- "Skip the Line for Top Tutors"
+- "First Access to New Features"
+- "Exclusive Community"
 
-### 3. Tangible Value
-**Psychology:** Clear, immediate benefit for joining now.
-- Free personalized AI Learning Roadmap (worth GHS 200)
-- 20% discount on first 3 sessions
-- Lifetime "Founding Family" status (future perks)
+### 3. Tangible Value (Secondary)
+**Psychology:** A "no-brainer" perk to reduce risk.
+- "1 Year Zero Platform Fees (Save GHS 480)"
+- "Concierge Onboarding"
 
 ---
 
@@ -84,14 +83,14 @@
 ## Messaging Framework
 
 ### Core Message
-**"Your Child's STEAM Future Starts Here"**
+**"Co-create the Future of Your Child's Education"**
 
 ### Supporting Messages by Audience
 
-#### For Parents (Emotional + Practical)
-- **Headline:** "Finally, See What They're Learning"
-- **Subhead:** "Track progress. Chat with tutors. Watch them grow."
-- **CTA:** "Unlock Your Free AI Roadmap"
+#### For Parents (Emotional + Impact)
+- **Headline:** "Build the Perfect Learning Path for Your Child"
+- **Subhead:** "Don't just join a platform. Shape it. Get priority access to top mentors and zero fees for a year."
+- **CTA:** "Unlock Founding Family Status"
 
 #### For Schools (ROI + Prestige)
 - **Headline:** "Bring Award-Winning STEAM to Your Students"

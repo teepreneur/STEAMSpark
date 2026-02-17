@@ -61,7 +61,7 @@ export default function ParentEarlyAccessPage() {
 
                         <p className="text-xl text-slate-600 mb-8 leading-relaxed">
                             Join the first 100 families to access Ghana's revolutionary STEAM education platform.
-                            Get <strong>1 year of zero platform fees</strong> and help us build the perfect learning experience for your child.
+                            Co-create the perfect learning experience for your child and give them a head start in the future of work.
                         </p>
 
                         <div className="flex flex-col sm:flex-row gap-4">
@@ -114,7 +114,7 @@ export default function ParentEarlyAccessPage() {
                                 </div>
                                 <div>
                                     <div className="text-sm text-slate-600">Early Adopters</div>
-                                    <div className="text-lg font-bold text-slate-900">Save GHS 480/year</div>
+                                    <div className="text-lg font-bold text-slate-900">Founding Family Status</div>
                                 </div>
                             </div>
                         </div>
@@ -135,36 +135,16 @@ export default function ParentEarlyAccessPage() {
                     </div>
 
                     <div className="grid md:grid-cols-3 gap-8">
-                        {/* Benefit 1 - Green (Savings) */}
-                        <div className="bg-green-50/50 rounded-2xl p-8 border border-green-100 hover:border-green-200 transition-colors">
-                            <div className="w-14 h-14 bg-green-100 rounded-xl flex items-center justify-center mb-6">
-                                <Sparkles className="w-8 h-8 text-green-500" />
-                            </div>
-                            <h3 className="text-2xl font-bold text-slate-800 mb-4">
-                                Zero Platform Fees for 1 Year
-                            </h3>
-                            <p className="text-slate-600 mb-6">
-                                Save GHS 480 annually. Pay only for tutoring sessions — no hidden fees, no commission.
-                                That's GHS 40/month you keep in your pocket.
-                            </p>
-                            <div className="bg-white rounded-lg p-4 border border-green-200 shadow-sm">
-                                <div className="text-sm text-slate-500 mb-1">Regular Price</div>
-                                <div className="text-2xl font-bold text-slate-400 line-through">GHS 480/year</div>
-                                <div className="text-3xl font-bold text-green-500 mt-2">FREE</div>
-                            </div>
-                        </div>
-
-                        {/* Benefit 2 - Orange (Innovation/Shaping) */}
+                        {/* Benefit 1 - Orange (Innovation/Impact) - MOVED TO FIRST */}
                         <div className="bg-orange-50/50 rounded-2xl p-8 border border-orange-100 hover:border-orange-200 transition-colors">
                             <div className="w-14 h-14 bg-orange-100 rounded-xl flex items-center justify-center mb-6">
                                 <Users className="w-8 h-8 text-orange-500" />
                             </div>
                             <h3 className="text-2xl font-bold text-slate-800 mb-4">
-                                Shape the Platform
+                                Built Around Your Child
                             </h3>
                             <p className="text-slate-600 mb-6">
-                                Your feedback directly influences features. Monthly surveys, beta testing new tools,
-                                and exclusive access to our founder for suggestions.
+                                Don't just use a platform—build it with us. Your feedback ensures we create the exact tools, subjects, and features your child needs to thrive.
                             </p>
                             <ul className="space-y-3">
                                 {[
@@ -181,16 +161,16 @@ export default function ParentEarlyAccessPage() {
                             </ul>
                         </div>
 
-                        {/* Benefit 3 - Blue (Perks/Loyalty) */}
+                        {/* Benefit 2 - Blue (Perks/Loyalty) - MOVED TO SECOND */}
                         <div className="bg-blue-50/50 rounded-2xl p-8 border border-blue-100 hover:border-blue-200 transition-colors">
                             <div className="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center mb-6">
                                 <Target className="w-8 h-8 text-blue-500" />
                             </div>
                             <h3 className="text-2xl font-bold text-slate-800 mb-4">
-                                Lifetime Perks
+                                Priority Access to Experts
                             </h3>
                             <p className="text-slate-600 mb-6">
-                                As a founding family, you'll enjoy exclusive benefits even after the beta period ends.
+                                Your child deserves the best. Get first priority when booking our highest-rated mentors and educators before the general public.
                             </p>
                             <ul className="space-y-3">
                                 {[
@@ -205,6 +185,24 @@ export default function ParentEarlyAccessPage() {
                                     </li>
                                 ))}
                             </ul>
+                        </div>
+
+                        {/* Benefit 3 - Green (Savings) - MOVED TO THIRD */}
+                        <div className="bg-green-50/50 rounded-2xl p-8 border border-green-100 hover:border-green-200 transition-colors">
+                            <div className="w-14 h-14 bg-green-100 rounded-xl flex items-center justify-center mb-6">
+                                <Sparkles className="w-8 h-8 text-green-500" />
+                            </div>
+                            <h3 className="text-2xl font-bold text-slate-800 mb-4">
+                                Zero Platform Fees
+                            </h3>
+                            <p className="text-slate-600 mb-6">
+                                As a thank you for your early trust and impact, enjoy 1 year of waived booking fees. Invest 100% of your budget into your child's learning.
+                            </p>
+                            <div className="bg-white rounded-lg p-4 border border-green-200 shadow-sm">
+                                <div className="text-sm text-slate-500 mb-1">Regular Price</div>
+                                <div className="text-2xl font-bold text-slate-400 line-through">GHS 480/year</div>
+                                <div className="text-3xl font-bold text-green-500 mt-2">FREE</div>
+                            </div>
                         </div>
                     </div>
                 </div>
