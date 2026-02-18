@@ -209,7 +209,7 @@ export default function TeacherEarlyAccessClient() {
                                     type="text"
                                     name="name"
                                     required
-                                    className="w-full h-11 px-4 rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all outline-none"
+                                    className="w-full h-11 px-4 rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all outline-none text-slate-900 placeholder:text-slate-400"
                                     placeholder="e.g. Kwame Mensah"
                                     value={formData.name}
                                     onChange={handleChange}
@@ -223,7 +223,7 @@ export default function TeacherEarlyAccessClient() {
                                         type="tel"
                                         name="phone"
                                         required
-                                        className="w-full h-11 px-4 rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all outline-none"
+                                        className="w-full h-11 px-4 rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all outline-none text-slate-900 placeholder:text-slate-400"
                                         placeholder="024..."
                                         value={formData.phone}
                                         onChange={handleChange}
@@ -235,7 +235,7 @@ export default function TeacherEarlyAccessClient() {
                                         type="email"
                                         name="email"
                                         required
-                                        className="w-full h-11 px-4 rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all outline-none"
+                                        className="w-full h-11 px-4 rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all outline-none text-slate-900 placeholder:text-slate-400"
                                         placeholder="you@email.com"
                                         value={formData.email}
                                         onChange={handleChange}
@@ -248,7 +248,7 @@ export default function TeacherEarlyAccessClient() {
                                 <select
                                     name="subject"
                                     required
-                                    className="w-full h-11 px-4 rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all outline-none bg-white"
+                                    className="w-full h-11 px-4 rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all outline-none bg-white text-slate-900"
                                     value={formData.subject}
                                     onChange={handleChange}
                                 >
@@ -267,7 +267,7 @@ export default function TeacherEarlyAccessClient() {
                                 <select
                                     name="experience"
                                     required
-                                    className="w-full h-11 px-4 rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all outline-none bg-white"
+                                    className="w-full h-11 px-4 rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all outline-none bg-white text-slate-900"
                                     value={formData.experience}
                                     onChange={handleChange}
                                 >
