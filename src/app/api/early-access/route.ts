@@ -81,8 +81,8 @@ export async function POST(request: Request) {
                         <p><strong>Why they want to join:</strong> ${reason}</p>
                       `;
 
-                await resend.emails.send({
-                    from: 'STEAM Spark <onboarding@resend.dev>',
+                const { data, error: emailError } = await resend.emails.send({
+                    from: 'STEAM Spark <hello@steamsparkgh.com>',
                     to: ['triumphtetteh@gmail.com', 'hello@steamsparkgh.com'],
                     subject: emailSubject,
                     html: `
@@ -101,8 +101,14 @@ export async function POST(request: Request) {
                         </div>
                     `
                 })
-            } catch (emailError) {
-                console.error('Email Error:', emailError)
+
+                if (emailError) {
+                    console.error('Resend API Error:', emailError)
+                } else {
+                    console.log('✅ Email sent:', data?.id)
+                }
+            } catch (sendError) {
+                console.error('Email Send Failed:', sendError)
                 // We don't fail the request if just the email fails, since DB saved ok.
             }
         }
