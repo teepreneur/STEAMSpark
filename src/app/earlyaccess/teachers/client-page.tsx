@@ -115,9 +115,6 @@ export default function TeacherEarlyAccessClient() {
             <nav className="border-b border-slate-100 bg-white/80 backdrop-blur-md sticky top-0 z-50">
                 <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
                     <Logo size={28} variant="full" />
-                    <span className="text-xs font-semibold tracking-wider text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
-                        EARLY ACCESS
-                    </span>
                 </div>
             </nav>
 

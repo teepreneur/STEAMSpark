@@ -47,11 +47,6 @@ export default function ParentEarlyAccessPage() {
             <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
                 <div className="grid md:grid-cols-2 gap-12 items-center">
                     <div>
-                        <div className="inline-flex items-center space-x-2 bg-blue-50 text-blue-600 px-4 py-2 rounded-full mb-6 border border-blue-100">
-                            <Sparkles className="w-4 h-4" />
-                            <span className="text-sm font-semibold">Limited Early Access</span>
-                        </div>
-
                         <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-slate-800 mb-6 tracking-tight">
                             Shape the Future of{' '}
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-indigo-500">
