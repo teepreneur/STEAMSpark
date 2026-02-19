@@ -1,13 +1,13 @@
 "use client"
 
-import { Suspense, useEffect, useState, useRef } from "react"
+import { Suspense, useEffect, useState, useRef, useMemo } from "react"
 import { useSearchParams } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { cn } from "@/lib/utils"
-import { Search, Send, Loader2, User, MessageSquare, Sparkles } from "lucide-react"
+import { Search, Send, Loader2, User, MessageSquare, Sparkles, ArrowLeft } from "lucide-react"
 import { format, parseISO, isToday, isYesterday } from "date-fns"
 
 interface Conversation {
@@ -48,7 +48,7 @@ export default function ParentMessagesPage() {
 }
 
 function ParentMessagesContent() {
-    const supabase = createClient()
+    const supabase = useMemo(() => createClient(), [])
     const searchParams = useSearchParams()
     const sharedText = searchParams.get('text')
     const teacherIdFromUrl = searchParams.get('teacher')
@@ -56,6 +56,7 @@ function ParentMessagesContent() {
     const [loading, setLoading] = useState(true)
     const [sending, setSending] = useState(false)
     const [userId, setUserId] = useState<string | null>(null)
+    const [userName, setUserName] = useState<string>('Parent')
     const [conversations, setConversations] = useState<Conversation[]>([])
     const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null)
     const [messages, setMessages] = useState<Message[]>([])
@@ -86,6 +87,14 @@ function ParentMessagesContent() {
             if (!user) return
             setUserId(user.id)
 
+            // Fetch user's profile name for notifications
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('full_name')
+                .eq('id', user.id)
+                .single()
+            if (profile?.full_name) setUserName(profile.full_name)
+
             // Get conversations with teacher info
             const { data: convos } = await supabase
                 .from('conversations')
@@ -98,34 +107,46 @@ function ParentMessagesContent() {
                 .eq('parent_id', user.id)
                 .order('last_message_at', { ascending: false })
 
-            if (convos) {
-                // Enrich with last message and unread count
-                const enrichedConvos = await Promise.all(
-                    convos.map(async (c: any) => {
-                        const { data: lastMsg } = await supabase
-                            .from('messages')
-                            .select('content')
-                            .eq('conversation_id', c.id)
-                            .order('created_at', { ascending: false })
-                            .limit(1)
-                            .maybeSingle()
+            if (convos && convos.length > 0) {
+                const convoIds = convos.map((c: any) => c.id)
 
-                        const { count } = await supabase
-                            .from('messages')
-                            .select('*', { count: 'exact', head: true })
-                            .eq('conversation_id', c.id)
-                            .eq('is_read', false)
-                            .neq('sender_id', user.id)
+                // Bulk fetch last messages for all conversations (1 query instead of N)
+                const { data: allLastMessages } = await supabase
+                    .from('messages')
+                    .select('conversation_id, content, created_at')
+                    .in('conversation_id', convoIds)
+                    .order('created_at', { ascending: false })
 
-                        return {
-                            ...c,
-                            teacher: c.teacher,
-                            last_message: lastMsg?.content,
-                            unread_count: count || 0,
-                            hasActiveBooking: false  // Will be checked when selected
-                        }
-                    })
-                )
+                // Build a map of conversation_id -> last message content
+                const lastMessageMap: Record<string, string> = {}
+                allLastMessages?.forEach((msg: any) => {
+                    if (!lastMessageMap[msg.conversation_id]) {
+                        lastMessageMap[msg.conversation_id] = msg.content
+                    }
+                })
+
+                // Bulk fetch unread counts (1 query instead of N)
+                const { data: unreadMessages } = await supabase
+                    .from('messages')
+                    .select('conversation_id')
+                    .in('conversation_id', convoIds)
+                    .eq('is_read', false)
+                    .neq('sender_id', user.id)
+
+                // Build a map of conversation_id -> unread count
+                const unreadMap: Record<string, number> = {}
+                unreadMessages?.forEach((msg: any) => {
+                    unreadMap[msg.conversation_id] = (unreadMap[msg.conversation_id] || 0) + 1
+                })
+
+                const enrichedConvos = convos.map((c: any) => ({
+                    ...c,
+                    teacher: c.teacher,
+                    last_message: lastMessageMap[c.id] || undefined,
+                    unread_count: unreadMap[c.id] || 0,
+                    hasActiveBooking: false
+                }))
+
                 setConversations(enrichedConvos)
 
                 // Auto-select conversation if teacher ID in URL (and it's valid)
@@ -140,12 +161,19 @@ function ParentMessagesContent() {
                 } else if (enrichedConvos.length > 0) {
                     setSelectedConversation(enrichedConvos[0])
                 }
+            } else if (convos) {
+                setConversations([])
+                // Still try to auto-create if teacher ID in URL
+                if (teacherIdFromUrl && teacherIdFromUrl !== 'undefined' && teacherIdFromUrl !== 'null') {
+                    await createConversation(teacherIdFromUrl, user.id)
+                }
             }
 
             setLoading(false)
         }
         loadConversations()
-    }, [supabase, teacherIdFromUrl])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [teacherIdFromUrl])
 
     async function createConversation(teacherId: string, parentId: string) {
         // First, check if conversation already exists (handle unique constraint)
@@ -350,7 +378,7 @@ function ParentMessagesContent() {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         recipientId: selectedConversation.teacher_id,
-                        senderName: 'Parent',
+                        senderName: userName,
                         messagePreview: content,
                         conversationId: selectedConversation.id,
                         senderRole: 'parent'
@@ -364,11 +392,17 @@ function ParentMessagesContent() {
         setSending(false)
     }
 
-    function formatMessageDate(dateStr: string) {
-        const date = parseISO(dateStr)
-        if (isToday(date)) return format(date, 'h:mm a')
-        if (isYesterday(date)) return 'Yesterday'
-        return format(date, 'MMM d')
+    function formatMessageDate(dateStr: string | null | undefined) {
+        if (!dateStr) return ''
+        try {
+            const date = parseISO(dateStr)
+            if (isNaN(date.getTime())) return ''
+            if (isToday(date)) return format(date, 'h:mm a')
+            if (isYesterday(date)) return 'Yesterday'
+            return format(date, 'MMM d')
+        } catch {
+            return ''
+        }
     }
 
     const filteredConversations = conversations.filter(c =>
@@ -385,9 +419,13 @@ function ParentMessagesContent() {
     }
 
     return (
-        <div className="flex h-[calc(100vh-12rem)] min-h-[600px] w-full bg-card rounded-xl border border-border shadow-sm overflow-hidden">
-            {/* Conversations Sidebar */}
-            <div className="w-80 md:w-96 border-r border-border flex flex-col bg-muted/10">
+        <div className="flex h-[calc(100vh-12rem)] md:min-h-[600px] w-full bg-card rounded-xl border border-border shadow-sm overflow-hidden">
+            {/* Conversations Sidebar — full-width on mobile, fixed-width on desktop */}
+            <div className={cn(
+                "border-r border-border flex flex-col bg-muted/10",
+                "w-full md:w-80 lg:w-96",
+                selectedConversation ? "hidden md:flex" : "flex"
+            )}>
                 <div className="p-4 border-b border-border">
                     <h2 className="text-xl font-bold text-foreground mb-4">Messages</h2>
                     <div className="relative">
@@ -463,8 +501,16 @@ function ParentMessagesContent() {
             {selectedConversation ? (
                 <div className="flex-1 flex flex-col bg-background overflow-hidden">
                     {/* Chat Header */}
-                    <header className="h-16 px-6 border-b border-border flex items-center justify-between shrink-0 bg-card">
-                        <div className="flex items-center gap-4">
+                    <header className="h-16 px-4 md:px-6 border-b border-border flex items-center justify-between shrink-0 bg-card">
+                        <div className="flex items-center gap-3 md:gap-4">
+                            {/* Back button — mobile only */}
+                            <button
+                                onClick={() => setSelectedConversation(null)}
+                                className="md:hidden p-1.5 -ml-1 rounded-lg hover:bg-muted transition-colors"
+                                aria-label="Back to conversations"
+                            >
+                                <ArrowLeft className="size-5 text-foreground" />
+                            </button>
                             {selectedConversation.teacher?.avatar_url ? (
                                 <div className="size-10 rounded-full bg-cover bg-center" style={{ backgroundImage: `url('${selectedConversation.teacher.avatar_url}')` }}></div>
                             ) : (
@@ -494,7 +540,7 @@ function ParentMessagesContent() {
                                     <div
                                         key={msg.id}
                                         className={cn(
-                                            "flex gap-3 max-w-[75%]",
+                                            "flex gap-3 max-w-[85%] md:max-w-[75%]",
                                             isOwn ? "ml-auto flex-row-reverse" : ""
                                         )}
                                     >
@@ -582,7 +628,7 @@ function ParentMessagesContent() {
                     </div>
                 </div>
             ) : (
-                <div className="flex-1 flex items-center justify-center bg-muted/20">
+                <div className="flex-1 hidden md:flex items-center justify-center bg-muted/20">
                     <div className="text-center text-muted-foreground">
                         <MessageSquare className="size-16 mx-auto mb-4 opacity-20" />
                         <p className="text-lg font-medium">Select a conversation</p>
