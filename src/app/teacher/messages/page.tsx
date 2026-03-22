@@ -325,9 +325,20 @@ function TeacherMessagesContent() {
     async function handleSendMessage() {
         if (!newMessage.trim() || !selectedConversation || !userId) return
 
-        setSending(true)
         const content = newMessage.trim()
         setNewMessage("")
+        
+        const tempId = `temp-${Date.now()}`
+        const optimisticMsg = {
+            id: tempId,
+            conversation_id: selectedConversation.id,
+            sender_id: userId,
+            content: content,
+            created_at: new Date().toISOString(),
+            is_read: false
+        }
+        
+        setMessages(prev => [...prev, optimisticMsg])
 
         const { data: msg, error } = await supabase
             .from('messages')
@@ -339,8 +350,18 @@ function TeacherMessagesContent() {
             .select()
             .single()
 
-        if (msg && !error) {
-            setMessages([...messages, msg])
+        if (error) {
+            setMessages(prev => prev.filter(m => m.id !== tempId))
+            return
+        }
+
+        if (msg) {
+            setMessages(prev => {
+                const exists = prev.some(m => m.id === msg.id)
+                if (exists) return prev.filter(m => m.id !== tempId)
+                return prev.map(m => m.id === tempId ? msg : m)
+            })
+            
             // Update last_message_at
             await supabase
                 .from('conversations')
@@ -364,8 +385,6 @@ function TeacherMessagesContent() {
                 console.log('Notification failed:', e)
             }
         }
-
-        setSending(false)
     }
 
     function formatMessageDate(dateStr: string | null | undefined) {
@@ -520,7 +539,8 @@ function TeacherMessagesContent() {
                                                 "p-3 rounded-xl text-sm leading-relaxed",
                                                 isOwn
                                                     ? "bg-primary text-primary-foreground rounded-br-none"
-                                                    : "bg-muted text-foreground rounded-bl-none"
+                                                    : "bg-muted text-foreground rounded-bl-none",
+                                                    msg.id.startsWith('temp-') && "opacity-70"
                                             )}>
                                                 {msg.content}
                                             </div>
@@ -562,9 +582,9 @@ function TeacherMessagesContent() {
                                     size="icon"
                                     className="rounded-xl shadow-md"
                                     onClick={handleSendMessage}
-                                    disabled={sending || !newMessage.trim()}
+                                    disabled={!newMessage.trim()}
                                 >
-                                    {sending ? <Loader2 className="size-5 animate-spin" /> : <Send className="size-5" />}
+                                    <Send className="size-5" />
                                 </Button>
                             </div>
                         ) : (

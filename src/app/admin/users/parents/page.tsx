@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import {
-    Search, Users, Eye, Loader2, Mail, Calendar
+    Search, Users, Eye, Loader2, Mail, Calendar, Plus
 } from "lucide-react"
 import Link from "next/link"
 import { format, parseISO } from "date-fns"
@@ -91,11 +91,19 @@ export default function ParentsPage() {
     return (
         <div className="space-y-6">
             {/* Header */}
-            <div>
-                <h1 className="text-2xl font-bold">Parent Management</h1>
-                <p className="text-muted-foreground">
-                    {parents.length} registered parents
-                </p>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h1 className="text-2xl font-bold">Parent Management</h1>
+                    <p className="text-muted-foreground">
+                        {parents.length} registered parents
+                    </p>
+                </div>
+                <Button asChild className="gap-2">
+                    <Link href={getAdminHref('/admin/users/parents/new')}>
+                        <Plus className="size-4" />
+                        Add New Parent
+                    </Link>
+                </Button>
             </div>
 
             {/* Search */}

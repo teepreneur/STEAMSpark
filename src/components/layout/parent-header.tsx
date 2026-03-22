@@ -12,6 +12,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { LogoutButton } from "@/components/auth/logout-button"
 import { createClient } from "@/lib/supabase/client"
 import { formatDistanceToNow } from "date-fns"
+import { UnreadMessagesBadge } from "@/components/notifications/unread-messages-badge"
 
 interface Notification {
     id: string
@@ -72,11 +73,12 @@ export function ParentHeader() {
                                     key={item.href}
                                     href={item.href}
                                     className={cn(
-                                        "text-sm font-medium transition-colors hover:text-primary",
+                                        "text-sm font-medium transition-colors hover:text-primary flex items-center gap-1.5",
                                         isActive ? "text-foreground" : "text-muted-foreground"
                                     )}
                                 >
                                     {item.label}
+                                    {item.label === "Messages" && <UnreadMessagesBadge userRole="parent" />}
                                 </Link>
                             )
                         })}
@@ -324,9 +326,10 @@ function MobileNav() {
                         <Link
                             key={item.href}
                             href={item.href}
-                            className="text-lg font-medium py-2 border-b border-border/50 hover:text-primary transition-colors"
+                            className="text-lg font-medium py-2 border-b border-border/50 hover:text-primary transition-colors flex items-center justify-between"
                         >
-                            {item.label}
+                            <span>{item.label}</span>
+                            {item.label === "Messages" && <UnreadMessagesBadge userRole="parent" />}
                         </Link>
                     ))}
                     <Link href="/parent/settings" className="text-lg font-medium py-2 border-b border-border/50 hover:text-primary transition-colors flex items-center gap-2">

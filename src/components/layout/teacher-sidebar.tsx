@@ -25,6 +25,7 @@ import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { formatDistanceToNow } from "date-fns"
+import { UnreadMessagesBadge } from "@/components/notifications/unread-messages-badge"
 
 interface SidebarItem {
     icon: any
@@ -69,6 +70,7 @@ const sidebarItems: SidebarItem[] = [
     { icon: Users, label: "Students", href: "/teacher/students" },
     { icon: Ticket, label: "My Gigs", href: "/teacher/gigs" },
     { icon: DollarSign, label: "Earnings", href: "/teacher/earnings" },
+    { icon: MessageSquare, label: "Messages", href: "/teacher/messages" },
     { icon: Settings, label: "Settings", href: "/teacher/settings" },
 ]
 
@@ -233,7 +235,8 @@ export function TeacherSidebar({ className }: { className?: string }) {
                                 )}
                             >
                                 <item.icon size={20} className={cn(isActive && "fill-current")} />
-                                <span className="text-sm font-medium">{item.label}</span>
+                                <span className="text-sm font-medium flex-1">{item.label}</span>
+                                {item.label === "Messages" && <UnreadMessagesBadge userRole="teacher" />}
                             </Link>
                         )
                     })}

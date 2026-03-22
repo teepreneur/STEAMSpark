@@ -25,3 +25,4 @@ BEGIN
         ALTER TABLE public.early_access_signups ADD COLUMN needs_setup_help boolean DEFAULT false;
     END IF;
 END $$;
+  

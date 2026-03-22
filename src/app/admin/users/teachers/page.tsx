@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import {
     Search, Filter, GraduationCap, CheckCircle, Clock,
-    XCircle, Mail, Eye, MoreHorizontal, Loader2, ChevronRight
+    XCircle, Mail, Eye, MoreHorizontal, Loader2, ChevronRight, Plus
 } from "lucide-react"
 import Link from "next/link"
 import { format, parseISO } from "date-fns"
@@ -141,6 +141,12 @@ function TeachersContent() {
                         {filteredTeachers.length} teachers • {teachers.filter(t => !t.verified_at).length} pending verification
                     </p>
                 </div>
+                <Button asChild className="gap-2">
+                    <Link href={getAdminHref('/admin/users/teachers/new')}>
+                        <Plus className="size-4" />
+                        Add New Teacher
+                    </Link>
+                </Button>
             </div>
 
             {/* Filters */}
