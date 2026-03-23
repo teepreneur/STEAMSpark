@@ -128,11 +128,19 @@ function BookingsContent() {
     return (
         <div className="space-y-6">
             {/* Header */}
-            <div>
-                <h1 className="text-2xl font-bold">Booking Management</h1>
-                <p className="text-muted-foreground">
-                    {filteredBookings.length} bookings
-                </p>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h1 className="text-2xl font-bold">Booking Management</h1>
+                    <p className="text-muted-foreground">
+                        {filteredBookings.length} bookings
+                    </p>
+                </div>
+                <Button asChild className="bg-primary hover:bg-primary/90 font-bold whitespace-nowrap">
+                    <Link href={getAdminHref("/admin/bookings/new")}>
+                        <BookOpen className="size-4 mr-2" />
+                        Create New Booking
+                    </Link>
+                </Button>
             </div>
 
             {/* Filters */}
