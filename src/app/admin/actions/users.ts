@@ -17,10 +17,9 @@ const supabaseAdmin = createClient(
 export async function createParentAndStudent(formData: FormData) {
     const email = formData.get("email") as string
     const fullName = formData.get("full_name") as string
-    
-    const studentName = formData.get("student_name") as string
-    const studentAge = formData.get("student_age") as string
-    const studentGrade = formData.get("student_grade") as string
+    const phoneNumber = formData.get("phone_number") as string
+    const country = formData.get("country") as string
+    const city = formData.get("city") as string
 
     if (!email || !fullName) {
         return { error: "Email and Full Name are required." }
@@ -53,7 +52,10 @@ export async function createParentAndStudent(formData: FormData) {
                 .from('profiles')
                 .update({
                     full_name: fullName,
-                    role: 'parent'
+                    role: 'parent',
+                    phone_number: phoneNumber || null,
+                    country: country || null,
+                    city: city || null
                 })
                 .eq('id', userId)
                 
@@ -64,24 +66,17 @@ export async function createParentAndStudent(formData: FormData) {
             await new Promise(r => setTimeout(r, 500)); // wait 500ms before retrying
         }
 
-        // 3. Create Student
-        if (studentName) {
-            const { error: studentError } = await supabaseAdmin
-                .from('students')
-                .insert({
-                    parent_id: userId,
-                    name: studentName,
-                    age: studentAge ? Number(studentAge) : null,
-                    grade: studentGrade || null
-                })
-
-            if (studentError) {
-                return { error: "Created parent successfully, but failed to create student: " + studentError.message }
-            }
-        }
-
         revalidatePath("/admin/users/parents")
-        return { success: true, userId, email }
+        
+        // Generate Onboarding Link
+        const onboardingLink = `/onboarding/child?id=${userId}`
+        
+        return { 
+            success: true, 
+            userId, 
+            email, 
+            onboardingLink 
+        }
 
     } catch (e: any) {
         console.error("Action error:", e)

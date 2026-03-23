@@ -1,0 +1,67 @@
+"use server"
+
+import { createClient } from "@supabase/supabase-js"
+import { revalidatePath } from "next/cache"
+
+const supabaseAdmin = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    {
+        auth: {
+            autoRefreshToken: false,
+            persistSession: false
+        }
+    }
+)
+
+export async function createChildProfile(formData: FormData) {
+    const parentId = formData.get("parent_id") as string
+    const name = formData.get("name") as string
+    const age = formData.get("age") as string
+    const grade = formData.get("grade") as string
+    const primaryGoal = formData.get("primary_goal") as string
+    const goals = formData.get("goals") as string
+    
+    // Interests is an array from the form
+    const interests = formData.getAll("interests") as string[]
+
+    if (!parentId || !name) {
+        return { error: "Parent ID and Child Name are required." }
+    }
+
+    try {
+        // 1. Verify parent exists
+        const { data: parent, error: parentError } = await supabaseAdmin
+            .from('profiles')
+            .select('full_name')
+            .eq('id', parentId)
+            .single()
+
+        if (parentError || !parent) {
+            return { error: "Invalid onboarding link. Parent account not found." }
+        }
+
+        // 2. Create Student record
+        const { error: studentError } = await supabaseAdmin
+            .from('students')
+            .insert({
+                parent_id: parentId,
+                name,
+                age: age ? Number(age) : null,
+                grade: grade || null,
+                interests: interests.length > 0 ? interests : null,
+                primary_goal: primaryGoal || null,
+                learning_goals: goals || null
+            })
+
+        if (studentError) {
+            return { error: "Failed to save child profile: " + studentError.message }
+        }
+
+        return { success: true }
+
+    } catch (e: any) {
+        console.error("Onboarding error:", e)
+        return { error: e.message || "An unexpected error occurred." }
+    }
+}

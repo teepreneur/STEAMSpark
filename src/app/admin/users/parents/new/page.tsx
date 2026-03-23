@@ -7,7 +7,10 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
-import { ChevronLeft, Loader2, UserPlus, GraduationCap, AlertCircle, CheckCircle2 } from "lucide-react"
+import { 
+    ChevronLeft, Loader2, UserPlus, GraduationCap, 
+    AlertCircle, CheckCircle2, Copy, ExternalLink, Phone, MapPin 
+} from "lucide-react"
 import { getAdminHref } from "@/lib/admin-paths"
 import Link from "next/link"
 
@@ -15,13 +18,17 @@ export default function NewParentPage() {
     const router = useRouter()
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
-    const [success, setSuccess] = useState<string | null>(null)
+    const [successData, setSuccessData] = useState<{
+        password: string;
+        link: string;
+        email: string;
+    } | null>(null)
+    const [copied, setCopied] = useState(false)
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault()
         setLoading(true)
         setError(null)
-        setSuccess(null)
 
         const formData = new FormData(e.currentTarget)
         const result = await createParentAndStudent(formData)
@@ -30,11 +37,23 @@ export default function NewParentPage() {
             setError(result.error)
             setLoading(false)
         } else if (result.success) {
-            setSuccess(`Parent account created successfully! Temporary password: ChangeMe123!`)
-            setTimeout(() => {
-                router.push(getAdminHref('/admin/users/parents'))
-            }, 3000)
+            // Get full URL for onboarding link
+            const baseUrl = window.location.origin;
+            const fullLink = `${baseUrl}${result.onboardingLink}`;
+            
+            setSuccessData({
+                password: 'ChangeMe123!',
+                link: fullLink,
+                email: result.email || ''
+            })
+            setLoading(false)
         }
+    }
+
+    const copyToClipboard = (text: string) => {
+        navigator.clipboard.writeText(text)
+        setCopied(true)
+        setTimeout(() => setCopied(false), 2000)
     }
 
     return (
@@ -74,29 +93,24 @@ export default function NewParentPage() {
                             </div>
                         </div>
 
-                        <div className="relative py-4">
-                            <div className="absolute inset-0 flex items-center">
-                                <span className="w-full border-t border-slate-200 dark:border-slate-800" />
-                            </div>
-                            <div className="relative flex justify-center text-xs uppercase">
-                                <span className="bg-white dark:bg-slate-950 px-2 text-muted-foreground font-medium flex items-center gap-2">
-                                    <GraduationCap className="size-4" /> Optional Child Info
-                                </span>
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div className="space-y-2 md:col-span-1">
-                                <Label htmlFor="student_name">Child's Name</Label>
-                                <Input id="student_name" name="student_name" placeholder="e.g. Tommy" className="bg-slate-50 dark:bg-slate-900" />
-                            </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-2">
-                                <Label htmlFor="student_age">Age</Label>
-                                <Input id="student_age" name="student_age" type="number" min="4" max="18" placeholder="e.g. 10" className="bg-slate-50 dark:bg-slate-900" />
+                                <Label htmlFor="phone_number" className="flex items-center gap-2">
+                                    <Phone className="size-3.5 text-muted-foreground" /> Phone Number
+                                </Label>
+                                <Input id="phone_number" name="phone_number" placeholder="e.g. +233 24 123 4567" className="bg-slate-50 dark:bg-slate-900" />
                             </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="student_grade">Grade</Label>
-                                <Input id="student_grade" name="student_grade" placeholder="e.g. 5th Grade" className="bg-slate-50 dark:bg-slate-900" />
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="country" className="flex items-center gap-2">
+                                        <MapPin className="size-3.5 text-muted-foreground" /> Country
+                                    </Label>
+                                    <Input id="country" name="country" placeholder="e.g. Ghana" className="bg-slate-50 dark:bg-slate-900" />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="city">City / Town</Label>
+                                    <Input id="city" name="city" placeholder="e.g. Accra" className="bg-slate-50 dark:bg-slate-900" />
+                                </div>
                             </div>
                         </div>
 
@@ -107,21 +121,69 @@ export default function NewParentPage() {
                             </div>
                         )}
 
-                        {success && (
-                            <div className="p-4 bg-green-50 dark:bg-green-900/20 text-green-700 rounded-lg flex items-start gap-3 mt-4 text-sm font-medium border border-green-200">
-                                <CheckCircle2 className="size-5 shrink-0 mt-0.5" />
-                                <p>{success}</p>
+                        {successData && (
+                            <div className="mt-4 space-y-4">
+                                <div className="p-4 bg-green-50 dark:bg-green-900/20 text-green-700 rounded-lg flex items-start gap-3 text-sm font-medium border border-green-200">
+                                    <CheckCircle2 className="size-5 shrink-0 mt-0.5" />
+                                    <div>
+                                        <p className="font-bold">Account created successfully!</p>
+                                        <p className="mt-1 font-normal opacity-90">Temporary Password: <span className="font-mono font-bold">{successData.password}</span></p>
+                                    </div>
+                                </div>
+
+                                <div className="p-6 bg-primary/5 dark:bg-primary/10 rounded-xl border border-primary/20 space-y-4">
+                                    <div className="flex items-center justify-between">
+                                        <h3 className="text-sm font-bold uppercase tracking-wider text-primary flex items-center gap-2">
+                                            <GraduationCap className="size-4" /> Share Onboarding Link
+                                        </h3>
+                                        <Button 
+                                            size="sm" 
+                                            variant="ghost" 
+                                            className="h-8 text-primary hover:text-primary hover:bg-primary/10"
+                                            onClick={() => window.open(successData.link, '_blank')}
+                                        >
+                                            <ExternalLink className="size-3.5 mr-2" />
+                                            Preview
+                                        </Button>
+                                    </div>
+                                    <p className="text-sm text-muted-foreground leading-relaxed">
+                                        Copy this link and send it to the parent. It allows them to fill out their child's profile details which will sync to their account.
+                                    </p>
+                                    <div className="flex gap-2">
+                                        <div className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-xs font-mono truncate flex items-center">
+                                            {successData.link}
+                                        </div>
+                                        <Button 
+                                            type="button"
+                                            onClick={() => copyToClipboard(successData.link)}
+                                            className="shrink-0"
+                                        >
+                                            {copied ? <CheckCircle2 className="size-4 mr-2" /> : <Copy className="size-4 mr-2" />}
+                                            {copied ? "Copied" : "Copy Link"}
+                                        </Button>
+                                    </div>
+                                </div>
+
+                                <div className="flex justify-center pt-2">
+                                    <Button variant="link" asChild>
+                                        <Link href={getAdminHref('/admin/users/parents')}>
+                                            Go to Parent Management
+                                        </Link>
+                                    </Button>
+                                </div>
                             </div>
                         )}
                     </CardContent>
                     <CardFooter className="bg-slate-50 dark:bg-slate-900/50 py-4 flex justify-end gap-3 border-t">
                         <Button variant="outline" type="button" onClick={() => router.back()} disabled={loading}>
-                            Cancel
+                            {successData ? "Close" : "Cancel"}
                         </Button>
-                        <Button type="submit" disabled={loading || !!success} className="min-w-[140px]">
-                            {loading ? <Loader2 className="size-4 animate-spin mr-2" /> : <UserPlus className="size-4 mr-2" />}
-                            Create Account
-                        </Button>
+                        {!successData && (
+                            <Button type="submit" disabled={loading} className="min-w-[140px]">
+                                {loading ? <Loader2 className="size-4 animate-spin mr-2" /> : <UserPlus className="size-4 mr-2" />}
+                                Create Account
+                            </Button>
+                        )}
                     </CardFooter>
                 </Card>
             </form>
