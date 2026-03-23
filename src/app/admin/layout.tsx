@@ -57,12 +57,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         return `/admin${basePath}` // /admin/dashboard, /admin/users/teachers, etc.
     }
 
-    // Skip layout for login and unauthorized pages
-    // Must check BEFORE any hooks that could cause issues
-    // On admin subdomain, root path / shows login (no sidebar)
+    // Skip layout for login, unauthorized, and onboarding pages
+    const isOnboardingPage = pathname.startsWith('/onboarding') || pathname.startsWith('/admin/onboarding')
     const isRootOnSubdomain = isAdminSubdomain && pathname === '/'
     const isAuthPage = pathname === '/admin/login' || pathname === '/admin/unauthorized'
-        || pathname === '/login' || pathname === '/unauthorized' || isRootOnSubdomain
+        || pathname === '/login' || pathname === '/unauthorized' || isRootOnSubdomain || isOnboardingPage
 
     useEffect(() => {
         // Don't check auth for login/unauthorized pages

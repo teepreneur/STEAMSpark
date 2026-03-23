@@ -60,8 +60,28 @@ export async function createChildProfile(formData: FormData) {
 
         return { success: true }
 
-    } catch (e: any) {
-        console.error("Onboarding error:", e)
-        return { error: e.message || "An unexpected error occurred." }
+    } catch (error) {
+        console.error('Error creating child profile:', error)
+        return { error: 'Failed to create profile. Please try again.' }
+    }
+}
+
+export async function verifyOnboardingLink(parentId: string) {
+    if (!parentId) return { error: "Missing ID" }
+
+    try {
+        const { data, error } = await supabaseAdmin
+            .from('profiles')
+            .select('full_name')
+            .eq('id', parentId)
+            .single()
+
+        if (error || !data) {
+            return { error: "Invalid or expired onboarding link." }
+        }
+
+        return { full_name: data.full_name }
+    } catch (e) {
+        return { error: "Server error verifying link." }
     }
 }

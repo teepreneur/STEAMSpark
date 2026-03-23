@@ -2,8 +2,7 @@
 
 import { useState, useEffect, Suspense } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
-import { createChildProfile } from "@/app/actions/onboarding"
-import { createClient } from "@/lib/supabase/client"
+import { createChildProfile, verifyOnboardingLink } from "@/app/actions/onboarding"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -52,8 +51,6 @@ function OnboardingContent() {
     const [success, setSuccess] = useState(false)
     const [selectedInterests, setSelectedInterests] = useState<string[]>([])
 
-    const supabase = createClient()
-
     useEffect(() => {
         if (!parentId) {
             setError("Missing onboarding link details.")
@@ -61,23 +58,18 @@ function OnboardingContent() {
             return
         }
 
-        async function verifyParent() {
-            const { data, error } = await supabase
-                .from('profiles')
-                .select('full_name')
-                .eq('id', parentId)
-                .single()
-
-            if (error || !data) {
-                setError("Invalid or expired onboarding link.")
-            } else {
-                setParentName(data.full_name || "Parent")
+        async function verify() {
+            const result = await verifyOnboardingLink(parentId!)
+            if (result.error) {
+                setError(result.error)
+            } else if (result.full_name) {
+                setParentName(result.full_name)
             }
             setVerifying(false)
         }
 
-        verifyParent()
-    }, [parentId, supabase])
+        verify()
+    }, [parentId])
 
     const toggleInterest = (id: string) => {
         setSelectedInterests(prev =>
