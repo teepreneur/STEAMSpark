@@ -25,10 +25,7 @@ export async function middleware(request: NextRequest) {
             return NextResponse.next({ request })
         }
 
-        // For login and onboarding pages, skip expensive auth checks
-        if (pathname === '/login' || pathname === '/admin/login' || pathname.startsWith('/onboarding')) {
-            return NextResponse.next({ request })
-        }
+
 
         // For root /, rewrite to login page (this ensures correct layout renders)
         if (pathname === '/') {
@@ -65,25 +62,30 @@ export async function middleware(request: NextRequest) {
 
         const { data: { user } } = await supabase.auth.getUser()
 
-        // If not logged in, redirect to admin login
-        if (!user) {
-            const url = request.nextUrl.clone()
-            url.pathname = '/admin/login'
-            return NextResponse.rewrite(url)
-        }
+        // Skip auth check for login and onboarding
+        const isPublicAdminPath = pathname === '/login' || pathname === '/admin/login' || pathname.startsWith('/onboarding')
 
-        // Check if user is admin
-        const { data: profile } = await supabase
-            .from('profiles')
-            .select('role')
-            .eq('id', user.id)
-            .single()
+        if (!isPublicAdminPath) {
+            // If not logged in, redirect to admin login
+            if (!user) {
+                const url = request.nextUrl.clone()
+                url.pathname = '/admin/login'
+                return NextResponse.rewrite(url)
+            }
 
-        if (profile?.role !== 'admin') {
-            // Not an admin - show unauthorized page or redirect
-            const url = request.nextUrl.clone()
-            url.pathname = '/admin/unauthorized'
-            return NextResponse.rewrite(url)
+            // Check if user is admin
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('role')
+                .eq('id', user.id)
+                .single()
+
+            if (profile?.role !== 'admin') {
+                // Not an admin - show unauthorized page or redirect
+                const url = request.nextUrl.clone()
+                url.pathname = '/admin/unauthorized'
+                return NextResponse.rewrite(url)
+            }
         }
 
         // Rewrite to /admin routes
