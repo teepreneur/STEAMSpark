@@ -25,9 +25,8 @@ export async function middleware(request: NextRequest) {
             return NextResponse.next({ request })
         }
 
-        // For login page, skip expensive auth checks
-        // On admin subdomain, /login becomes the login page (not /admin/login)
-        if (pathname === '/login' || pathname === '/admin/login') {
+        // For login and onboarding pages, skip expensive auth checks
+        if (pathname === '/login' || pathname === '/admin/login' || pathname.startsWith('/onboarding')) {
             return NextResponse.next({ request })
         }
 
