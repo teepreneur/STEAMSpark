@@ -24,6 +24,15 @@ export async function createChildProfile(formData: FormData) {
     const primaryGoal = formData.get("primary_goal") as string
     const goals = formData.get("goals") as string
     
+    // New fields
+    const gender = formData.get("gender") as string
+    const school = formData.get("school") as string
+    const favoriteSubjects = formData.getAll("favorite_subjects") as string[]
+    const dislikedSubjects = formData.getAll("disliked_subjects") as string[]
+    const spareTimeActivities = formData.get("spare_time_activities") as string
+    const personalDevices = formData.getAll("personal_devices") as string[]
+    const studyHabits = formData.get("study_habits") as string
+    
     // Calculate age from DOB to maintain the legacy field
     const age = dob ? calculateAge(dob) : null
 
@@ -57,7 +66,14 @@ export async function createChildProfile(formData: FormData) {
                 grade: grade || null,
                 interests: interests.length > 0 ? interests : null,
                 primary_goal: primaryGoal || null,
-                learning_goals: goals || null
+                learning_goals: goals || null,
+                gender: gender || null,
+                school: school || null,
+                favorite_subjects: favoriteSubjects.length > 0 ? favoriteSubjects : null,
+                disliked_subjects: dislikedSubjects.length > 0 ? dislikedSubjects : null,
+                spare_time_activities: spareTimeActivities || null,
+                personal_devices: personalDevices.length > 0 ? personalDevices : null,
+                study_habits: studyHabits || null
             })
 
         if (studentError) {

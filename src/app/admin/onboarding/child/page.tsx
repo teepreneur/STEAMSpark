@@ -171,12 +171,26 @@ function OnboardingContent() {
                                             <Input id="dob" name="dob" type="date" required className="h-12" />
                                         </div>
                                         <div className="space-y-2">
-                                            <Label htmlFor="grade">Grade</Label>
-                                            <select name="grade" className="w-full h-12 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
-                                                <option value="">Select Grade</option>
-                                                {grades.map(g => <option key={g.value} value={g.value}>{g.label}</option>)}
+                                            <Label htmlFor="gender">Gender</Label>
+                                            <select name="gender" className="w-full h-12 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+                                                <option value="">Select Gender</option>
+                                                <option value="male">Male</option>
+                                                <option value="female">Female</option>
+                                                <option value="other">Other</option>
+                                                <option value="prefer_not_to_say">Prefer not to say</option>
                                             </select>
                                         </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="school">Current School</Label>
+                                        <Input id="school" name="school" placeholder="What school do they attend?" className="h-12" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="grade">Grade</Label>
+                                        <select name="grade" className="w-full h-12 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+                                            <option value="">Select Grade</option>
+                                            {grades.map(g => <option key={g.value} value={g.value}>{g.label}</option>)}
+                                        </select>
                                     </div>
                                 </div>
 
@@ -205,6 +219,67 @@ function OnboardingContent() {
                                     </div>
                                 </div>
 
+                                <hr className="border-slate-100" />
+
+                                {/* Academic Preferences */}
+                                <div className="space-y-6">
+                                    <div className="space-y-2">
+                                        <Label className="text-base font-bold text-slate-900">Top 2 subjects they enjoy the most?</Label>
+                                        <p className="text-xs text-muted-foreground mb-2">Select or type subjects your child loves.</p>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <Input name="favorite_subjects" placeholder="Subject 1" className="h-11" />
+                                            <Input name="favorite_subjects" placeholder="Subject 2" className="h-11" />
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label className="text-base font-bold text-slate-900">Top 2 subjects they dislike the most?</Label>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <Input name="disliked_subjects" placeholder="Subject 1" className="h-11" />
+                                            <Input name="disliked_subjects" placeholder="Subject 2" className="h-11" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <hr className="border-slate-100" />
+
+                                {/* Lifestyle & Habits */}
+                                <div className="space-y-6">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="spare_time_activities" className="text-base font-bold text-slate-900">What do they do in their spare time?</Label>
+                                        <Textarea 
+                                            id="spare_time_activities" 
+                                            name="spare_time_activities" 
+                                            placeholder="Reading, gaming, sports, tech, etc..." 
+                                            className="min-h-[80px] bg-slate-50/50 border-slate-200 focus:bg-white transition-all"
+                                        />
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        <Label className="text-base font-bold text-slate-900">Which personal devices do they have?</Label>
+                                        <div className="flex flex-wrap gap-4">
+                                            {['Laptop', 'Desktop', 'Tablet', 'Phone'].map(device => (
+                                                <label key={device} className="flex items-center gap-2 cursor-pointer group">
+                                                    <input type="checkbox" name="personal_devices" value={device.toLowerCase()} className="size-4 rounded border-slate-300 text-primary focus:ring-primary" />
+                                                    <span className="text-sm font-medium text-slate-600 group-hover:text-slate-900">{device}</span>
+                                                </label>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="study_habits" className="text-base font-bold text-slate-900">How do they handle studying for long hours?</Label>
+                                        <Textarea 
+                                            id="study_habits" 
+                                            name="study_habits" 
+                                            placeholder="e.g. Needs frequent breaks, very focused, prefers evenings..." 
+                                            className="min-h-[80px] bg-slate-50/50 border-slate-200 focus:bg-white transition-all"
+                                        />
+                                    </div>
+                                </div>
+
+                                <hr className="border-slate-100" />
+
                                 {/* Goals */}
                                 <div className="space-y-6">
                                     <div className="space-y-2">
@@ -221,13 +296,13 @@ function OnboardingContent() {
                                     <div className="space-y-2">
                                         <Label htmlFor="goals" className="text-base font-bold text-slate-900 flex items-center gap-2">
                                             <GraduationCap className="size-5 text-primary" />
-                                            Detailed Objectives & Notes
+                                            Tell us more about their learning needs
                                         </Label>
                                         <Textarea 
                                             id="goals" 
                                             name="goals" 
-                                            placeholder="Tell us about what your child loves or what you want them to achieve..." 
-                                            className="min-h-[120px] bg-slate-50/50 border-slate-200 focus:bg-white transition-all text-base"
+                                            placeholder="Any specific topics or skills you want them to master?" 
+                                            className="min-h-[100px] bg-slate-50/50 border-slate-200 focus:bg-white transition-all text-base"
                                         />
                                     </div>
                                 </div>

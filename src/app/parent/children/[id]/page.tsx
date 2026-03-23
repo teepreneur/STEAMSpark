@@ -52,6 +52,14 @@ interface Student {
     personality_notes: string | null
     preferred_schedule: string | null
     parent_notes: string | null
+    // New fields from prompt
+    gender: string | null
+    school: string | null
+    favorite_subjects: string[] | null
+    disliked_subjects: string[] | null
+    spare_time_activities: string | null
+    personal_devices: string[] | null
+    study_habits: string | null
 }
 
 export default function EditChildPage({ params }: { params: Promise<{ id: string }> }) {
@@ -79,6 +87,15 @@ export default function EditChildPage({ params }: { params: Promise<{ id: string
     const [preferredSchedule, setPreferredSchedule] = useState("")
     const [parentNotes, setParentNotes] = useState("")
 
+    // New fields state
+    const [gender, setGender] = useState("")
+    const [school, setSchool] = useState("")
+    const [favoriteSubjects, setFavoriteSubjects] = useState<string[]>(["", ""])
+    const [dislikedSubjects, setDislikedSubjects] = useState<string[]>(["", ""])
+    const [spareTimeActivities, setSpareTimeActivities] = useState("")
+    const [selectedDevices, setSelectedDevices] = useState<string[]>([])
+    const [studyHabits, setStudyHabits] = useState("")
+
     useEffect(() => {
         async function loadStudent() {
             const { data, error } = await supabase
@@ -103,6 +120,14 @@ export default function EditChildPage({ params }: { params: Promise<{ id: string
                 setPersonalityNotes(data.personality_notes || "")
                 setPreferredSchedule(data.preferred_schedule || "")
                 setParentNotes(data.parent_notes || "")
+                // New fields
+                setGender(data.gender || "")
+                setSchool(data.school || "")
+                setFavoriteSubjects(data.favorite_subjects && data.favorite_subjects.length >= 2 ? data.favorite_subjects : [data.favorite_subjects?.[0] || "", data.favorite_subjects?.[1] || ""])
+                setDislikedSubjects(data.disliked_subjects && data.disliked_subjects.length >= 2 ? data.disliked_subjects : [data.disliked_subjects?.[0] || "", data.disliked_subjects?.[1] || ""])
+                setSpareTimeActivities(data.spare_time_activities || "")
+                setSelectedDevices(data.personal_devices || [])
+                setStudyHabits(data.study_habits || "")
             }
             setLoading(false)
         }
@@ -138,7 +163,14 @@ export default function EditChildPage({ params }: { params: Promise<{ id: string
                 special_needs: specialNeeds,
                 personality_notes: personalityNotes,
                 preferred_schedule: preferredSchedule,
-                parent_notes: parentNotes
+                parent_notes: parentNotes,
+                gender: gender || null,
+                school: school || null,
+                favorite_subjects: favoriteSubjects.filter(s => s.trim() !== ""),
+                disliked_subjects: dislikedSubjects.filter(s => s.trim() !== ""),
+                spare_time_activities: spareTimeActivities || null,
+                personal_devices: selectedDevices,
+                study_habits: studyHabits || null
             })
             .eq('id', id)
 
@@ -219,32 +251,62 @@ export default function EditChildPage({ params }: { params: Promise<{ id: string
                             </Select>
                         </div>
                     </div>
+                    <div className="space-y-2">
+                        <Label>Gender</Label>
+                        <Select value={gender} onValueChange={setGender}>
+                            <SelectTrigger><SelectValue placeholder="Select gender" /></SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="male">Male</SelectItem>
+                                <SelectItem value="female">Female</SelectItem>
+                                <SelectItem value="other">Other</SelectItem>
+                                <SelectItem value="prefer_not_to_say">Prefer not to say</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="space-y-2">
+                        <Label>Current School</Label>
+                        <Input value={school} onChange={(e) => setSchool(e.target.value)} placeholder="What school do they attend?" />
+                    </div>
                 </div>
             </section>
 
-            {/* Interests */}
+            {/* Academic Preferences */}
             <section className="bg-card rounded-xl border p-6">
                 <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
-                    <Heart className="size-5 text-pink-500" />
-                    Interests & Passions
+                    <BookOpen className="size-5 text-blue-500" />
+                    Academic Preferences
                 </h2>
-                <p className="text-sm text-muted-foreground mb-4">Select all that apply. This helps us recommend the best tutors and courses.</p>
-                <div className="flex flex-wrap gap-2">
-                    {interestOptions.map((interest) => (
-                        <button
-                            key={interest}
-                            type="button"
-                            onClick={() => toggleInterest(interest)}
-                            className={cn(
-                                "px-3 py-1.5 rounded-full text-sm font-medium border transition-all",
-                                interests.includes(interest)
-                                    ? "bg-primary text-primary-foreground border-primary"
-                                    : "bg-background border-border hover:border-primary/50"
-                            )}
-                        >
-                            {interest}
-                        </button>
-                    ))}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-3">
+                        <Label>Top 2 Enjoyed Subjects</Label>
+                        <div className="grid grid-cols-1 gap-2">
+                            <Input 
+                                placeholder="Subject 1" 
+                                value={favoriteSubjects[0]} 
+                                onChange={(e) => setFavoriteSubjects([e.target.value, favoriteSubjects[1]])}
+                            />
+                            <Input 
+                                placeholder="Subject 2" 
+                                value={favoriteSubjects[1]} 
+                                onChange={(e) => setFavoriteSubjects([favoriteSubjects[0], e.target.value])}
+                            />
+                        </div>
+                    </div>
+                    <div className="space-y-3">
+                        <Label>Top 2 Disliked Subjects</Label>
+                        <div className="grid grid-cols-1 gap-2">
+                            <Input 
+                                placeholder="Subject 1" 
+                                value={dislikedSubjects[0]} 
+                                onChange={(e) => setDislikedSubjects([e.target.value, dislikedSubjects[1]])}
+                            />
+                            <Input 
+                                placeholder="Subject 2" 
+                                value={dislikedSubjects[1]} 
+                                onChange={(e) => setDislikedSubjects([dislikedSubjects[0], e.target.value])}
+                            />
+                        </div>
+                    </div>
                 </div>
             </section>
 
@@ -354,6 +416,53 @@ export default function EditChildPage({ params }: { params: Promise<{ id: string
                             onChange={(e) => setLearningGoals(e.target.value)}
                             placeholder="What do you hope your child will achieve? e.g., Learn Python basics, build a robot, improve math grades..."
                             rows={3}
+                        />
+                    </div>
+                </div>
+            </section>
+
+            {/* Lifestyle & Habits */}
+            <section className="bg-card rounded-xl border p-6">
+                <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
+                    <Clock className="size-5 text-orange-500" />
+                    Lifestyle & Habits
+                </h2>
+                <div className="space-y-6">
+                    <div className="space-y-2">
+                        <Label>Spare Time Activities</Label>
+                        <Textarea
+                            value={spareTimeActivities}
+                            onChange={(e) => setSpareTimeActivities(e.target.value)}
+                            placeholder="What does your child do in their spare time?"
+                            rows={2}
+                        />
+                    </div>
+                    <div className="space-y-3">
+                        <Label>Personal Devices</Label>
+                        <div className="flex flex-wrap gap-4">
+                            {['Laptop', 'Desktop', 'Tablet', 'Phone'].map(device => (
+                                <label key={device} className="flex items-center gap-2 cursor-pointer">
+                                    <input 
+                                        type="checkbox" 
+                                        checked={selectedDevices.includes(device.toLowerCase())}
+                                        onChange={(e) => {
+                                            const d = device.toLowerCase()
+                                            setSelectedDevices(prev => e.target.checked ? [...prev, d] : prev.filter(x => x !== d))
+                                        }}
+                                        className="size-4 rounded border-slate-300 text-primary focus:ring-primary" 
+                                    />
+                                    <span className="text-sm font-medium">{device}</span>
+                                </label>
+                            ))}
+                        </div>
+                    </div>
+                    <div className="space-y-2">
+                        <Label>How do they handle studying for long hours?</Label>
+                        <Textarea
+                            value={studyHabits}
+                            onChange={(e) => setStudyHabits(e.target.value)}
+                            placeholder="e.g. Needs frequent breaks, very focused..."
+                            rows={2}
                         />
                     </div>
                 </div>

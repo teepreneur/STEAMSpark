@@ -47,8 +47,17 @@ export default function ParentSignupPage() {
     const [childName, setChildName] = useState("")
     const [childDob, setChildDob] = useState("")
     const [childGrade, setChildGrade] = useState("")
+    const [childGender, setChildGender] = useState("")
+    const [childSchool, setChildSchool] = useState("")
     const [selectedInterests, setSelectedInterests] = useState<string[]>(["robotics"])
     const [primaryGoal, setPrimaryGoal] = useState("")
+    
+    // New fields
+    const [favoriteSubjects, setFavoriteSubjects] = useState<string[]>(["", ""])
+    const [dislikedSubjects, setDislikedSubjects] = useState<string[]>(["", ""])
+    const [spareTimeActivities, setSpareTimeActivities] = useState("")
+    const [selectedDevices, setSelectedDevices] = useState<string[]>([])
+    const [studyHabits, setStudyHabits] = useState("")
 
     const toggleInterest = (id: string) => {
         setSelectedInterests(prev =>
@@ -105,7 +114,14 @@ export default function ParentSignupPage() {
                         age: childDob ? calculateAge(childDob) : null,
                         grade: childGrade || null,
                         interests: selectedInterests,
-                        primary_goal: primaryGoal || null
+                        primary_goal: primaryGoal || null,
+                        gender: childGender || null,
+                        school: childSchool || null,
+                        favorite_subjects: favoriteSubjects.filter(s => s.trim() !== ""),
+                        disliked_subjects: dislikedSubjects.filter(s => s.trim() !== ""),
+                        spare_time_activities: spareTimeActivities || null,
+                        personal_devices: selectedDevices,
+                        study_habits: studyHabits || null
                     })
                 }
             }
@@ -300,6 +316,32 @@ export default function ParentSignupPage() {
                                         </div>
                                     </div>
 
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="childGender">Gender</Label>
+                                            <Select value={childGender} onValueChange={setChildGender}>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select Gender" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="male">Male</SelectItem>
+                                                    <SelectItem value="female">Female</SelectItem>
+                                                    <SelectItem value="other">Other</SelectItem>
+                                                    <SelectItem value="prefer_not_to_say">No Say</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="childSchool">School</Label>
+                                            <Input
+                                                id="childSchool"
+                                                placeholder="Current school"
+                                                value={childSchool}
+                                                onChange={(e) => setChildSchool(e.target.value)}
+                                            />
+                                        </div>
+                                    </div>
+
                                     {/* Interests Grid */}
                                     <div className="pt-2">
                                         <Label className="mb-3 block">What sparks their curiosity?</Label>
@@ -337,6 +379,78 @@ export default function ParentSignupPage() {
                                                 ))}
                                             </SelectContent>
                                         </Select>
+                                    </div>
+
+                                    <div className="space-y-2 pt-2">
+                                        <Label>Top 2 Enjoyed Subjects</Label>
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <Input 
+                                                placeholder="Subject 1" 
+                                                value={favoriteSubjects[0]} 
+                                                onChange={(e) => setFavoriteSubjects([e.target.value, favoriteSubjects[1]])}
+                                            />
+                                            <Input 
+                                                placeholder="Subject 2" 
+                                                value={favoriteSubjects[1]} 
+                                                onChange={(e) => setFavoriteSubjects([favoriteSubjects[0], e.target.value])}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label>Top 2 Disliked Subjects</Label>
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <Input 
+                                                placeholder="Subject 1" 
+                                                value={dislikedSubjects[0]} 
+                                                onChange={(e) => setDislikedSubjects([e.target.value, dislikedSubjects[1]])}
+                                            />
+                                            <Input 
+                                                placeholder="Subject 2" 
+                                                value={dislikedSubjects[1]} 
+                                                onChange={(e) => setDislikedSubjects([dislikedSubjects[0], e.target.value])}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="spareTime">Spare Time Activities</Label>
+                                        <Input 
+                                            id="spareTime"
+                                            placeholder="What do they do in spare time?"
+                                            value={spareTimeActivities}
+                                            onChange={(e) => setSpareTimeActivities(e.target.value)}
+                                        />
+                                    </div>
+
+                                    <div className="space-y-3">
+                                        <Label>Personal Devices</Label>
+                                        <div className="flex flex-wrap gap-4">
+                                            {['Laptop', 'Desktop', 'Tablet', 'Phone'].map(device => (
+                                                <label key={device} className="flex items-center gap-2 cursor-pointer">
+                                                    <input 
+                                                        type="checkbox" 
+                                                        checked={selectedDevices.includes(device.toLowerCase())}
+                                                        onChange={(e) => {
+                                                            const d = device.toLowerCase()
+                                                            setSelectedDevices(prev => e.target.checked ? [...prev, d] : prev.filter(x => x !== d))
+                                                        }}
+                                                        className="size-4 rounded border-slate-300 text-primary focus:ring-primary" 
+                                                    />
+                                                    <span className="text-sm font-medium">{device}</span>
+                                                </label>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="studyHabits">How do they handle long study hours?</Label>
+                                        <Input 
+                                            id="studyHabits"
+                                            placeholder="e.g. Focused, needs breaks..."
+                                            value={studyHabits}
+                                            onChange={(e) => setStudyHabits(e.target.value)}
+                                        />
                                     </div>
                                 </div>
 

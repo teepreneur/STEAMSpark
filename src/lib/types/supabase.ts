@@ -75,6 +75,13 @@ export interface Database {
                     grade: string | null
                     avatar_url: string | null
                     learning_goals: string | null
+                    gender: string | null
+                    school: string | null
+                    favorite_subjects: string[] | null
+                    disliked_subjects: string[] | null
+                    spare_time_activities: string | null
+                    personal_devices: string[] | null
+                    study_habits: string | null
                     created_at: string
                 }
                 Insert: {
@@ -86,6 +93,13 @@ export interface Database {
                     grade?: string | null
                     avatar_url?: string | null
                     learning_goals?: string | null
+                    gender?: string | null
+                    school?: string | null
+                    favorite_subjects?: string[] | null
+                    disliked_subjects?: string[] | null
+                    spare_time_activities?: string | null
+                    personal_devices?: string[] | null
+                    study_habits?: string | null
                     created_at?: string
                 }
                 Update: {
@@ -97,6 +111,13 @@ export interface Database {
                     grade?: string | null
                     avatar_url?: string | null
                     learning_goals?: string | null
+                    gender?: string | null
+                    school?: string | null
+                    favorite_subjects?: string[] | null
+                    disliked_subjects?: string[] | null
+                    spare_time_activities?: string | null
+                    personal_devices?: string[] | null
+                    study_habits?: string | null
                     created_at?: string
                 }
             }

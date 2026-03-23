@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { cn, calculateAge } from "@/lib/utils"
 import {
     ArrowLeft, Loader2, User, Calendar, Clock, BookOpen,
-    Mail, Phone, MessageSquare, Check, X, AlertCircle, MapPin
+    Mail, Phone, MessageSquare, Check, X, AlertCircle, MapPin, Brain
 } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -28,6 +28,13 @@ interface StudentDetails {
         date_of_birth: string | null
         grade: string | null
         learning_goals: string | null
+        gender: string | null
+        school: string | null
+        favorite_subjects: string[] | null
+        disliked_subjects: string[] | null
+        spare_time_activities: string | null
+        personal_devices: string[] | null
+        study_habits: string | null
     }
     parent: {
         id: string
@@ -91,7 +98,7 @@ export default function StudentDetailPage({ params }: { params: Promise<{ bookin
                     session_location_address,
                     session_location_lat,
                     session_location_lng,
-                    student:students(id, name, age, grade, learning_goals, date_of_birth),
+                    student:students(id, name, age, grade, learning_goals, date_of_birth, gender, school, favorite_subjects, disliked_subjects, spare_time_activities, personal_devices, study_habits),
                     parent:profiles!bookings_parent_id_fkey(id, full_name, email),
                     gig:gigs!inner(id, title, subject, price, session_duration, total_sessions, class_type)
                 `)
@@ -440,6 +447,57 @@ export default function StudentDetailPage({ params }: { params: Promise<{ bookin
                             <p className="text-muted-foreground">{student.learning_goals}</p>
                         </div>
                     )}
+
+                    {/* Extended Learner Profile */}
+                    <div className="bg-card rounded-xl border overflow-hidden">
+                        <div className="bg-primary/5 px-6 py-4 border-b">
+                            <h3 className="font-bold text-lg flex items-center gap-2 text-primary">
+                                <Brain className="size-5" /> Detailed Learner Profile
+                            </h3>
+                        </div>
+                        <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-4">
+                                <div>
+                                    <p className="text-xs font-bold text-muted-foreground uppercase">Gender</p>
+                                    <p className="font-medium capitalize">{student.gender || 'Not specified'}</p>
+                                </div>
+                                <div>
+                                    <p className="text-xs font-bold text-muted-foreground uppercase">Current School</p>
+                                    <p className="font-medium">{student.school || 'Not specified'}</p>
+                                </div>
+                                <div>
+                                    <p className="text-xs font-bold text-muted-foreground uppercase">Personal Devices</p>
+                                    <div className="flex flex-wrap gap-1 mt-1">
+                                        {student.personal_devices && student.personal_devices.length > 0 ? (
+                                            student.personal_devices.map(device => (
+                                                <Badge key={device} variant="secondary" className="capitalize">{device}</Badge>
+                                            ))
+                                        ) : (
+                                            <span className="text-sm text-muted-foreground italic">None listed</span>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="space-y-4">
+                                <div>
+                                    <p className="text-xs font-bold text-muted-foreground uppercase">Enjoyed Subjects</p>
+                                    <p className="font-medium">{student.favorite_subjects?.join(', ') || 'Not specified'}</p>
+                                </div>
+                                <div>
+                                    <p className="text-xs font-bold text-muted-foreground uppercase">Disliked Subjects</p>
+                                    <p className="font-medium">{student.disliked_subjects?.join(', ') || 'Not specified'}</p>
+                                </div>
+                                <div>
+                                    <p className="text-xs font-bold text-muted-foreground uppercase">Study Habits</p>
+                                    <p className="font-medium text-sm">{student.study_habits || 'Not specified'}</p>
+                                </div>
+                            </div>
+                            <div className="md:col-span-2 space-y-2 pt-2 border-t">
+                                <p className="text-xs font-bold text-muted-foreground uppercase">Spare Time Activities</p>
+                                <p className="text-sm text-foreground">{student.spare_time_activities || 'Not specified'}</p>
+                            </div>
+                        </div>
+                    </div>
 
                     {/* Enrolled Course */}
                     <div className="bg-card rounded-xl border p-6">
