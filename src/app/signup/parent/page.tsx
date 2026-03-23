@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { cn } from "@/lib/utils"
+import { cn, calculateAge } from "@/lib/utils"
 
 const interests = [
     { id: "robotics", label: "Robotics", icon: Bot },
@@ -45,7 +45,7 @@ export default function ParentSignupPage() {
 
     // Child fields
     const [childName, setChildName] = useState("")
-    const [childAge, setChildAge] = useState("")
+    const [childDob, setChildDob] = useState("")
     const [childGrade, setChildGrade] = useState("")
     const [selectedInterests, setSelectedInterests] = useState<string[]>(["robotics"])
     const [primaryGoal, setPrimaryGoal] = useState("")
@@ -101,7 +101,8 @@ export default function ParentSignupPage() {
                     await supabase.from('students').insert({
                         parent_id: authData.user.id,
                         name: childName,
-                        age: parseInt(childAge) || null,
+                        date_of_birth: childDob || null,
+                        age: childDob ? calculateAge(childDob) : null,
                         grade: childGrade || null,
                         interests: selectedInterests,
                         primary_goal: primaryGoal || null
@@ -272,15 +273,12 @@ export default function ParentSignupPage() {
                                         </div>
                                         <div className="grid grid-cols-2 gap-4">
                                             <div className="space-y-2">
-                                                <Label htmlFor="childAge">Age</Label>
+                                                <Label htmlFor="childDob">Date of Birth</Label>
                                                 <Input
-                                                    id="childAge"
-                                                    type="number"
-                                                    min="3"
-                                                    max="18"
-                                                    placeholder="8"
-                                                    value={childAge}
-                                                    onChange={(e) => setChildAge(e.target.value)}
+                                                    id="childDob"
+                                                    type="date"
+                                                    value={childDob}
+                                                    onChange={(e) => setChildDob(e.target.value)}
                                                 />
                                             </div>
                                             <div className="space-y-2">

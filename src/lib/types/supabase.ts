@@ -71,6 +71,7 @@ export interface Database {
                     parent_id: string
                     name: string
                     age: number | null
+                    date_of_birth: string | null
                     grade: string | null
                     avatar_url: string | null
                     learning_goals: string | null
@@ -81,6 +82,7 @@ export interface Database {
                     parent_id: string
                     name: string
                     age?: number | null
+                    date_of_birth?: string | null
                     grade?: string | null
                     avatar_url?: string | null
                     learning_goals?: string | null
@@ -91,6 +93,7 @@ export interface Database {
                     parent_id?: string
                     name?: string
                     age?: number | null
+                    date_of_birth?: string | null
                     grade?: string | null
                     avatar_url?: string | null
                     learning_goals?: string | null

@@ -15,6 +15,7 @@ import Link from "next/link"
 import { format, parseISO } from "date-fns"
 import { useRouter } from "next/navigation"
 import { getAdminHref } from "@/lib/admin-paths"
+import { calculateAge } from "@/lib/utils"
 
 interface BookingDetails {
     id: string
@@ -42,6 +43,7 @@ interface BookingDetails {
         id: string
         name: string
         age: number | null
+        date_of_birth: string | null
         grade: string | null
     } | null
     teacher?: {
@@ -72,7 +74,7 @@ export default function BookingDetailPage({ params }: { params: Promise<{ id: st
                     preferred_days, preferred_time, meeting_link,
                     gig:gigs(id, title, subject, price, session_duration, teacher_id),
                     parent:profiles!bookings_parent_id_fkey(id, full_name, email),
-                    student:students(id, name, age, grade)
+                    student:students(id, name, age, grade, date_of_birth)
                 `)
                 .eq('id', id)
                 .single()
@@ -346,7 +348,7 @@ export default function BookingDetailPage({ params }: { params: Promise<{ id: st
                         <div className="space-y-1">
                             <p className="font-medium">{booking.student.name}</p>
                             <p className="text-sm text-muted-foreground">
-                                Age: {booking.student.age || 'N/A'} • Grade: {booking.student.grade || 'N/A'}
+                                Age: {calculateAge(booking.student.date_of_birth) || booking.student.age || 'N/A'} • Grade: {booking.student.grade || 'N/A'}
                             </p>
                         </div>
                     ) : (

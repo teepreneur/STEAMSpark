@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useEffect, useState, use } from "react"
+import { calculateAge } from "@/lib/utils"
 import LocationPicker from "@/components/location-picker"
 
 interface GigData {
@@ -41,6 +42,7 @@ interface Student {
     id: string
     name: string
     age: number | null
+    date_of_birth: string | null
 }
 
 interface TeacherAvailability {
@@ -212,7 +214,7 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
             // Fetch Students (Children)
             const { data: studentsData } = await supabase
                 .from('students')
-                .select('id, name, age')
+                .select('id, name, age, date_of_birth')
                 .eq('parent_id', user.id)
 
             if (studentsData) setStudents(studentsData)
@@ -559,7 +561,7 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
                                         <div key={student.id} className="flex items-center space-x-2 border rounded-lg p-3 hover:bg-muted/50 transition-colors">
                                             <RadioGroupItem value={student.id} id={student.id} />
                                             <Label htmlFor={student.id} className="flex-1 cursor-pointer font-medium">
-                                                {student.name} {student.age && <span className="text-muted-foreground text-sm">({student.age} yrs)</span>}
+                                                {student.name} {(student.date_of_birth || student.age) && <span className="text-muted-foreground text-sm">({calculateAge(student.date_of_birth) || student.age} yrs)</span>}
                                             </Label>
                                         </div>
                                     ))}

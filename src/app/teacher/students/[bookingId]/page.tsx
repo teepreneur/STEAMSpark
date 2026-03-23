@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import { cn } from "@/lib/utils"
+import { cn, calculateAge } from "@/lib/utils"
 import {
     ArrowLeft, Loader2, User, Calendar, Clock, BookOpen,
     Mail, Phone, MessageSquare, Check, X, AlertCircle, MapPin
@@ -25,6 +25,7 @@ interface StudentDetails {
         id: string
         name: string
         age: number | null
+        date_of_birth: string | null
         grade: string | null
         learning_goals: string | null
     }
@@ -90,7 +91,7 @@ export default function StudentDetailPage({ params }: { params: Promise<{ bookin
                     session_location_address,
                     session_location_lat,
                     session_location_lng,
-                    student:students(id, name, age, grade, learning_goals),
+                    student:students(id, name, age, grade, learning_goals, date_of_birth),
                     parent:profiles!bookings_parent_id_fkey(id, full_name, email),
                     gig:gigs!inner(id, title, subject, price, session_duration, total_sessions, class_type)
                 `)
@@ -115,6 +116,7 @@ export default function StudentDetailPage({ params }: { params: Promise<{ bookin
                 id: booking.id,
                 name: 'Student (Pending)',
                 age: null,
+                date_of_birth: null,
                 grade: null,
                 learning_goals: null
             }
@@ -260,7 +262,7 @@ export default function StudentDetailPage({ params }: { params: Promise<{ bookin
                                 <h1 className="text-3xl font-black text-foreground">{student.name}</h1>
                                 <p className="text-muted-foreground">
                                     {student.grade || 'No grade'}
-                                    {student.age && ` • Age ${student.age}`}
+                                    {(student.date_of_birth || student.age) && ` • Age ${calculateAge(student.date_of_birth) || student.age}`}
                                 </p>
                             </div>
                         </div>
@@ -291,7 +293,7 @@ export default function StudentDetailPage({ params }: { params: Promise<{ bookin
                                 <div className="bg-white dark:bg-card rounded-xl p-4 border">
                                     <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Student</p>
                                     <p className="font-bold text-lg">{student.name}</p>
-                                    <p className="text-sm text-muted-foreground">{student.grade || 'No grade'}{student.age && ` • Age ${student.age}`}</p>
+                                    <p className="text-sm text-muted-foreground">{student.grade || 'No grade'}{(student.date_of_birth || student.age) && ` • Age ${calculateAge(student.date_of_birth) || student.age}`}</p>
                                 </div>
                                 <div className="bg-white dark:bg-card rounded-xl p-4 border">
                                     <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Course</p>

@@ -167,8 +167,8 @@ function OnboardingContent() {
                                     </div>
                                     <div className="grid grid-cols-2 gap-4">
                                         <div className="space-y-2">
-                                            <Label htmlFor="age">Age</Label>
-                                            <Input id="age" name="age" type="number" min="3" max="18" placeholder="8" className="h-12" />
+                                            <Label htmlFor="dob">Date of Birth *</Label>
+                                            <Input id="dob" name="dob" type="date" required className="h-12" />
                                         </div>
                                         <div className="space-y-2">
                                             <Label htmlFor="grade">Grade</Label>

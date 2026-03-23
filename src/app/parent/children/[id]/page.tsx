@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { cn } from "@/lib/utils"
+import { cn, calculateAge } from "@/lib/utils"
 import {
     ArrowLeft, Loader2, Save, User, Brain, Heart, AlertCircle,
     BookOpen, Lightbulb, Star, Clock, Target
@@ -38,6 +38,7 @@ interface Student {
     id: string
     name: string
     age: number | null
+    date_of_birth: string | null
     grade: string | null
     interests: string[] | null
     primary_goal: string | null
@@ -64,7 +65,7 @@ export default function EditChildPage({ params }: { params: Promise<{ id: string
 
     // Form state
     const [name, setName] = useState("")
-    const [age, setAge] = useState("")
+    const [dob, setDob] = useState("")
     const [grade, setGrade] = useState("")
     const [interests, setInterests] = useState<string[]>([])
     const [primaryGoal, setPrimaryGoal] = useState("")
@@ -89,7 +90,7 @@ export default function EditChildPage({ params }: { params: Promise<{ id: string
             if (data) {
                 setStudent(data)
                 setName(data.name || "")
-                setAge(data.age?.toString() || "")
+                setDob(data.date_of_birth || "")
                 setGrade(data.grade || "")
                 setInterests(data.interests || [])
                 setPrimaryGoal(data.primary_goal || "")
@@ -124,7 +125,8 @@ export default function EditChildPage({ params }: { params: Promise<{ id: string
             .from('students')
             .update({
                 name,
-                age: age ? parseInt(age) : null,
+                date_of_birth: dob || null,
+                age: dob ? calculateAge(dob) : null,
                 grade,
                 interests,
                 primary_goal: primaryGoal,
@@ -199,8 +201,8 @@ export default function EditChildPage({ params }: { params: Promise<{ id: string
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <Label>Age</Label>
-                            <Input type="number" value={age} onChange={(e) => setAge(e.target.value)} placeholder="10" />
+                            <Label>Date of Birth</Label>
+                            <Input type="date" value={dob} onChange={(e) => setDob(e.target.value)} />
                         </div>
                         <div className="space-y-2">
                             <Label>Grade</Label>

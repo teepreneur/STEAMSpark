@@ -9,7 +9,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { cn } from "@/lib/utils"
+import { cn, calculateAge } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
 import { format, parseISO } from "date-fns"
 import Link from "next/link"
@@ -21,6 +21,7 @@ interface EnrolledStudent {
         id: string
         name: string
         age: number | null
+        date_of_birth: string | null
         grade: string | null
     }
     parent: {
@@ -90,7 +91,7 @@ function StudentsPageContent() {
                     status,
                     created_at,
                     total_sessions,
-                    student:students(id, name, age, grade),
+                    student:students(id, name, age, grade, date_of_birth),
                     parent:profiles!bookings_parent_id_fkey(id, full_name, email),
                     gig:gigs(id, title, subject, total_sessions, teacher_id)
                 `)
@@ -118,6 +119,7 @@ function StudentsPageContent() {
                             id: booking.id,
                             name: 'Student (Data Pending)',
                             age: null,
+                            date_of_birth: null,
                             grade: null
                         }
 
@@ -298,7 +300,7 @@ function StudentsPageContent() {
                                             <h3 className="font-bold text-lg leading-tight text-foreground">{enrolledStudent.student.name}</h3>
                                             <p className="text-xs font-medium text-muted-foreground">
                                                 {enrolledStudent.student.grade || 'No grade'}
-                                                {enrolledStudent.student.age && ` • Age ${enrolledStudent.student.age}`}
+                                                {(enrolledStudent.student.date_of_birth || enrolledStudent.student.age) && ` • Age ${calculateAge(enrolledStudent.student.date_of_birth) || enrolledStudent.student.age}`}
                                             </p>
                                         </div>
                                     </div>

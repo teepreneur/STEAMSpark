@@ -3,6 +3,8 @@
 import { createClient } from "@supabase/supabase-js"
 import { revalidatePath } from "next/cache"
 
+import { calculateAge } from "@/lib/utils"
+
 const supabaseAdmin = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
@@ -17,11 +19,14 @@ const supabaseAdmin = createClient(
 export async function createChildProfile(formData: FormData) {
     const parentId = formData.get("parent_id") as string
     const name = formData.get("name") as string
-    const age = formData.get("age") as string
+    const dob = formData.get("dob") as string
     const grade = formData.get("grade") as string
     const primaryGoal = formData.get("primary_goal") as string
     const goals = formData.get("goals") as string
     
+    // Calculate age from DOB to maintain the legacy field
+    const age = dob ? calculateAge(dob) : null
+
     // Interests is an array from the form
     const interests = formData.getAll("interests") as string[]
 
@@ -47,7 +52,8 @@ export async function createChildProfile(formData: FormData) {
             .insert({
                 parent_id: parentId,
                 name,
-                age: age ? Number(age) : null,
+                age,
+                date_of_birth: dob || null,
                 grade: grade || null,
                 interests: interests.length > 0 ? interests : null,
                 primary_goal: primaryGoal || null,
