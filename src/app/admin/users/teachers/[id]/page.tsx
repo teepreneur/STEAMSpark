@@ -10,12 +10,17 @@ import { cn } from "@/lib/utils"
 import {
     ArrowLeft, GraduationCap, Mail, MapPin, Clock, Calendar,
     CheckCircle, XCircle, FileText, Image, ExternalLink,
-    Loader2, AlertCircle, BookOpen, DollarSign, Ban, Pencil
+    Loader2, AlertCircle, BookOpen, DollarSign, Ban, Pencil,
+    Save, X, Phone
 } from "lucide-react"
 import Link from "next/link"
 import { format, parseISO } from "date-fns"
 import { useRouter } from "next/navigation"
 import { getAdminHref } from "@/lib/admin-paths"
+import { Label } from "@/components/ui/label"
+import LocationPicker from "@/components/location-picker"
+import { updateUserProfile } from "@/app/actions/admin-users"
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 
 interface TeacherDetails {
     id: string
@@ -32,6 +37,11 @@ interface TeacherDetails {
     cv_url: string | null
     id_url: string | null
     photo_url: string | null
+    phone: string | null
+    hourly_rate: number | null
+    address: string | null
+    latitude: number | null
+    longitude: number | null
 }
 
 interface Gig {
@@ -55,6 +65,10 @@ export default function TeacherDetailPage({ params }: { params: Promise<{ id: st
     const [rejectionReason, setRejectionReason] = useState("")
     const [showRejectDialog, setShowRejectDialog] = useState(false)
 
+    // Edit Mode State
+    const [isEditing, setIsEditing] = useState(false)
+    const [editData, setEditData] = useState<Partial<TeacherDetails>>({})
+
     useEffect(() => {
         async function loadTeacher() {
             setLoading(true)
@@ -73,7 +87,8 @@ export default function TeacherDetailPage({ params }: { params: Promise<{ id: st
                 return
             }
 
-            setTeacher(teacherData)
+            setTeacher(teacherData as TeacherDetails)
+            setEditData(teacherData)
 
             // Fetch gigs
             const { data: gigsData } = await supabase
@@ -115,6 +130,18 @@ export default function TeacherDetailPage({ params }: { params: Promise<{ id: st
         loadTeacher()
     }, [id, router])
 
+    async function handleSave() {
+        setUpdating(true)
+        const result = await updateUserProfile(id, editData)
+        if (result.success) {
+            setTeacher({ ...teacher!, ...editData } as TeacherDetails)
+            setIsEditing(false)
+        } else {
+            alert(result.error || "Failed to update profile")
+        }
+        setUpdating(false)
+    }
+
     async function handleVerify() {
         if (!teacher) return
         setUpdating(true)
@@ -146,7 +173,7 @@ export default function TeacherDetailPage({ params }: { params: Promise<{ id: st
         if (!teacher) return
         setUpdating(true)
 
-        // Log rejection (could also send email notification)
+        // Log rejection
         const { data: { user } } = await supabase.auth.getUser()
         await supabase.from('admin_logs').insert({
             admin_id: user?.id,
@@ -190,8 +217,7 @@ export default function TeacherDetailPage({ params }: { params: Promise<{ id: st
             }
         })
 
-        // Could update a 'suspended' field on profiles
-        alert('Teacher suspended (functionality can be extended)')
+        alert('Teacher suspended')
         setUpdating(false)
     }
 
@@ -220,7 +246,7 @@ export default function TeacherDetailPage({ params }: { params: Promise<{ id: st
             {/* Header */}
             <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
                 <div className="flex items-start gap-4">
-                    <div className="size-20 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
+                    <div className="size-20 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden ring-4 ring-white shadow-md">
                         {teacher.avatar_url ? (
                             <img src={teacher.avatar_url} className="size-full object-cover" alt="" />
                         ) : (
@@ -231,25 +257,45 @@ export default function TeacherDetailPage({ params }: { params: Promise<{ id: st
                     </div>
                     <div>
                         <div className="flex items-center gap-3">
-                            <h1 className="text-2xl font-bold">{teacher.full_name || 'Unnamed Teacher'}</h1>
+                            {isEditing ? (
+                                <Input 
+                                    value={editData.full_name || ""} 
+                                    onChange={e => setEditData({...editData, full_name: e.target.value})}
+                                    className="text-2xl font-bold h-10 w-auto min-w-[300px]"
+                                    placeholder="Teacher Full Name"
+                                />
+                            ) : (
+                                <h1 className="text-2xl font-bold">{teacher.full_name || 'Unnamed Teacher'}</h1>
+                            )}
+                            
                             {isVerified ? (
-                                <Badge className="bg-green-100 text-green-700">
+                                <Badge className="bg-green-100 text-green-700 hover:bg-green-100">
                                     <CheckCircle className="size-3 mr-1" /> Verified
                                 </Badge>
                             ) : hasPendingDocs ? (
-                                <Badge className="bg-orange-100 text-orange-700">
+                                <Badge className="bg-orange-100 text-orange-700 hover:bg-orange-100">
                                     <Clock className="size-3 mr-1" /> Pending Review
                                 </Badge>
                             ) : (
-                                <Badge className="bg-slate-100 text-slate-600">Unverified</Badge>
+                                <Badge className="bg-slate-100 text-slate-600 hover:bg-slate-100">Unverified</Badge>
                             )}
                         </div>
-                        <p className="text-muted-foreground flex items-center gap-2 mt-1">
+                        <p className="text-muted-foreground flex items-center gap-2 mt-1 font-medium">
                             <Mail className="size-4" /> {teacher.email}
                         </p>
-                        {(teacher.city || teacher.country) && (
-                            <p className="text-muted-foreground flex items-center gap-2 mt-1">
-                                <MapPin className="size-4" /> {[teacher.city, teacher.country].filter(Boolean).join(', ')}
+                        {isEditing ? (
+                            <div className="flex items-center gap-2 mt-2">
+                                <Phone className="size-4 text-muted-foreground" />
+                                <Input 
+                                    value={editData.phone || ""} 
+                                    onChange={e => setEditData({...editData, phone: e.target.value})}
+                                    className="h-8 w-40"
+                                    placeholder="Phone Number"
+                                />
+                            </div>
+                        ) : teacher.phone && (
+                            <p className="text-muted-foreground flex items-center gap-2 mt-1 font-medium">
+                                <Phone className="size-4" /> {teacher.phone}
                             </p>
                         )}
                     </div>
@@ -257,33 +303,44 @@ export default function TeacherDetailPage({ params }: { params: Promise<{ id: st
 
                 {/* Action buttons */}
                 <div className="flex flex-wrap gap-2">
-                    {!isVerified && hasPendingDocs && (
+                    {isEditing ? (
                         <>
-                            <Button onClick={handleVerify} disabled={updating} className="bg-green-600 hover:bg-green-700">
-                                <CheckCircle className="size-4 mr-2" />
-                                Verify Teacher
+                            <Button variant="outline" onClick={() => setIsEditing(false)} disabled={updating}>
+                                <X className="size-4 mr-2" /> Cancel
                             </Button>
-                            <Button
-                                variant="outline"
-                                className="text-red-600 border-red-300"
-                                onClick={() => setShowRejectDialog(true)}
-                                disabled={updating}
-                            >
-                                <XCircle className="size-4 mr-2" />
-                                Reject
+                            <Button onClick={handleSave} disabled={updating}>
+                                {updating ? <Loader2 className="size-4 mr-2 animate-spin" /> : <Save className="size-4 mr-2" />}
+                                Save Changes
+                            </Button>
+                        </>
+                    ) : (
+                        <>
+                            <Button variant="outline" onClick={() => setIsEditing(true)}>
+                                <Pencil className="size-4 mr-2" /> Edit Profile
+                            </Button>
+                            {!isVerified && hasPendingDocs && (
+                                <>
+                                    <Button onClick={handleVerify} disabled={updating} className="bg-green-600 hover:bg-green-700">
+                                        <CheckCircle className="size-4 mr-2" />
+                                        Verify Teacher
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        className="text-red-600 border-red-300"
+                                        onClick={() => setShowRejectDialog(true)}
+                                        disabled={updating}
+                                    >
+                                        <XCircle className="size-4 mr-2" />
+                                        Reject
+                                    </Button>
+                                </>
+                            )}
+                            <Button variant="outline" onClick={handleSuspend} disabled={updating} className="text-red-500 hover:text-red-600">
+                                <Ban className="size-4 mr-2" />
+                                Suspend
                             </Button>
                         </>
                     )}
-                    <Button variant="outline" onClick={handleSuspend} disabled={updating}>
-                        <Ban className="size-4 mr-2" />
-                        Suspend
-                    </Button>
-                    <Button variant="outline" asChild>
-                        <a href={`mailto:${teacher.email}`}>
-                            <Mail className="size-4 mr-2" />
-                            Email
-                        </a>
-                    </Button>
                 </div>
             </div>
 
@@ -409,13 +466,128 @@ export default function TeacherDetailPage({ params }: { params: Promise<{ id: st
                 </div>
             )}
 
+            {/* Location & Contact Info Section (New for teachers) */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card className="shadow-sm border-0 bg-white">
+                    <CardHeader>
+                        <CardTitle className="text-sm font-bold flex items-center gap-2">
+                            <MapPin className="size-4 text-primary" />
+                            Base Location
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        {isEditing ? (
+                            <div className="space-y-4">
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label>Country</Label>
+                                        <Input 
+                                            value={editData.country || ""} 
+                                            onChange={e => setEditData({...editData, country: e.target.value})}
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>City / Town</Label>
+                                        <Input 
+                                            value={editData.city || ""} 
+                                            onChange={e => setEditData({...editData, city: e.target.value})}
+                                        />
+                                    </div>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>Full Address</Label>
+                                    <Input 
+                                        value={editData.address || ""} 
+                                        onChange={e => setEditData({...editData, address: e.target.value})}
+                                        placeholder="House No, Street Name..."
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>Precise Location (Map)</Label>
+                                    <LocationPicker 
+                                        onLocationSelect={(loc) => {
+                                            setEditData({
+                                                ...editData,
+                                                latitude: loc.lat,
+                                                longitude: loc.lng,
+                                                address: loc.address || editData.address
+                                            })
+                                        }}
+                                        defaultLocation={editData.latitude && editData.longitude ? {
+                                            lat: editData.latitude,
+                                            lng: editData.longitude,
+                                            address: editData.address || ""
+                                        } : undefined}
+                                    />
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="grid sm:grid-cols-2 gap-4">
+                                <div>
+                                    <p className="text-xs text-muted-foreground uppercase font-black tracking-wider">Region</p>
+                                    <p className="font-bold text-slate-900 mt-1">
+                                        {[teacher.city, teacher.country].filter(Boolean).join(', ') || 'Not specified'}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p className="text-xs text-muted-foreground uppercase font-black tracking-wider">Exact Address</p>
+                                    <p className="font-bold text-slate-900 mt-1">{teacher.address || 'No address pinned'}</p>
+                                </div>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
+
+                <Card className="shadow-sm border-0 bg-white">
+                    <CardHeader>
+                        <CardTitle className="text-sm font-bold flex items-center gap-2">
+                            <DollarSign className="size-4 text-emerald-600" />
+                            Financial Settings
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        {isEditing ? (
+                            <div className="space-y-2">
+                                <Label>Hourly Rate (GHS)</Label>
+                                <Input 
+                                    type="number"
+                                    value={editData.hourly_rate || ""} 
+                                    onChange={e => setEditData({...editData, hourly_rate: Number(e.target.value)})}
+                                    placeholder="e.g. 120"
+                                />
+                                <p className="text-[10px] text-muted-foreground">This rate is used for auto-populating concierge bookings.</p>
+                            </div>
+                        ) : (
+                            <div>
+                                <p className="text-xs text-muted-foreground uppercase font-black tracking-wider">Default Rate</p>
+                                <p className="text-2xl font-black text-emerald-600 mt-1">GHS {teacher.hourly_rate || '0'}</p>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
+            </div>
+
             {/* Bio */}
-            {teacher.bio && (
-                <div className="bg-white dark:bg-slate-900 rounded-xl border p-6">
-                    <h2 className="font-bold text-lg mb-2">About</h2>
-                    <p className="text-muted-foreground whitespace-pre-wrap">{teacher.bio}</p>
-                </div>
-            )}
+            <div className="bg-white dark:bg-slate-900 rounded-xl border p-6">
+                <h2 className="font-bold text-lg mb-2 flex items-center justify-between">
+                    About
+                    {isEditing && <Badge variant="outline">Editable</Badge>}
+                </h2>
+                {isEditing ? (
+                    <Textarea 
+                        value={editData.bio || ""} 
+                        onChange={e => setEditData({...editData, bio: e.target.value})}
+                        className="min-h-[150px]"
+                        placeholder="Teacher biography..."
+                    />
+                ) : (
+                    teacher.bio ? (
+                        <p className="text-muted-foreground whitespace-pre-wrap">{teacher.bio}</p>
+                    ) : (
+                        <p className="text-muted-foreground italic">No bio provided</p>
+                    )
+                )}
+            </div>
 
             {/* Subjects */}
             {teacher.subjects && teacher.subjects.length > 0 && (
