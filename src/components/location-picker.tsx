@@ -5,6 +5,7 @@ import { MapPin, Search, Loader2, X } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import { resolveGoogleMapsUrl } from "@/app/actions/maps-resolver"
 
 interface LocationPickerProps {
     onLocationSelect: (location: { address: string; lat: number; lng: number }) => void
@@ -145,24 +146,35 @@ export default function LocationPicker({ onLocationSelect, defaultLocation, clas
     }, [API_KEY, defaultLocation, onLocationSelect])
 
     // Detect coordinates or Google Maps URLs in the address field
-    const handleManualInput = useCallback((input: string) => {
+    const handleManualInput = useCallback(async (input: string) => {
         if (!map || !marker) return
 
-        // 1. Check for lat,lng (e.g., 5.6037,-0.1870 or 5.6037, -0.1870)
-        const coordMatch = input.match(/^([-+]?\d{1,2}(?:\.\d+)?)\s*,\s*([-+]?\d{1,3}(?:\.\d+)?)$/)
+        let targetInput = input
+
+        // 1. Check if it's a shortened Google Maps URL first
+        if (input.includes('maps.app.goo.gl') || input.includes('goo.gl/maps')) {
+            const result = await resolveGoogleMapsUrl(input)
+            if (result.url) {
+                targetInput = result.url
+                // update setAddress with full URL for debugging? maybe better to keep the short one
+            }
+        }
+
+        // 2. Check for lat,lng (e.g., 5.6037,-0.1870 or 5.6037, -0.1870)
+        const coordMatch = targetInput.match(/([-+]?\d{1,2}(?:\.\d+)?)\s*,\s*([-+]?\d{1,3}(?:\.\d+)?)/)
         
-        // 2. Check for Google Maps URL (extract @lat,lng)
-        const urlMatch = input.match(/@([-+]?\d+(?:\.\d+)?),([-+]?\d+(?:\.\d+)?)/)
+        // 3. Check for Google Maps URL (extract @lat,lng)
+        const urlMatch = targetInput.match(/@([-+]?\d+(?:\.\d+)?),([-+]?\d+(?:\.\d+)?)/)
 
         let lat: number | null = null
         let lng: number | null = null
 
-        if (coordMatch) {
-            lat = parseFloat(coordMatch[1])
-            lng = parseFloat(coordMatch[2])
-        } else if (urlMatch) {
+        if (urlMatch) {
             lat = parseFloat(urlMatch[1])
             lng = parseFloat(urlMatch[2])
+        } else if (coordMatch) {
+            lat = parseFloat(coordMatch[1])
+            lng = parseFloat(coordMatch[2])
         }
 
         if (lat !== null && lng !== null) {
