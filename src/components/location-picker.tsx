@@ -144,6 +144,46 @@ export default function LocationPicker({ onLocationSelect, defaultLocation, clas
             })
     }, [API_KEY, defaultLocation, onLocationSelect])
 
+    // Detect coordinates or Google Maps URLs in the address field
+    const handleManualInput = useCallback((input: string) => {
+        if (!map || !marker) return
+
+        // 1. Check for lat,lng (e.g., 5.6037,-0.1870 or 5.6037, -0.1870)
+        const coordMatch = input.match(/^([-+]?\d{1,2}(?:\.\d+)?)\s*,\s*([-+]?\d{1,3}(?:\.\d+)?)$/)
+        
+        // 2. Check for Google Maps URL (extract @lat,lng)
+        const urlMatch = input.match(/@([-+]?\d+(?:\.\d+)?),([-+]?\d+(?:\.\d+)?)/)
+
+        let lat: number | null = null
+        let lng: number | null = null
+
+        if (coordMatch) {
+            lat = parseFloat(coordMatch[1])
+            lng = parseFloat(coordMatch[2])
+        } else if (urlMatch) {
+            lat = parseFloat(urlMatch[1])
+            lng = parseFloat(urlMatch[2])
+        }
+
+        if (lat !== null && lng !== null) {
+            const newPos = { lat, lng }
+            map.setCenter(newPos)
+            map.setZoom(17)
+            marker.setPosition(newPos)
+            setSelectedLocation(newPos)
+
+            // Reverse geocode to get a valid address
+            const geocoder = new google.maps.Geocoder()
+            geocoder.geocode({ location: newPos }, (results, status) => {
+                if (status === "OK" && results?.[0]) {
+                    const newAddress = results[0].formatted_address
+                    setAddress(newAddress)
+                    onLocationSelect({ address: newAddress, lat, lng: lng! })
+                }
+            })
+        }
+    }, [map, marker, onLocationSelect])
+
     const clearLocation = useCallback(() => {
         setAddress("")
         setSelectedLocation(null)
@@ -173,9 +213,13 @@ export default function LocationPicker({ onLocationSelect, defaultLocation, clas
                 <Input
                     ref={inputRef}
                     type="text"
-                    placeholder="Search for your address..."
+                    placeholder="Search for address or paste lat,lng / Google Maps link..."
                     value={address}
-                    onChange={(e) => setAddress(e.target.value)}
+                    onChange={(e) => {
+                        const val = e.target.value
+                        setAddress(val)
+                        handleManualInput(val)
+                    }}
                     className="pl-9 pr-9"
                 />
                 {address && (
@@ -211,7 +255,7 @@ export default function LocationPicker({ onLocationSelect, defaultLocation, clas
             )}
 
             <p className="text-xs text-muted-foreground">
-                Search for your address or drag the pin on the map to set your exact location.
+                Search address, paste lat,lng, or a Google Maps link. You can also drag the pin.
             </p>
         </div>
     )
