@@ -354,7 +354,6 @@ export default function ParentDetailPage({ params }: { params: Promise<{ id: str
                                 </CardHeader>
                                 <CardContent className="space-y-4">
                                     <div className="grid sm:grid-cols-2 gap-4">
-                                        {/* Edit fields here... existing logic */}
                                         <div className="space-y-2">
                                             <Label>Full Name</Label>
                                             <Input 
@@ -378,6 +377,27 @@ export default function ParentDetailPage({ params }: { params: Promise<{ id: str
                                             />
                                         </div>
                                         <div className="space-y-2">
+                                            <Label>Gender</Label>
+                                            <select 
+                                                className="w-full h-10 px-3 py-2 bg-white border rounded-md text-sm"
+                                                value={childEditData.gender || ""}
+                                                onChange={e => setChildEditData({...childEditData, gender: e.target.value})}
+                                            >
+                                                <option value="">Select Gender</option>
+                                                <option value="Male">Male</option>
+                                                <option value="Female">Female</option>
+                                                <option value="Other">Other</option>
+                                            </select>
+                                        </div>
+                                        <div className="space-y-2 sm:col-span-2">
+                                            <Label>Current School</Label>
+                                            <Input 
+                                                value={childEditData.school || ""} 
+                                                onChange={e => setChildEditData({...childEditData, school: e.target.value})}
+                                                placeholder="School Name"
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
                                             <Label>Class Mode</Label>
                                             <select 
                                                 className="w-full h-10 px-3 py-2 bg-white border rounded-md text-sm"
@@ -388,6 +408,14 @@ export default function ParentDetailPage({ params }: { params: Promise<{ id: str
                                                 <option value="Online">Online</option>
                                                 <option value="In-Person">In-Person</option>
                                             </select>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label>Favorite Subjects (comma separated)</Label>
+                                            <Input 
+                                                value={Array.isArray(childEditData.favorite_subjects) ? childEditData.favorite_subjects.join(", ") : (childEditData.favorite_subjects || "")} 
+                                                onChange={(e) => setChildEditData({...childEditData, favorite_subjects: e.target.value.split(",").map((s: string) => s.trim())})}
+                                                placeholder="Math, Science"
+                                            />
                                         </div>
                                     </div>
                                     <div className="space-y-2 border-t pt-4">
