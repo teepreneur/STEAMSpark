@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import {
     Search, Filter, GraduationCap, CheckCircle, Clock,
-    XCircle, Mail, Eye, MoreHorizontal, Loader2, ChevronRight, Plus
+    XCircle, Mail, Eye, MoreHorizontal, Loader2, ChevronRight, Plus, FileText
 } from "lucide-react"
 import Link from "next/link"
 import { format, parseISO } from "date-fns"
@@ -49,7 +49,7 @@ function TeachersContent() {
     const [loading, setLoading] = useState(true)
     const [teachers, setTeachers] = useState<Teacher[]>([])
     const [searchQuery, setSearchQuery] = useState("")
-    const [filter, setFilter] = useState<'all' | 'verified' | 'unverified'>(
+    const [filter, setFilter] = useState<'all' | 'verified' | 'unverified' | 'pending'>(
         filterParam === 'unverified' ? 'unverified' : 'all'
     )
 
@@ -108,7 +108,8 @@ function TeachersContent() {
 
         const matchesFilter = filter === 'all' ||
             (filter === 'verified' && t.verified_at) ||
-            (filter === 'unverified' && !t.verified_at)
+            (filter === 'unverified' && !t.verified_at) ||
+            (filter === 'pending' && !t.verified_at && (t.cv_url || t.id_url))
 
         return matchesSearch && matchesFilter
     })
@@ -161,7 +162,7 @@ function TeachersContent() {
                     />
                 </div>
                 <div className="flex gap-2">
-                    {(['all', 'verified', 'unverified'] as const).map((f) => (
+                    {(['all', 'verified', 'unverified', 'pending'] as const).map((f) => (
                         <Button
                             key={f}
                             variant={filter === f ? "default" : "outline"}
@@ -230,7 +231,23 @@ function TeachersContent() {
                                             </div>
                                         </td>
                                         <td className="py-3 px-4">
-                                            {getStatusBadge(teacher)}
+                                            <div className="flex items-center gap-2">
+                                                {getStatusBadge(teacher)}
+                                                {!teacher.verified_at && (
+                                                    <div className="flex gap-1 ml-auto">
+                                                        {teacher.cv_url && (
+                                                            <span title="CV Uploaded">
+                                                                <FileText className="size-3 text-blue-500" />
+                                                            </span>
+                                                        )}
+                                                        {teacher.id_url && (
+                                                            <span title="ID Uploaded">
+                                                                <FileText className="size-3 text-green-500" />
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </div>
                                         </td>
                                         <td className="py-3 px-4 font-medium">
                                             {teacher.gig_count}

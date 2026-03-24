@@ -318,9 +318,18 @@ export default function TeacherDetailPage({ params }: { params: Promise<{ id: st
                             <Button variant="outline" onClick={() => setIsEditing(true)}>
                                 <Pencil className="size-4 mr-2" /> Edit Profile
                             </Button>
-                            {!isVerified && hasPendingDocs && (
+                            {!isVerified && (
                                 <>
-                                    <Button onClick={handleVerify} disabled={updating} className="bg-green-600 hover:bg-green-700">
+                                    <Button 
+                                        onClick={() => {
+                                            if (!hasPendingDocs && !confirm("This teacher has not uploaded any verification documents. Are you sure you want to verify them anyway?")) {
+                                                return;
+                                            }
+                                            handleVerify();
+                                        }} 
+                                        disabled={updating} 
+                                        className="bg-green-600 hover:bg-green-700"
+                                    >
                                         <CheckCircle className="size-4 mr-2" />
                                         Verify Teacher
                                     </Button>
@@ -410,59 +419,76 @@ export default function TeacherDetailPage({ params }: { params: Promise<{ id: st
             </div>
 
             {/* Verification Documents */}
-            {hasPendingDocs && (
+            {!isVerified && (
                 <div className="bg-white dark:bg-slate-900 rounded-xl border p-6">
-                    <h2 className="font-bold text-lg mb-4">Verification Documents</h2>
-                    <div className="grid sm:grid-cols-3 gap-4">
-                        {teacher.cv_url && (
-                            <a
-                                href={teacher.cv_url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center gap-3 p-4 border rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800"
-                            >
-                                <FileText className="size-8 text-blue-500" />
-                                <div>
-                                    <p className="font-medium">CV / Resume</p>
-                                    <p className="text-xs text-muted-foreground flex items-center gap-1">
-                                        View document <ExternalLink className="size-3" />
-                                    </p>
-                                </div>
-                            </a>
-                        )}
-                        {teacher.id_url && (
-                            <a
-                                href={teacher.id_url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center gap-3 p-4 border rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800"
-                            >
-                                <FileText className="size-8 text-green-500" />
-                                <div>
-                                    <p className="font-medium">ID Document</p>
-                                    <p className="text-xs text-muted-foreground flex items-center gap-1">
-                                        View document <ExternalLink className="size-3" />
-                                    </p>
-                                </div>
-                            </a>
-                        )}
-                        {teacher.photo_url && (
-                            <a
-                                href={teacher.photo_url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center gap-3 p-4 border rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800"
-                            >
-                                <Image className="size-8 text-purple-500" />
-                                <div>
-                                    <p className="font-medium">Profile Photo</p>
-                                    <p className="text-xs text-muted-foreground flex items-center gap-1">
-                                        View image <ExternalLink className="size-3" />
-                                    </p>
-                                </div>
-                            </a>
+                    <div className="flex items-center justify-between mb-4">
+                        <h2 className="font-bold text-lg">Verification Documents</h2>
+                        {!hasPendingDocs && (
+                            <Badge variant="outline" className="text-orange-600 border-orange-200 bg-orange-50">
+                                <AlertCircle className="size-3 mr-1" /> No Documents Uploaded
+                            </Badge>
                         )}
                     </div>
+                    {hasPendingDocs ? (
+                        <div className="grid sm:grid-cols-3 gap-4">
+                            {teacher.cv_url && (
+                                <a
+                                    href={teacher.cv_url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-3 p-4 border rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800"
+                                >
+                                    <FileText className="size-8 text-blue-500" />
+                                    <div>
+                                        <p className="font-medium">CV / Resume</p>
+                                        <p className="text-xs text-muted-foreground flex items-center gap-1">
+                                            View document <ExternalLink className="size-3" />
+                                        </p>
+                                    </div>
+                                </a>
+                            )}
+                            {teacher.id_url && (
+                                <a
+                                    href={teacher.id_url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-3 p-4 border rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800"
+                                >
+                                    <FileText className="size-8 text-green-500" />
+                                    <div>
+                                        <p className="font-medium">ID Document</p>
+                                        <p className="text-xs text-muted-foreground flex items-center gap-1">
+                                            View document <ExternalLink className="size-3" />
+                                        </p>
+                                    </div>
+                                </a>
+                            )}
+                            {teacher.photo_url && (
+                                <a
+                                    href={teacher.photo_url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-3 p-4 border rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800"
+                                >
+                                    <Image className="size-8 text-purple-500" />
+                                    <div>
+                                        <p className="font-medium">Profile Photo</p>
+                                        <p className="text-xs text-muted-foreground flex items-center gap-1">
+                                            View image <ExternalLink className="size-3" />
+                                        </p>
+                                    </div>
+                                </a>
+                            )}
+                        </div>
+                    ) : (
+                        <div className="flex flex-col items-center justify-center py-8 px-4 border-2 border-dashed rounded-xl bg-slate-50 text-center">
+                            <FileText className="size-12 text-slate-300 mb-2" />
+                            <p className="font-medium text-slate-600">No verification documents have been submitted yet.</p>
+                            <p className="text-sm text-slate-400 max-w-[400px]">
+                                You can still verify this teacher if you've reviewed their details externally, or you can reject the verification to ask them to upload files.
+                            </p>
+                        </div>
+                    )}
                 </div>
             )}
 
