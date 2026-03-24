@@ -9,11 +9,13 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { ArrowLeft, Loader2, Save, User, BookOpen, GraduationCap, Calendar, Clock } from "lucide-react"
+import { ArrowLeft, Loader2, Save, User, BookOpen, GraduationCap, Calendar, Clock, MapPin } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { getAdminHref } from "@/lib/admin-paths"
 import { createConciergeBooking } from "@/app/actions/bookings"
+import { calculateDistance } from "@/lib/utils"
 
 const SUBJECTS = ["Math", "Science", "English", "Coding", "Arts", "Music", "Other"]
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
@@ -40,22 +42,25 @@ export default function NewBookingPage() {
     const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0])
     const [preferredTime, setPreferredTime] = useState("16:00")
     const [preferredDays, setPreferredDays] = useState<string[]>([])
+    
+    // Insights
+    const [distance, setDistance] = useState<number | null>(null)
 
     useEffect(() => {
         async function loadData() {
             setLoading(true)
 
-            // Fetch Parents
+            // Fetch Parents with location
             const { data: parentsData } = await supabase
                 .from('profiles')
-                .select('id, full_name, email')
+                .select('id, full_name, email, latitude, longitude, address')
                 .eq('role', 'parent')
                 .order('full_name')
 
-            // Fetch Teachers
+            // Fetch Teachers with location and rate
             const { data: teachersData } = await supabase
                 .from('profiles')
-                .select('id, full_name, hourly_rate')
+                .select('id, full_name, hourly_rate, latitude, longitude, address, subjects')
                 .eq('role', 'teacher')
                 .order('full_name')
 
@@ -65,6 +70,35 @@ export default function NewBookingPage() {
         }
         loadData()
     }, [supabase])
+
+    // Auto-price and Distance calculation
+    useEffect(() => {
+        if (teacherId) {
+            const teacher = teachers.find(t => t.id === teacherId)
+            if (teacher && teacher.hourly_rate) {
+                setPrice(teacher.hourly_rate.toString())
+            }
+        }
+
+        if (parentId && teacherId) {
+            const parent = parents.find(p => p.id === parentId)
+            const teacher = teachers.find(t => t.id === teacherId)
+
+            if (parent?.latitude && parent?.longitude && teacher?.latitude && teacher?.longitude) {
+                const dist = calculateDistance(
+                    parent.latitude,
+                    parent.longitude,
+                    teacher.latitude,
+                    teacher.longitude
+                )
+                setDistance(dist)
+            } else {
+                setDistance(null)
+            }
+        } else {
+            setDistance(null)
+        }
+    }, [teacherId, parentId, teachers, parents])
 
     useEffect(() => {
         async function loadStudents() {
@@ -198,6 +232,48 @@ export default function NewBookingPage() {
                                 </SelectContent>
                             </Select>
                         </div>
+
+                        {/* Location Insights */}
+                        {(parentId || teacherId) && (
+                            <div className="md:col-span-3 p-4 bg-primary/5 rounded-xl border border-primary/10 space-y-3">
+                                <h4 className="text-xs font-bold uppercase tracking-wider text-primary/70">Matching Insights</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="space-y-2">
+                                        <p className="text-sm font-semibold flex items-center gap-2">
+                                            <MapPin className="size-4 text-primary" />
+                                            Distance Matching
+                                        </p>
+                                        <div className="flex items-center gap-3">
+                                            <div className={cn(
+                                                "px-3 py-1 rounded-full text-xs font-bold",
+                                                distance === null ? "bg-muted text-muted-foreground" :
+                                                distance < 5 ? "bg-green-100 text-green-700" :
+                                                distance < 15 ? "bg-yellow-100 text-yellow-700" : "bg-red-100 text-red-700"
+                                            )}>
+                                                {distance === null ? "Location missing" : `${distance.toFixed(1)} km away`}
+                                            </div>
+                                            {distance !== null && distance < 10 && (
+                                                <span className="text-[10px] font-bold text-green-600 uppercase">Highly Recommended</span>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {teacherId && (
+                                        <div className="space-y-2">
+                                            <p className="text-sm font-semibold flex items-center gap-2">
+                                                <GraduationCap className="size-4 text-primary" />
+                                                Teacher Expertise:
+                                            </p>
+                                            <div className="flex flex-wrap gap-1">
+                                                {teachers.find(t => t.id === teacherId)?.subjects?.map((s: string) => (
+                                                    <Badge key={s} variant="secondary" className="text-[10px] py-0">{s}</Badge>
+                                                )) || <span className="text-xs text-muted-foreground">No subjects listed</span>}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
                     </CardContent>
                 </Card>
 

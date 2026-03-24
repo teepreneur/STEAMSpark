@@ -3,55 +3,20 @@
 import { useEffect, useState, use } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Textarea } from "@/components/ui/textarea"
-import { cn } from "@/lib/utils"
-import {
-    ArrowLeft, BookOpen, User, GraduationCap, DollarSign,
-    CheckCircle, Clock, XCircle, Loader2, Calendar, Mail,
-    AlertTriangle, RefreshCcw
+import { 
+    ArrowLeft, Loader2, Calendar, Clock, User, 
+    BookOpen, FileText, Download, CheckCircle, MapPin, 
+    Phone, Mail, MessageSquare, GraduationCap 
 } from "lucide-react"
+import { Label } from "@/components/ui/label"
+import { cn } from "@/lib/utils"
 import Link from "next/link"
-import { format, parseISO } from "date-fns"
 import { useRouter } from "next/navigation"
 import { getAdminHref } from "@/lib/admin-paths"
-import { calculateAge } from "@/lib/utils"
-
-interface BookingDetails {
-    id: string
-    status: string | null
-    created_at: string
-    total_sessions: number | null
-    session_date: string | null
-    preferred_days: string[] | null
-    preferred_time: string | null
-    meeting_link: string | null
-    gig: {
-        id: string
-        title: string
-        subject: string | null
-        price: number
-        session_duration: number | null
-        teacher_id: string
-    } | null
-    parent: {
-        id: string
-        full_name: string | null
-        email: string | null
-    } | null
-    student: {
-        id: string
-        name: string
-        age: number | null
-        date_of_birth: string | null
-        grade: string | null
-    } | null
-    teacher?: {
-        id: string
-        full_name: string | null
-        email: string | null
-    } | null
-}
+import { format } from "date-fns"
+import { generateInvoice, generateBookingConfirmation } from "@/lib/pdf-generator"
 
 export default function BookingDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params)
@@ -59,123 +24,82 @@ export default function BookingDetailPage({ params }: { params: Promise<{ id: st
     const router = useRouter()
 
     const [loading, setLoading] = useState(true)
-    const [updating, setUpdating] = useState(false)
-    const [booking, setBooking] = useState<BookingDetails | null>(null)
-    const [adminNote, setAdminNote] = useState("")
+    const [booking, setBooking] = useState<any>(null)
+    const [error, setError] = useState<string | null>(null)
 
     useEffect(() => {
         async function loadBooking() {
             setLoading(true)
-
             const { data, error } = await supabase
                 .from('bookings')
                 .select(`
-                    id, status, created_at, total_sessions, session_date,
-                    preferred_days, preferred_time, meeting_link,
-                    gig:gigs(id, title, subject, price, session_duration, teacher_id),
-                    parent:profiles!bookings_parent_id_fkey(id, full_name, email),
-                    student:students(id, name, age, grade, date_of_birth)
+                    *,
+                    student:student_id (id, name, date_of_birth, grade),
+                    parent:parent_id (id, full_name, email, phone_number, whatsapp_number, address),
+                    gig:gig_id (
+                        id, title, subject, price, total_sessions, 
+                        teacher:teacher_id (id, full_name, email, phone_number, address)
+                    )
                 `)
                 .eq('id', id)
                 .single()
 
-            if (error || !data) {
-                console.error('Error loading booking:', error)
-                router.push(getAdminHref('/admin/bookings'))
-                return
+            if (error) {
+                console.error("Error fetching booking:", error)
+                setError("Booking not found")
+            } else {
+                setBooking(data)
             }
-
-            // Fetch teacher info
-            let teacher = null
-            if ((data as any).gig?.teacher_id) {
-                const { data: teacherData } = await supabase
-                    .from('profiles')
-                    .select('id, full_name, email')
-                    .eq('id', (data as any).gig.teacher_id)
-                    .single()
-                teacher = teacherData
-            }
-
-            setBooking({ ...data as any, teacher })
             setLoading(false)
         }
         loadBooking()
-    }, [id, router])
+    }, [id, supabase])
 
-    async function updateStatus(newStatus: string) {
+    const handleGenerateInvoice = async () => {
         if (!booking) return
-        setUpdating(true)
-
-        const { error } = await supabase
-            .from('bookings')
-            .update({ status: newStatus })
-            .eq('id', booking.id)
-
-        if (error) {
-            alert(`Failed to update: ${error.message}`)
-            setUpdating(false)
-            return
-        }
-
-        // Log admin action
-        const { data: { user } } = await supabase.auth.getUser()
-        await supabase.from('admin_logs').insert({
-            admin_id: user?.id,
-            action: `booking_status_${newStatus}`,
-            target_type: 'booking',
-            target_id: booking.id,
-            details: {
-                previous_status: booking.status,
-                new_status: newStatus,
-                admin_note: adminNote
-            }
+        
+        await generateInvoice({
+            invoiceNumber: booking.id.slice(0, 8).toUpperCase(),
+            date: new Date(),
+            parentName: booking.parent.full_name,
+            parentEmail: booking.parent.email,
+            studentName: booking.student.name,
+            teacherName: booking.gig.teacher.full_name,
+            courseTitle: booking.gig.title,
+            subject: booking.gig.subject,
+            totalSessions: booking.total_sessions || booking.gig.total_sessions,
+            pricePerSession: booking.gig.price,
+            totalAmount: (booking.total_sessions || booking.gig.total_sessions) * booking.gig.price,
+            startDate: format(new Date(booking.session_date || booking.scheduled_at), 'PPP'),
+            preferredDays: booking.preferred_days || [],
+            preferredTime: booking.preferred_time || '',
+            location: booking.session_location_address || booking.parent.address
         })
-
-        setBooking({ ...booking, status: newStatus })
-        setAdminNote("")
-        setUpdating(false)
     }
 
-    async function forceConfirm() {
-        // Force confirm - bypasses payment
-        await updateStatus('confirmed')
-
-        // Create booking sessions if not exists
-        if (booking?.total_sessions) {
-            const existingSessions = await supabase
-                .from('booking_sessions')
-                .select('id')
-                .eq('booking_id', booking.id)
-
-            if (!existingSessions.data?.length) {
-                const sessions = Array.from({ length: booking.total_sessions }).map((_, i) => ({
-                    booking_id: booking.id,
-                    session_number: i + 1,
-                    status: 'scheduled'
-                }))
-                await supabase.from('booking_sessions').insert(sessions)
-            }
-        }
+    const handleGenerateConfirmation = async () => {
+        if (!booking) return
+        
+        await generateBookingConfirmation({
+            invoiceNumber: booking.id.slice(0, 8).toUpperCase(),
+            date: new Date(),
+            parentName: booking.parent.full_name,
+            parentEmail: booking.parent.email,
+            studentName: booking.student.name,
+            teacherName: booking.gig.teacher.full_name,
+            courseTitle: booking.gig.title,
+            subject: booking.gig.subject,
+            totalSessions: booking.total_sessions || booking.gig.total_sessions,
+            pricePerSession: booking.gig.price,
+            totalAmount: (booking.total_sessions || booking.gig.total_sessions) * booking.gig.price,
+            startDate: format(new Date(booking.session_date || booking.scheduled_at), 'PPP'),
+            preferredDays: booking.preferred_days || [],
+            preferredTime: booking.preferred_time || '',
+            location: booking.session_location_address || booking.parent.address
+        })
     }
 
-    const getStatusBadge = (status: string | null) => {
-        switch (status) {
-            case 'confirmed':
-                return <Badge className="bg-green-100 text-green-700"><CheckCircle className="size-3 mr-1" />Confirmed</Badge>
-            case 'pending':
-                return <Badge className="bg-yellow-100 text-yellow-700"><Clock className="size-3 mr-1" />Pending</Badge>
-            case 'pending_payment':
-                return <Badge className="bg-blue-100 text-blue-700"><DollarSign className="size-3 mr-1" />Awaiting Payment</Badge>
-            case 'completed':
-                return <Badge className="bg-slate-100 text-slate-700"><CheckCircle className="size-3 mr-1" />Completed</Badge>
-            case 'cancelled':
-                return <Badge className="bg-red-100 text-red-700"><XCircle className="size-3 mr-1" />Cancelled</Badge>
-            default:
-                return <Badge variant="secondary">{status || 'Unknown'}</Badge>
-        }
-    }
-
-    if (loading || !booking) {
+    if (loading) {
         return (
             <div className="flex items-center justify-center min-h-[60vh]">
                 <Loader2 className="size-8 animate-spin text-primary" />
@@ -183,11 +107,21 @@ export default function BookingDetailPage({ params }: { params: Promise<{ id: st
         )
     }
 
-    const totalAmount = (booking.gig?.price || 0) * (booking.total_sessions || 1)
+    if (error || !booking) {
+        return (
+            <div className="text-center py-12">
+                <p className="text-red-500 font-medium">{error || "Something went wrong"}</p>
+                <Link href={getAdminHref("/admin/bookings")} className="text-primary hover:underline mt-4 inline-block">
+                    Return to Bookings
+                </Link>
+            </div>
+        )
+    }
+
+    const totalPrice = (booking.total_sessions || booking.gig.total_sessions) * booking.gig.price
 
     return (
-        <div className="space-y-6 max-w-4xl">
-            {/* Back link */}
+        <div className="space-y-6 max-w-5xl pb-12">
             <Link
                 href={getAdminHref("/admin/bookings")}
                 className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground"
@@ -196,240 +130,198 @@ export default function BookingDetailPage({ params }: { params: Promise<{ id: st
                 Back to Bookings
             </Link>
 
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold">{booking.gig?.title || 'Booking'}</h1>
-                    <p className="text-muted-foreground">Booking ID: {booking.id.slice(0, 8)}...</p>
+                    <div className="flex items-center gap-3 mb-1">
+                        <h1 className="text-3xl font-black text-foreground">Booking Detail</h1>
+                        <Badge className={cn(
+                            "uppercase text-[10px] font-bold",
+                            booking.status === 'confirmed' ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"
+                        )}>
+                            {booking.status}
+                        </Badge>
+                    </div>
+                    <p className="text-muted-foreground font-medium">#{booking.id.slice(0, 8).toUpperCase()}</p>
                 </div>
-                {getStatusBadge(booking.status)}
+
+                <div className="flex flex-wrap gap-3">
+                    <Button variant="outline" onClick={handleGenerateInvoice} className="gap-2">
+                        <FileText className="size-4" />
+                        Invoice
+                    </Button>
+                    <Button variant="outline" onClick={handleGenerateConfirmation} className="gap-2">
+                        <CheckCircle className="size-4" />
+                        Confirmation
+                    </Button>
+                    <Button className="bg-primary hover:bg-primary/90 gap-2">
+                        <CheckCircle className="size-4" />
+                        Complete Booking
+                    </Button>
+                </div>
             </div>
 
-            {/* Admin Actions */}
-            <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-6">
-                <h2 className="font-bold text-lg flex items-center gap-2 mb-4">
-                    <AlertTriangle className="size-5 text-amber-600" />
-                    Admin Actions
-                </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* Main Details */}
+                <div className="md:col-span-2 space-y-6">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="text-lg flex items-center gap-2">
+                                <BookOpen className="size-5 text-primary" />
+                                Class Overview
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-6">
+                            <div className="grid grid-cols-2 gap-6">
+                                <div>
+                                    <Label className="text-xs text-muted-foreground uppercase tracking-wider">Class Title</Label>
+                                    <p className="font-bold text-lg">{booking.gig.title}</p>
+                                </div>
+                                <div>
+                                    <Label className="text-xs text-muted-foreground uppercase tracking-wider">Subject</Label>
+                                    <p className="font-bold text-lg capitalize">{booking.gig.subject}</p>
+                                </div>
+                            </div>
 
-                <div className="space-y-4">
-                    <Textarea
-                        placeholder="Optional: Add a note for this action (logged for records)..."
-                        value={adminNote}
-                        onChange={(e) => setAdminNote(e.target.value)}
-                        className="bg-white dark:bg-slate-900"
-                    />
+                            <div className="grid grid-cols-3 gap-6 pt-4 border-t border-border">
+                                <div>
+                                    <Label className="text-xs text-muted-foreground uppercase tracking-wider">Sessions</Label>
+                                    <p className="font-bold">{booking.total_sessions || booking.gig.total_sessions}</p>
+                                </div>
+                                <div>
+                                    <Label className="text-xs text-muted-foreground uppercase tracking-wider">Rate</Label>
+                                    <p className="font-bold text-primary">GHS {booking.gig.price}/session</p>
+                                </div>
+                                <div>
+                                    <Label className="text-xs text-muted-foreground uppercase tracking-wider">Total Value</Label>
+                                    <p className="font-black text-primary">GHS {totalPrice.toLocaleString()}</p>
+                                </div>
+                            </div>
 
-                    <div className="flex flex-wrap gap-2">
-                        {booking.status === 'pending' && (
-                            <>
-                                <Button
-                                    onClick={() => updateStatus('pending_payment')}
-                                    disabled={updating}
-                                    className="bg-blue-600 hover:bg-blue-700"
-                                >
-                                    <CheckCircle className="size-4 mr-2" />
-                                    Approve (Teacher Action)
-                                </Button>
-                                <Button
-                                    onClick={() => updateStatus('cancelled')}
-                                    disabled={updating}
-                                    variant="outline"
-                                    className="text-red-600 border-red-300"
-                                >
-                                    <XCircle className="size-4 mr-2" />
-                                    Decline
-                                </Button>
-                            </>
-                        )}
+                            <div className="pt-4 border-t border-border">
+                                <Label className="text-xs text-muted-foreground uppercase tracking-wider flex items-center gap-1">
+                                    <MapPin className="size-3" /> Location
+                                </Label>
+                                <p className="font-medium mt-1">
+                                    {booking.session_location_address || booking.parent.address || "No specific address provided"}
+                                </p>
+                            </div>
+                        </CardContent>
+                    </Card>
 
-                        {booking.status === 'pending_payment' && (
-                            <>
-                                <Button
-                                    onClick={forceConfirm}
-                                    disabled={updating}
-                                    className="bg-green-600 hover:bg-green-700"
-                                >
-                                    <DollarSign className="size-4 mr-2" />
-                                    Force Confirm (Skip Payment)
-                                </Button>
-                                <Button
-                                    onClick={() => updateStatus('cancelled')}
-                                    disabled={updating}
-                                    variant="outline"
-                                    className="text-red-600 border-red-300"
-                                >
-                                    <XCircle className="size-4 mr-2" />
-                                    Cancel
-                                </Button>
-                            </>
-                        )}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="text-lg flex items-center gap-2">
+                                <Calendar className="size-5 text-primary" />
+                                Schedule & Preferences
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-4">
+                                <div className="flex items-start gap-3">
+                                    <Calendar className="size-5 text-muted-foreground mt-0.5" />
+                                    <div>
+                                        <p className="text-sm font-bold">Start Date</p>
+                                        <p className="text-sm text-muted-foreground">
+                                            {format(new Date(booking.session_date || booking.scheduled_at), 'PPP')}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="flex items-start gap-3">
+                                    <Clock className="size-5 text-muted-foreground mt-0.5" />
+                                    <div>
+                                        <p className="text-sm font-bold">Preferred Time</p>
+                                        <p className="text-sm text-muted-foreground">{booking.preferred_time || "Not set"}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                <Label className="text-xs text-muted-foreground uppercase tracking-wider">Weekly Days</Label>
+                                <div className="flex flex-wrap gap-2 pt-1">
+                                    {booking.preferred_days?.map((day: string) => (
+                                        <Badge key={day} variant="secondary" className="font-bold">{day}</Badge>
+                                    ))}
+                                    {(!booking.preferred_days || booking.preferred_days.length === 0) && (
+                                        <span className="text-sm text-muted-foreground">No days selected</span>
+                                    )}
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
 
-                        {booking.status === 'confirmed' && (
-                            <>
-                                <Button
-                                    onClick={() => updateStatus('completed')}
-                                    disabled={updating}
-                                    className="bg-slate-600 hover:bg-slate-700"
-                                >
-                                    <CheckCircle className="size-4 mr-2" />
-                                    Mark Completed
-                                </Button>
-                                <Button
-                                    onClick={() => updateStatus('cancelled')}
-                                    disabled={updating}
-                                    variant="outline"
-                                    className="text-red-600 border-red-300"
-                                >
-                                    <XCircle className="size-4 mr-2" />
-                                    Cancel Booking
-                                </Button>
-                            </>
-                        )}
+                {/* Sidebar: Users */}
+                <div className="space-y-6">
+                    {/* Student */}
+                    <Card className="border-l-4 border-l-primary">
+                        <CardContent className="pt-6">
+                            <div className="flex items-center gap-4 mb-4">
+                                <div className="size-12 rounded-full bg-primary/10 flex items-center justify-center">
+                                    <GraduationCap className="size-6 text-primary" />
+                                </div>
+                                <div>
+                                    <p className="text-xs text-muted-foreground font-bold uppercase">Student</p>
+                                    <h4 className="font-black text-lg">{booking.student.name}</h4>
+                                    <p className="text-xs font-medium text-muted-foreground">Grade: {booking.student.grade || 'N/A'}</p>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
 
-                        {booking.status === 'cancelled' && (
-                            <Button
-                                onClick={() => updateStatus('pending')}
-                                disabled={updating}
-                                variant="outline"
-                            >
-                                <RefreshCcw className="size-4 mr-2" />
-                                Reopen Booking
+                    {/* Parent */}
+                    <Card>
+                        <CardContent className="pt-6 space-y-4">
+                            <div className="flex items-center gap-4">
+                                <div className="size-10 rounded-full bg-muted flex items-center justify-center">
+                                    <User className="size-5 text-muted-foreground" />
+                                </div>
+                                <div>
+                                    <p className="text-xs text-muted-foreground font-bold uppercase">Parent</p>
+                                    <h4 className="font-bold">{booking.parent.full_name}</h4>
+                                </div>
+                            </div>
+                            <div className="space-y-2 pt-2 border-t border-border">
+                                <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                                    <Phone className="size-3" />
+                                    {booking.parent.phone_number || "No phone"}
+                                </div>
+                                <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                                    <Mail className="size-3" />
+                                    {booking.parent.email}
+                                </div>
+                            </div>
+                            <Button variant="outline" size="sm" className="w-full gap-2 text-xs">
+                                <MessageSquare className="size-3" /> Chat with Parent
                             </Button>
-                        )}
-                    </div>
-                </div>
-            </div>
+                        </CardContent>
+                    </Card>
 
-            {/* Booking Details Grid */}
-            <div className="grid md:grid-cols-2 gap-6">
-                {/* Parent Info */}
-                <div className="bg-white dark:bg-slate-900 rounded-xl border p-6">
-                    <h3 className="font-bold mb-4 flex items-center gap-2">
-                        <User className="size-5" /> Parent
-                    </h3>
-                    <div className="space-y-2">
-                        <p className="font-medium">{booking.parent?.full_name || 'Unknown'}</p>
-                        <p className="text-sm text-muted-foreground flex items-center gap-2">
-                            <Mail className="size-4" /> {booking.parent?.email}
-                        </p>
-                        <Button variant="outline" size="sm" asChild>
-                            <Link href={getAdminHref(`/admin/users/parents/${booking.parent?.id}`)}>
-                                View Profile
-                            </Link>
-                        </Button>
-                    </div>
-                </div>
-
-                {/* Teacher Info */}
-                <div className="bg-white dark:bg-slate-900 rounded-xl border p-6">
-                    <h3 className="font-bold mb-4 flex items-center gap-2">
-                        <GraduationCap className="size-5" /> Teacher
-                    </h3>
-                    <div className="space-y-2">
-                        <p className="font-medium">{booking.teacher?.full_name || 'Unknown'}</p>
-                        <p className="text-sm text-muted-foreground flex items-center gap-2">
-                            <Mail className="size-4" /> {booking.teacher?.email}
-                        </p>
-                        <Button variant="outline" size="sm" asChild>
-                            <Link href={getAdminHref(`/admin/users/teachers/${booking.teacher?.id}`)}>
-                                View Profile
-                            </Link>
-                        </Button>
-                    </div>
-                </div>
-
-                {/* Student Info */}
-                <div className="bg-white dark:bg-slate-900 rounded-xl border p-6">
-                    <h3 className="font-bold mb-4 flex items-center gap-2">
-                        <BookOpen className="size-5" /> Student
-                    </h3>
-                    {booking.student ? (
-                        <div className="space-y-1">
-                            <p className="font-medium">{booking.student.name}</p>
-                            <p className="text-sm text-muted-foreground">
-                                Age: {calculateAge(booking.student.date_of_birth) || booking.student.age || 'N/A'} • Grade: {booking.student.grade || 'N/A'}
-                            </p>
-                        </div>
-                    ) : (
-                        <p className="text-muted-foreground">No student assigned</p>
-                    )}
-                </div>
-
-                {/* Course Info */}
-                <div className="bg-white dark:bg-slate-900 rounded-xl border p-6">
-                    <h3 className="font-bold mb-4 flex items-center gap-2">
-                        <DollarSign className="size-5" /> Pricing
-                    </h3>
-                    <div className="space-y-2">
-                        <div className="flex justify-between">
-                            <span className="text-muted-foreground">Per session</span>
-                            <span>GHS {booking.gig?.price?.toLocaleString()}</span>
-                        </div>
-                        <div className="flex justify-between">
-                            <span className="text-muted-foreground">Sessions</span>
-                            <span>{booking.total_sessions || 1}</span>
-                        </div>
-                        <hr />
-                        <div className="flex justify-between font-bold text-lg">
-                            <span>Total</span>
-                            <span className="text-primary">GHS {totalAmount.toLocaleString()}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Schedule Details */}
-            <div className="bg-white dark:bg-slate-900 rounded-xl border p-6">
-                <h3 className="font-bold mb-4 flex items-center gap-2">
-                    <Calendar className="size-5" /> Schedule
-                </h3>
-                <div className="grid sm:grid-cols-3 gap-4">
-                    <div>
-                        <p className="text-sm text-muted-foreground">Start Date</p>
-                        <p className="font-medium">
-                            {booking.session_date
-                                ? format(parseISO(booking.session_date), 'MMMM d, yyyy')
-                                : 'Not scheduled'
-                            }
-                        </p>
-                    </div>
-                    <div>
-                        <p className="text-sm text-muted-foreground">Preferred Days</p>
-                        <p className="font-medium">
-                            {booking.preferred_days?.join(', ') || 'Not specified'}
-                        </p>
-                    </div>
-                    <div>
-                        <p className="text-sm text-muted-foreground">Time</p>
-                        <p className="font-medium">
-                            {booking.preferred_time || 'Not specified'}
-                        </p>
-                    </div>
-                </div>
-                {booking.meeting_link && (
-                    <div className="mt-4 pt-4 border-t">
-                        <p className="text-sm text-muted-foreground">Meeting Link</p>
-                        <a href={booking.meeting_link} target="_blank" rel="noopener noreferrer"
-                            className="text-primary hover:underline break-all">
-                            {booking.meeting_link}
-                        </a>
-                    </div>
-                )}
-            </div>
-
-            {/* Metadata */}
-            <div className="bg-white dark:bg-slate-900 rounded-xl border p-6">
-                <h3 className="font-bold mb-4">Booking Info</h3>
-                <div className="grid sm:grid-cols-2 gap-4 text-sm">
-                    <div>
-                        <p className="text-muted-foreground">Booking ID</p>
-                        <p className="font-mono text-xs">{booking.id}</p>
-                    </div>
-                    <div>
-                        <p className="text-muted-foreground">Created</p>
-                        <p>{format(parseISO(booking.created_at), 'MMMM d, yyyy, h:mm a')}</p>
-                    </div>
+                    {/* Teacher */}
+                    <Card>
+                        <CardContent className="pt-6 space-y-4">
+                            <div className="flex items-center gap-4">
+                                <div className="size-10 rounded-full bg-primary/20 flex items-center justify-center">
+                                    <User className="size-5 text-primary" />
+                                </div>
+                                <div>
+                                    <p className="text-xs text-muted-foreground font-bold uppercase">Teacher</p>
+                                    <h4 className="font-bold">{booking.gig.teacher.full_name}</h4>
+                                </div>
+                            </div>
+                            <div className="space-y-2 pt-2 border-t border-border">
+                                <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                                    <Phone className="size-3" />
+                                    {booking.gig.teacher.phone_number || "No phone"}
+                                </div>
+                                <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                                    <Mail className="size-3" />
+                                    {booking.gig.teacher.email}
+                                </div>
+                            </div>
+                            <Button variant="outline" size="sm" className="w-full gap-2 text-xs">
+                                <MessageSquare className="size-3" /> Chat with Teacher
+                            </Button>
+                        </CardContent>
+                    </Card>
                 </div>
             </div>
         </div>

@@ -33,6 +33,12 @@ export async function createChildProfile(formData: FormData) {
     const personalDevices = formData.getAll("personal_devices") as string[]
     const studyHabits = formData.get("study_habits") as string
     
+    // Location & Mode
+    const preferredClassMode = formData.get("preferred_class_mode") as string
+    const latitude = formData.get("latitude") ? parseFloat(formData.get("latitude") as string) : null
+    const longitude = formData.get("longitude") ? parseFloat(formData.get("longitude") as string) : null
+    const address = formData.get("address") as string
+
     // Calculate age from DOB to maintain the legacy field
     const age = dob ? calculateAge(dob) : null
 
@@ -73,7 +79,11 @@ export async function createChildProfile(formData: FormData) {
                 disliked_subjects: dislikedSubjects.length > 0 ? dislikedSubjects : null,
                 spare_time_activities: spareTimeActivities || null,
                 personal_devices: personalDevices.length > 0 ? personalDevices : null,
-                study_habits: studyHabits || null
+                study_habits: studyHabits || null,
+                preferred_class_mode: preferredClassMode || null,
+                latitude: latitude,
+                longitude: longitude,
+                address: address || null
             })
 
         if (studentError) {

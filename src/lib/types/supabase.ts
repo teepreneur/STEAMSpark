@@ -29,6 +29,10 @@ export interface Database {
                     cv_url: string | null
                     id_url: string | null
                     photo_url: string | null
+                    latitude: number | null
+                    longitude: number | null
+                    address: string | null
+                    location_type: string | null
                 }
                 Insert: {
                     id: string
@@ -46,6 +50,10 @@ export interface Database {
                     cv_url?: string | null
                     id_url?: string | null
                     photo_url?: string | null
+                    latitude?: number | null
+                    longitude?: number | null
+                    address?: string | null
+                    location_type?: string | null
                 }
                 Update: {
                     id?: string
@@ -63,6 +71,10 @@ export interface Database {
                     cv_url?: string | null
                     id_url?: string | null
                     photo_url?: string | null
+                    latitude?: number | null
+                    longitude?: number | null
+                    address?: string | null
+                    location_type?: string | null
                 }
             }
             students: {
@@ -196,6 +208,9 @@ export interface Database {
                     preferred_time: string | null
                     total_sessions: number | null
                     created_at: string
+                    session_location_address: string | null
+                    session_location_lat: number | null
+                    session_location_lng: number | null
                 }
                 Insert: {
                     id?: string
@@ -209,6 +224,9 @@ export interface Database {
                     preferred_time?: string | null
                     total_sessions?: number | null
                     created_at?: string
+                    session_location_address?: string | null
+                    session_location_lat?: number | null
+                    session_location_lng?: number | null
                 }
                 Update: {
                     id?: string
@@ -222,6 +240,9 @@ export interface Database {
                     preferred_time?: string | null
                     total_sessions?: number | null
                     created_at?: string
+                    session_location_address?: string | null
+                    session_location_lat?: number | null
+                    session_location_lng?: number | null
                 }
             }
             teacher_availability: {

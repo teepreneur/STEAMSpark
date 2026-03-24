@@ -9,8 +9,10 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Logo } from "@/components/ui/logo"
-import { Bot, Code, Calculator, FlaskConical, Palette, Cog, CheckCircle2, Loader2, Sparkles, GraduationCap, Target } from "lucide-react"
+import { Bot, Code, Calculator, FlaskConical, Palette, Cog, CheckCircle2, Loader2, Sparkles, GraduationCap, Target, MapPin, Globe, Home } from "lucide-react"
 import { cn } from "@/lib/utils"
+import LocationPicker from "@/components/location-picker"
+import { Badge } from "@/components/ui/badge"
 
 const interests = [
     { id: "robotics", label: "Robotics", icon: Bot },
@@ -51,6 +53,12 @@ function OnboardingContent() {
     const [success, setSuccess] = useState(false)
     const [selectedInterests, setSelectedInterests] = useState<string[]>([])
 
+    // Location & Mode State
+    const [preferredClassMode, setPreferredClassMode] = useState<'online' | 'in_person' | null>(null)
+    const [latitude, setLatitude] = useState<number | null>(null)
+    const [longitude, setLongitude] = useState<number | null>(null)
+    const [address, setAddress] = useState("")
+
     useEffect(() => {
         if (!parentId) {
             setError("Missing onboarding link details.")
@@ -79,6 +87,12 @@ function OnboardingContent() {
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault()
+
+        if (preferredClassMode === 'in_person' && (!latitude || !longitude)) {
+            alert("Please pin your location on the map for in-person classes.")
+            return
+        }
+
         setLoading(true)
         setError(null)
 
@@ -86,6 +100,12 @@ function OnboardingContent() {
         // Add manual fields
         selectedInterests.forEach(i => formData.append('interests', i))
         formData.append('parent_id', parentId || '')
+        
+        // Add location & mode
+        if (preferredClassMode) formData.append('preferred_class_mode', preferredClassMode)
+        if (latitude) formData.append('latitude', latitude.toString())
+        if (longitude) formData.append('longitude', longitude.toString())
+        if (address) formData.append('address', address)
 
         const result = await createChildProfile(formData)
 
@@ -279,6 +299,88 @@ function OnboardingContent() {
                                 </div>
 
                                 <hr className="border-slate-100" />
+
+                                {/* Class Mode & Location */}
+                                <div className="space-y-6">
+                                    <div className="space-y-4">
+                                        <Label className="text-base font-bold text-slate-900 flex items-center gap-2">
+                                            <Sparkles className="size-5 text-primary" />
+                                            How should your child learn? *
+                                        </Label>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <button
+                                                key="online"
+                                                type="button"
+                                                onClick={() => setPreferredClassMode('online')}
+                                                className={cn(
+                                                    "p-6 rounded-2xl border-2 flex flex-col items-center gap-3 transition-all",
+                                                    preferredClassMode === 'online'
+                                                        ? "bg-primary text-white border-primary shadow-lg scale-105"
+                                                        : "bg-white border-slate-100 text-slate-600 hover:border-primary/30"
+                                                )}
+                                            >
+                                                <Globe className="size-8" />
+                                                <div className="text-center">
+                                                    <p className="font-bold">Online</p>
+                                                    <p className="text-[10px] opacity-80 uppercase font-black">Virtual Classrooms</p>
+                                                </div>
+                                            </button>
+                                            <button
+                                                key="in_person"
+                                                type="button"
+                                                onClick={() => setPreferredClassMode('in_person')}
+                                                className={cn(
+                                                    "p-6 rounded-2xl border-2 flex flex-col items-center gap-3 transition-all",
+                                                    preferredClassMode === 'in_person'
+                                                        ? "bg-primary text-white border-primary shadow-lg scale-105"
+                                                        : "bg-white border-slate-100 text-slate-600 hover:border-primary/30"
+                                                )}
+                                            >
+                                                <Home className="size-8" />
+                                                <div className="text-center">
+                                                    <p className="font-bold">In-Person</p>
+                                                    <p className="text-[10px] opacity-80 uppercase font-black">Home Tuition</p>
+                                                </div>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {preferredClassMode === 'in_person' && (
+                                        <div className="space-y-3 p-6 bg-slate-50 rounded-2xl border border-slate-100 animate-in fade-in slide-in-from-top-4 duration-300">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <Label className="text-sm font-bold flex items-center gap-2">
+                                                    <MapPin className="size-4 text-primary" />
+                                                    Set Class Location
+                                                </Label>
+                                                <Badge variant="outline" className="text-[10px] uppercase font-bold text-primary">Required</Badge>
+                                            </div>
+                                            <p className="text-xs text-muted-foreground mb-4">
+                                                Please pin the exact location where the classes will take place (e.g. your home).
+                                            </p>
+                                            <LocationPicker
+                                                onLocationSelect={(loc) => {
+                                                    setLatitude(loc.lat)
+                                                    setLongitude(loc.lng)
+                                                    setAddress(loc.address)
+                                                }}
+                                                defaultLocation={latitude && longitude ? {
+                                                    lat: latitude,
+                                                    lng: longitude,
+                                                    address: address
+                                                } : undefined}
+                                            />
+                                            {address && (
+                                                <div className="mt-4 p-3 bg-white rounded-lg border border-slate-100 flex items-start gap-3">
+                                                    <CheckCircle2 className="size-4 text-green-500 mt-0.5" />
+                                                    <div className="text-xs">
+                                                        <p className="font-bold text-slate-900">Location Selected:</p>
+                                                        <p className="text-slate-500">{address}</p>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
 
                                 {/* Goals */}
                                 <div className="space-y-6">

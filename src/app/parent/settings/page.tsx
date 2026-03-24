@@ -13,6 +13,7 @@ import { Tables } from "@/lib/types/supabase"
 import { Switch } from "@/components/ui/switch"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { cn } from "@/lib/utils"
+import LocationPicker from "@/components/location-picker"
 
 export default function ParentSettingsPage() {
     const supabase = createClient()
@@ -43,6 +44,10 @@ export default function ParentSettingsPage() {
     const [classMode, setClassMode] = useState<'online' | 'in_person' | 'hybrid'>('online')
     const [country, setCountry] = useState("")
     const [city, setCity] = useState("")
+    const [latitude, setLatitude] = useState<number | null>(null)
+    const [longitude, setLongitude] = useState<number | null>(null)
+    const [address, setAddress] = useState("")
+    const [locationType, setLocationType] = useState("home")
 
     useEffect(() => {
         async function loadData() {
@@ -70,6 +75,10 @@ export default function ParentSettingsPage() {
                     setClassMode((profileData as any).class_mode || 'online')
                     setCountry((profileData as any).country || "")
                     setCity((profileData as any).city || "")
+                    setLatitude((profileData as any).latitude || null)
+                    setLongitude((profileData as any).longitude || null)
+                    setAddress((profileData as any).address || "")
+                    setLocationType((profileData as any).location_type || "home")
                 }
 
                 // Load students
@@ -130,7 +139,11 @@ export default function ParentSettingsPage() {
                 city: city || null,
                 phone_number: phone || null,
                 whatsapp_number: whatsappSameAsPhone ? phone : whatsappNumber || null,
-                whatsapp_enabled: whatsappEnabled
+                whatsapp_enabled: whatsappEnabled,
+                latitude: latitude,
+                longitude: longitude,
+                address: address,
+                location_type: locationType
             })
             .eq('id', profile.id)
 
@@ -385,35 +398,63 @@ export default function ParentSettingsPage() {
 
                     {/* Location (shown for in_person or hybrid) */}
                     {(classMode === 'in_person' || classMode === 'hybrid') && (
-                        <div className="space-y-4 p-4 bg-muted/50 rounded-lg border border-border">
-                            <p className="text-sm font-medium flex items-center gap-2">
-                                <MapPin className="size-4 text-primary" />
-                                Your Location (for finding nearby tutors)
-                            </p>
+                        <div className="space-y-6 p-4 md:p-6 bg-muted/30 rounded-xl border border-border">
+                            <div className="flex flex-col md:flex-row justify-between gap-4">
+                                <div className="space-y-2 flex-1">
+                                    <Label className="text-base font-bold flex items-center gap-2">
+                                        <MapPin className="size-4 text-primary" />
+                                        Class Location
+                                    </Label>
+                                    <p className="text-xs text-muted-foreground">Where should the teacher meet the student?</p>
+                                    <div className="flex flex-wrap gap-2 pt-2">
+                                        {[
+                                            { id: 'home', label: '🏠 Home' },
+                                            { id: 'school', label: '🏫 School' },
+                                            { id: 'learning_center', label: '🏢 Center' },
+                                            { id: 'other', label: '📍 Other' }
+                                        ].map((type) => (
+                                            <button
+                                                key={type.id}
+                                                type="button"
+                                                onClick={() => setLocationType(type.id)}
+                                                className={cn(
+                                                    "px-3 py-1.5 rounded-full border text-xs font-semibold transition-all",
+                                                    locationType === type.id
+                                                        ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                                                        : "bg-background hover:bg-muted border-border text-muted-foreground"
+                                                )}
+                                            >
+                                                {type.label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="space-y-3">
+                                <Label className="text-sm font-medium">Pin Exact Location on Map</Label>
+                                <LocationPicker
+                                    onLocationSelect={(loc) => {
+                                        setAddress(loc.address)
+                                        setLatitude(loc.lat)
+                                        setLongitude(loc.lng)
+                                    }}
+                                    defaultLocation={latitude && longitude ? {
+                                        address: address,
+                                        lat: latitude,
+                                        lng: longitude
+                                    } : undefined}
+                                />
+                            </div>
+
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <Label>Country</Label>
-                                    <select
-                                        value={country}
-                                        onChange={(e) => setCountry(e.target.value)}
-                                        className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
-                                    >
-                                        <option value="">Select country</option>
-                                        <option value="Ghana">Ghana</option>
-                                        <option value="Nigeria">Nigeria</option>
-                                        <option value="Kenya">Kenya</option>
-                                        <option value="South Africa">South Africa</option>
-                                        <option value="United Kingdom">United Kingdom</option>
-                                        <option value="United States">United States</option>
-                                    </select>
+                                    <Input value={country} onChange={(e) => setCountry(e.target.value)} placeholder="e.g. Ghana" />
                                 </div>
                                 <div className="space-y-2">
                                     <Label>City / Town</Label>
-                                    <Input
-                                        value={city}
-                                        onChange={(e) => setCity(e.target.value)}
-                                        placeholder="e.g. Accra, Lagos, Nairobi"
-                                    />
+                                    <Input value={city} onChange={(e) => setCity(e.target.value)} placeholder="e.g. Accra" />
                                 </div>
                             </div>
                         </div>

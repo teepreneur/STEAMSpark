@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
+import LocationPicker from "@/components/location-picker"
 import { createClient } from "@/lib/supabase/client"
 import { useEffect, useState } from "react"
 import { Tables } from "@/lib/types/supabase"
@@ -44,6 +45,9 @@ export default function SettingsPage() {
     const [classMode, setClassMode] = useState<'online' | 'in_person' | 'hybrid'>('online')
     const [country, setCountry] = useState("")
     const [city, setCity] = useState("")
+    const [latitude, setLatitude] = useState<number | null>(null)
+    const [longitude, setLongitude] = useState<number | null>(null)
+    const [address, setAddress] = useState("")
 
     // Phone & WhatsApp
     const [phone, setPhone] = useState("")
@@ -84,6 +88,9 @@ export default function SettingsPage() {
                     setClassMode((data as any).class_mode || 'online')
                     setCountry((data as any).country || "")
                     setCity((data as any).city || "")
+                    setLatitude((data as any).latitude || null)
+                    setLongitude((data as any).longitude || null)
+                    setAddress((data as any).address || "")
                     setCvUrl((data as any).cv_url || null)
                     setIdUrl((data as any).id_url || null)
                     setPhotoUrl((data as any).photo_url || null)
@@ -175,6 +182,9 @@ export default function SettingsPage() {
                 class_mode: classMode,
                 country: country || null,
                 city: city || null,
+                latitude: latitude,
+                longitude: longitude,
+                address: address,
                 cv_url: cvUrl,
                 id_url: idUrl,
                 photo_url: photoUrl,
@@ -430,35 +440,36 @@ export default function SettingsPage() {
 
                             {/* Location (shown for in_person or hybrid) */}
                             {(classMode === 'in_person' || classMode === 'hybrid') && (
-                                <div className="space-y-4 p-4 bg-muted/50 rounded-lg border border-border">
+                                <div className="space-y-6 p-4 md:p-6 bg-muted/30 rounded-xl border border-border">
                                     <p className="text-sm font-medium flex items-center gap-2">
                                         <MapPin className="size-4 text-primary" />
-                                        Your Location (for matching with nearby students)
+                                        Your Base Training Location
                                     </p>
+                                    
+                                    <div className="space-y-3">
+                                        <Label className="text-sm font-medium">Pin Exact Location on Map</Label>
+                                        <LocationPicker
+                                            onLocationSelect={(loc) => {
+                                                setAddress(loc.address)
+                                                setLatitude(loc.lat)
+                                                setLongitude(loc.lng)
+                                            }}
+                                            defaultLocation={latitude && longitude ? {
+                                                address: address,
+                                                lat: latitude,
+                                                lng: longitude
+                                            } : undefined}
+                                        />
+                                    </div>
+
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div className="space-y-2">
                                             <Label>Country</Label>
-                                            <select
-                                                value={country}
-                                                onChange={(e) => setCountry(e.target.value)}
-                                                className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
-                                            >
-                                                <option value="">Select country</option>
-                                                <option value="Ghana">Ghana</option>
-                                                <option value="Nigeria">Nigeria</option>
-                                                <option value="Kenya">Kenya</option>
-                                                <option value="South Africa">South Africa</option>
-                                                <option value="United Kingdom">United Kingdom</option>
-                                                <option value="United States">United States</option>
-                                            </select>
+                                            <Input value={country} onChange={(e) => setCountry(e.target.value)} placeholder="e.g. Ghana" />
                                         </div>
                                         <div className="space-y-2">
                                             <Label>City / Town</Label>
-                                            <Input
-                                                value={city}
-                                                onChange={(e) => setCity(e.target.value)}
-                                                placeholder="e.g. Accra, Lagos, Nairobi"
-                                            />
+                                            <Input value={city} onChange={(e) => setCity(e.target.value)} placeholder="e.g. Accra" />
                                         </div>
                                     </div>
                                 </div>
