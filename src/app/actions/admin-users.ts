@@ -55,3 +55,37 @@ export async function updateUserProfile(userId: string, data: any) {
         return { error: "Failed to update profile" }
     }
 }
+
+export async function updateStudentProfile(studentId: string, data: any) {
+    if (!studentId) return { error: "Student ID is required" }
+
+    try {
+        const { error } = await supabaseAdmin
+            .from('students')
+            .update({
+                name: data.name,
+                date_of_birth: data.date_of_birth,
+                grade: data.grade,
+                preferred_class_mode: data.preferred_class_mode,
+                latitude: data.latitude,
+                longitude: data.longitude,
+                address: data.address,
+                updated_at: new Date().toISOString()
+            })
+            .eq('id', studentId)
+
+        if (error) {
+            console.error('Error updating student:', error)
+            return { error: error.message }
+        }
+
+        // We don't know the parent ID easily here without a fetch, 
+        // but we can revalidate the general paths
+        revalidatePath('/admin/users/parents')
+        
+        return { success: true }
+    } catch (e) {
+        console.error('Server error updating student:', e)
+        return { error: "Failed to update student profile" }
+    }
+}

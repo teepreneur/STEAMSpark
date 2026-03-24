@@ -20,7 +20,7 @@ import { format, parseISO } from "date-fns"
 import { useRouter } from "next/navigation"
 import { getAdminHref } from "@/lib/admin-paths"
 import LocationPicker from "@/components/location-picker"
-import { updateUserProfile } from "@/app/actions/admin-users"
+import { updateUserProfile, updateStudentProfile } from "@/app/actions/admin-users"
 
 interface Child {
     id: string
@@ -126,24 +126,13 @@ export default function ParentDetailPage({ params }: { params: Promise<{ id: str
         if (!editingChild) return
         setUpdating(true)
         
-        const { error } = await supabase
-            .from('students')
-            .update({
-                name: childEditData.name,
-                date_of_birth: childEditData.date_of_birth,
-                grade: childEditData.grade,
-                preferred_class_mode: childEditData.preferred_class_mode,
-                latitude: childEditData.latitude,
-                longitude: childEditData.longitude,
-                address: childEditData.address
-            })
-            .eq('id', editingChild.id)
+        const result = await updateStudentProfile(editingChild.id, childEditData)
 
-        if (!error) {
+        if (result.success) {
             setChildren(children.map(c => c.id === editingChild.id ? { ...c, ...childEditData } : c))
             setEditingChild(null)
         } else {
-            alert("Failed to update child profile")
+            alert(result.error || "Failed to update child profile")
         }
         setUpdating(false)
     }
