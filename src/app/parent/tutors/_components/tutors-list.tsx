@@ -38,6 +38,7 @@ export default function TutorsList({ initialGigs, parentLocation }: TutorsListPr
     const [selectedSubject, setSelectedSubject] = useState<string | null>(null)
     const [selectedClassType, setSelectedClassType] = useState<string | null>(null)
     const [groupOnly, setGroupOnly] = useState(false)
+    const [verifiedOnly, setVerifiedOnly] = useState(false)
     const [showOnlyRecommended, setShowOnlyRecommended] = useState(!!highlightedGigId)
 
     // Check if teacher is nearby (same city and country)
@@ -51,6 +52,7 @@ export default function TutorsList({ initialGigs, parentLocation }: TutorsListPr
     // Clear the gig filter
     const clearGigFilter = () => {
         setShowOnlyRecommended(false)
+        setVerifiedOnly(false)
         router.replace('/parent/tutors', { scroll: false })
     }
 
@@ -70,8 +72,9 @@ export default function TutorsList({ initialGigs, parentLocation }: TutorsListPr
             const matchesSubject = selectedSubject ? gig.subject === selectedSubject : true
             const matchesClassType = selectedClassType ? (gig as any).class_type === selectedClassType : true
             const matchesGroup = groupOnly ? ((gig as any).max_students || 1) > 1 : true
+            const matchesVerified = verifiedOnly ? !!gig.teacher?.verified_at : true
 
-            return matchesSearch && matchesSubject && matchesClassType && matchesGroup
+            return matchesSearch && matchesSubject && matchesClassType && matchesGroup && matchesVerified
         })
         // Sort: nearby teachers first for in-person/hybrid classes
         .sort((a, b) => {
@@ -216,6 +219,27 @@ export default function TutorsList({ initialGigs, parentLocation }: TutorsListPr
                             </label>
                         </div>
 
+                        {/* Verified Filter */}
+                        <div className="rounded-xl border border-border bg-white dark:bg-[#1a2632] p-4">
+                            <label className="flex items-center justify-between cursor-pointer">
+                                <div className="flex items-center gap-3">
+                                    <div className="size-5 flex items-center justify-center bg-emerald-100 text-emerald-600 rounded">
+                                        <CheckCircle2 className="size-3.5" />
+                                    </div>
+                                    <div>
+                                        <p className="text-foreground font-medium">Verified Tutors</p>
+                                        <p className="text-xs text-muted-foreground">Show only vetted educators</p>
+                                    </div>
+                                </div>
+                                <input
+                                    type="checkbox"
+                                    checked={verifiedOnly}
+                                    onChange={(e) => setVerifiedOnly(e.target.checked)}
+                                    className="size-4 rounded border-border text-primary focus:ring-primary"
+                                />
+                            </label>
+                        </div>
+
                         {/* Price Range Slider - Simplified for MVP */}
                         <div className="rounded-xl border border-border bg-white dark:bg-[#1a2632] p-5">
                             <p className="text-foreground text-base font-medium mb-4">Price Range</p>
@@ -280,65 +304,62 @@ export default function TutorsList({ initialGigs, parentLocation }: TutorsListPr
                                 const nearbyTeacher = isNearby(gig.teacher) && (classType === 'in_person' || classType === 'hybrid')
 
                                 return (
-                                    <article key={gig.id} className="flex flex-col rounded-xl border border-border bg-white dark:bg-[#1a2632] overflow-hidden shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 group">
-                                        {/* Cover Image */}
-                                        <div
-                                            className="h-32 w-full bg-cover bg-center relative"
-                                            style={{
-                                                backgroundImage: (gig as any).cover_image
-                                                    ? `url('${(gig as any).cover_image}')`
-                                                    : "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
-                                            }}
-                                        >
-                                            <div className="h-full w-full bg-gradient-to-t from-black/40 to-transparent"></div>
-                                            {/* Class Type Badge on Image */}
-                                            <div className={cn("absolute top-3 right-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold", config.color)}>
-                                                <ClassTypeIcon className="size-3.5" />
-                                                {config.label}
+                                    <article key={gig.id} className="flex flex-col rounded-xl border border-border bg-white dark:bg-[#1a2632] overflow-hidden shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 group h-full">
+                                        {/* Cover Image Part */}
+                                        <div className="relative aspect-video w-full overflow-hidden">
+                                            <img
+                                                src={gig.cover_image || "https://images.unsplash.com/photo-1509062522246-373b1eef718a?auto=format&fit=crop&q=80&w=800"}
+                                                alt={gig.title}
+                                                className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                            />
+                                            {/* Floating Badges */}
+                                            <div className="absolute top-2 left-2 flex flex-col gap-2">
+                                                {gig.teacher?.verified_at && (
+                                                    <Badge className="bg-emerald-500 text-white border-none shadow-lg px-2 py-0.5 h-6 text-[10px] items-center gap-1 font-bold">
+                                                        <CheckCircle2 className="size-3" />
+                                                        VERIFIED
+                                                    </Badge>
+                                                )}
+                                                {gig.class_type && (
+                                                    <Badge variant="secondary" className="bg-white/90 dark:bg-[#1a2632]/90 backdrop-blur-sm text-[10px] h-6 uppercase font-bold tracking-wider">
+                                                        {gig.class_type}
+                                                    </Badge>
+                                                )}
                                             </div>
-                                            {/* Group Option Badge */}
-                                            {((gig as any).max_students || 1) > 1 && (
-                                                <div className="absolute top-3 left-3 flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-semibold bg-white/90 dark:bg-black/60 text-foreground backdrop-blur-sm border border-border/50">
-                                                    <Users className="size-3" />
-                                                    +Group
-                                                </div>
-                                            )}
+                                            <div className="absolute top-2 right-2">
+                                                <Badge className="bg-black/50 backdrop-blur-md text-white border-none text-[10px] h-6">
+                                                    {gig.subject}
+                                                </Badge>
+                                            </div>
                                         </div>
 
-                                        <div className="p-5 flex flex-col gap-3 flex-1">
-                                            <div className="flex items-start gap-3">
-                                                <div className="size-12 shrink-0 overflow-hidden rounded-full bg-gray-200 border-2 border-white shadow-sm -mt-8">
-                                                    {gig.teacher?.avatar_url ? (
-                                                        <img
-                                                            alt={`Portrait of ${gig.teacher.full_name}`}
-                                                            className="h-full w-full object-cover"
-                                                            src={gig.teacher.avatar_url}
-                                                        />
-                                                    ) : (
-                                                        <div className="h-full w-full bg-primary/10 flex items-center justify-center text-primary font-bold text-lg">
-                                                            {gig.teacher?.full_name?.[0]}
+                                        <div className="p-5 flex flex-col gap-4 flex-1">
+                                            <div className="flex flex-col gap-2">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="relative shrink-0">
+                                                        <div className="size-10 rounded-full overflow-hidden bg-primary/10 border border-border">
+                                                            <img
+                                                                src={gig.teacher?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${gig.teacher?.id}`}
+                                                                alt={gig.teacher?.full_name || "Teacher"}
+                                                                className="size-full object-cover"
+                                                            />
                                                         </div>
-                                                    )}
-                                                </div>
-                                                <div className="flex-1 min-w-0 pt-1 flex items-center justify-between gap-2">
-                                                    <div className="flex items-center gap-2 min-w-0">
-                                                        <p className="text-sm font-medium text-muted-foreground truncate">{gig.teacher?.full_name || "Unknown Teacher"}</p>
-                                                        {gig.teacher?.verified_at && (
-                                                            <Badge variant="secondary" className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-none px-1.5 py-0 h-5 text-[10px] items-center gap-1 shrink-0">
-                                                                <CheckCircle2 className="size-3" />
-                                                                Verified
-                                                            </Badge>
+                                                    </div>
+                                                    <div className="flex-1 min-w-0 pt-1 flex items-center justify-between gap-2">
+                                                        <div className="flex items-center gap-2 min-w-0">
+                                                            <p className="text-sm font-medium text-muted-foreground truncate">{gig.teacher?.full_name || "Unknown Teacher"}</p>
+                                                        </div>
+                                                        {nearbyTeacher && (
+                                                            <span className="shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                                                                Near You
+                                                            </span>
                                                         )}
                                                     </div>
-                                                    {nearbyTeacher && (
-                                                        <span className="shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
-                                                            Near You
-                                                        </span>
-                                                    )}
                                                 </div>
+                                                <h3 className="font-bold text-lg leading-tight text-foreground group-hover:text-primary transition-colors line-clamp-2 min-h-[3.5rem]">
+                                                    {gig.title}
+                                                </h3>
                                             </div>
-
-                                            <h3 className="font-bold text-lg text-foreground leading-tight line-clamp-2">{gig.title}</h3>
 
                                             <p className="text-sm text-foreground/80 line-clamp-2 leading-relaxed">
                                                 {gig.description}
