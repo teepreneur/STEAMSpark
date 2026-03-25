@@ -320,17 +320,18 @@ export default function TutorsList({ initialGigs, parentLocation }: TutorsListPr
                                                         </div>
                                                     )}
                                                 </div>
-                                                <div className="flex-1 min-w-0 pt-1 flex items-center gap-2">
-                                                    <div className="flex items-center gap-1.5 min-w-0">
-                                                        <p className="text-sm text-muted-foreground truncate">{gig.teacher?.full_name || "Unknown Teacher"}</p>
+                                                <div className="flex-1 min-w-0 pt-1 flex items-center justify-between gap-2">
+                                                    <div className="flex items-center gap-2 min-w-0">
+                                                        <p className="text-sm font-medium text-muted-foreground truncate">{gig.teacher?.full_name || "Unknown Teacher"}</p>
                                                         {gig.teacher?.verified_at && (
-                                                            <div title="Verified Educator" className="shrink-0">
-                                                                <CheckCircle2 className="size-3.5 text-primary fill-primary/10" />
-                                                            </div>
+                                                            <Badge variant="secondary" className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-none px-1.5 py-0 h-5 text-[10px] items-center gap-1 shrink-0">
+                                                                <CheckCircle2 className="size-3" />
+                                                                Verified
+                                                            </Badge>
                                                         )}
                                                     </div>
                                                     {nearbyTeacher && (
-                                                        <span className="shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 ml-auto">
+                                                        <span className="shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
                                                             Near You
                                                         </span>
                                                     )}
