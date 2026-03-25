@@ -1,4 +1,4 @@
-import { Plus } from "lucide-react"
+import { Plus, AlertCircle, Clock, CheckCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { StatsGrid } from "./_components/stats-grid"
 import { QuickActions } from "./_components/quick-actions"
@@ -7,6 +7,7 @@ import { RecentInquiries } from "./_components/recent-inquiries"
 import { ActivityChart } from "./_components/activity-chart"
 import { createClient } from "@/lib/supabase/server"
 import Link from "next/link"
+import { cn } from "@/lib/utils"
 
 export default async function TeacherDashboard() {
     const supabase = await createClient()
@@ -219,8 +220,58 @@ export default async function TeacherDashboard() {
         console.error('[Teacher Dashboard] Session formatting error:', e)
     }
 
+    const isVerified = !!profile?.verified_at
+    const hasDocuments = !!(profile?.cv_url || profile?.id_url)
+    const isPending = !isVerified && hasDocuments
+
     return (
         <div className="flex flex-col gap-6">
+            {/* Verification Status Banner */}
+            {!isVerified && (
+                <div className={cn(
+                    "p-4 rounded-xl border flex items-center justify-between gap-4",
+                    isPending 
+                        ? "bg-orange-50 border-orange-200 text-orange-800" 
+                        : "bg-blue-50 border-blue-200 text-blue-800"
+                )}>
+                    <div className="flex items-center gap-3">
+                        <div className={cn(
+                            "size-10 rounded-full flex items-center justify-center shrink-0",
+                            isPending ? "bg-orange-100 text-orange-600" : "bg-blue-100 text-blue-600"
+                        )}>
+                            {isPending ? <Clock className="size-5" /> : <AlertCircle className="size-5" />}
+                        </div>
+                        <div>
+                            <p className="font-bold">
+                                {isPending ? "Verification Pending" : "Complete Your Profile"}
+                            </p>
+                            <p className="text-sm opacity-90">
+                                {isPending 
+                                    ? "Our team is reviewing your documents. We'll notify you once you're verified."
+                                    : "Upload your CV and ID to get verified and start receiving bookings from parents."
+                                }
+                            </p>
+                        </div>
+                    </div>
+                    {!isPending && (
+                        <Button size="sm" asChild className="bg-blue-600 hover:bg-blue-700 text-white shrink-0">
+                            <Link href="/teacher/settings">Upload Now</Link>
+                        </Button>
+                    )}
+                </div>
+            )}
+            {isVerified && (
+                <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 p-4 rounded-xl flex items-center gap-3">
+                    <div className="size-10 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+                        <CheckCircle className="size-5" />
+                    </div>
+                    <div>
+                        <p className="font-bold text-sm md:text-base">Verified Educator</p>
+                        <p className="text-xs md:text-sm opacity-90">Your profile is verified. Parents can see your verification badge!</p>
+                    </div>
+                </div>
+            )}
+
             {/* Header Banner */}
             <div className="w-full">
                 <div

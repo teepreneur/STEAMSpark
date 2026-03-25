@@ -120,9 +120,11 @@ export default async function TutorProfilePage({ params }: ProfilePageProps) {
                                             </div>
                                         )}
                                     </div>
-                                    <div className="absolute -bottom-2 -right-2 p-1.5 bg-green-500 rounded-lg border-2 border-card shadow-sm" title="Verified Educator">
-                                        <BadgeCheck className="size-5 text-white" />
-                                    </div>
+                                    {teacher.verified_at && (
+                                        <div className="absolute -bottom-2 -right-2 p-1.5 bg-green-500 rounded-lg border-2 border-card shadow-sm" title="Verified Educator">
+                                            <BadgeCheck className="size-5 text-white" />
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className="space-y-1 mb-4">

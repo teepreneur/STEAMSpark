@@ -33,6 +33,8 @@ export interface Database {
                     longitude: number | null
                     address: string | null
                     location_type: string | null
+                    verified_at: string | null
+                    updated_at: string | null
                 }
                 Insert: {
                     id: string
@@ -54,6 +56,8 @@ export interface Database {
                     longitude?: number | null
                     address?: string | null
                     location_type?: string | null
+                    verified_at?: string | null
+                    updated_at?: string | null
                 }
                 Update: {
                     id?: string
@@ -75,6 +79,8 @@ export interface Database {
                     longitude?: number | null
                     address?: string | null
                     location_type?: string | null
+                    verified_at?: string | null
+                    updated_at?: string | null
                 }
             }
             students: {

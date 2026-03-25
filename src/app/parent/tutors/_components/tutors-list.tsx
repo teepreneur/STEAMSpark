@@ -321,9 +321,16 @@ export default function TutorsList({ initialGigs, parentLocation }: TutorsListPr
                                                     )}
                                                 </div>
                                                 <div className="flex-1 min-w-0 pt-1 flex items-center gap-2">
-                                                    <p className="text-sm text-muted-foreground truncate">{gig.teacher?.full_name || "Unknown Teacher"}</p>
+                                                    <div className="flex items-center gap-1.5 min-w-0">
+                                                        <p className="text-sm text-muted-foreground truncate">{gig.teacher?.full_name || "Unknown Teacher"}</p>
+                                                        {gig.teacher?.verified_at && (
+                                                            <div title="Verified Educator" className="shrink-0">
+                                                                <CheckCircle2 className="size-3.5 text-primary fill-primary/10" />
+                                                            </div>
+                                                        )}
+                                                    </div>
                                                     {nearbyTeacher && (
-                                                        <span className="shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                                                        <span className="shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 ml-auto">
                                                             Near You
                                                         </span>
                                                     )}
